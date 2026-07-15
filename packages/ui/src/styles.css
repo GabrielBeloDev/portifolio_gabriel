@@ -255,7 +255,14 @@
   background: var(--accent-soft);
 }
 
-/* Dual theme: Shiki emits inline light colors + --shiki-dark vars */
-.dark [data-rehype-pretty-code-figure] span[style] {
+/* Dual theme, two emitters: rehype-pretty-code sets only --shiki-* vars;
+   raw shiki (NowBlock) sets an inline light color + --shiki-dark. The base
+   rule loses to inline styles by specificity, which is exactly what raw
+   shiki needs; !important lets dark win over the inline color. */
+[data-rehype-pretty-code-figure] code span[style] {
+  color: var(--shiki-light);
+}
+
+.dark [data-rehype-pretty-code-figure] code span[style] {
   color: var(--shiki-dark) !important;
 }

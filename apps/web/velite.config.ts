@@ -60,7 +60,7 @@ export default defineConfig({
       [
         rehypePrettyCode,
         {
-          themes: { light: amberPaper, dark: amberInk },
+          theme: { light: amberPaper, dark: amberInk },
           keepBackground: false,
           defaultLang: "txt",
         },
