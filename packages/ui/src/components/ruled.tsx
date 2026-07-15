@@ -1,10 +1,6 @@
 import { cn } from "../lib/cn";
 
-/**
- * The site's signature element (ADR-0004): a code-editor-style line-number
- * gutter that numbers page sections via pure CSS counters. Styles live in
- * styles.css under `.ruled-*`.
- */
+// Section numbers come from CSS counters in styles.css (.ruled-*), not props
 export function RuledPage({ className, ...props }: React.ComponentProps<"div">) {
   return <div className={cn("ruled-page", className)} {...props} />;
 }

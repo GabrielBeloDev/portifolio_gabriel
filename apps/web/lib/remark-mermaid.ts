@@ -2,8 +2,7 @@ import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
 
-/** Turns ```mermaid fenced blocks into <Mermaid chart="..."/> before the
- *  syntax highlighter runs, so diagrams render as diagrams, not code. */
+// Must run before the syntax highlighter, or mermaid fences render as code
 export function remarkMermaid() {
   return (tree: Root) => {
     visit(tree, "code", (node, index, parent) => {

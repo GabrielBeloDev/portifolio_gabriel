@@ -1,6 +1,5 @@
 import type { ThemeRegistration } from "shiki";
 
-/** Light counterpart of amber-ink: same roles, contrast-checked on paper. */
 export const amberPaper: ThemeRegistration = {
   name: "amber-paper",
   type: "light",

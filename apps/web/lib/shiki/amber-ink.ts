@@ -1,7 +1,5 @@
 import type { ThemeRegistration } from "shiki";
 
-/** Dark syntax theme derived from the site palette (ADR-0004): warm ink,
- *  amber keywords, one cool blue for types to balance the heat. */
 export const amberInk: ThemeRegistration = {
   name: "amber-ink",
   type: "dark",

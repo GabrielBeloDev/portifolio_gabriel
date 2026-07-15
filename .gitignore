@@ -19,9 +19,12 @@ test-results/
 !.env.example
 .vercel/
 
-# local-only (issue tracker local e memória de sessão)
+# local-only: documentação interna nunca vai pro repo público
 .scratch/
 .remember/
+docs/
+CONTEXT.md
+CLAUDE.md
 
 # os
 .DS_Store

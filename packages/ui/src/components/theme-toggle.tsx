@@ -14,7 +14,8 @@ const THEME_OPTIONS = [
 
 const emptySubscribe = () => () => {};
 
-// False during SSR/hydration, true after — without effects or extra renders
+// next-themes only knows the real theme after hydration; marking the active
+// option during SSR would mismatch — so it renders unmarked until mounted
 function useMounted(): boolean {
   return useSyncExternalStore(
     emptySubscribe,
@@ -25,7 +26,6 @@ function useMounted(): boolean {
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
-  // Theme is unknown until the client mounts; render the active check only after
   const mounted = useMounted();
 
   return (

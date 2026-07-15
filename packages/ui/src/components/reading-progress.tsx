@@ -3,11 +3,7 @@
 import { useEffect, useRef } from "react";
 import { cn } from "../lib/cn";
 
-/**
- * Amber reading-progress line drawn over the page rule (post variant of the
- * gutter signature). Writes height directly to the DOM via rAF to avoid
- * re-rendering on every scroll event.
- */
+// Writes height straight to the DOM via rAF — setState here would re-render on every scroll
 export function ReadingProgress({ className }: { className?: string }) {
   const barRef = useRef<HTMLDivElement>(null);
 
