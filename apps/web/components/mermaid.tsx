@@ -71,6 +71,8 @@ export function Mermaid({ chart }: { chart: string }) {
 
   return (
     <figure
+      role="img"
+      aria-label="Diagrama"
       className="mermaid-diagram my-6 flex justify-center overflow-x-auto rounded-md border border-line bg-surface p-4"
       // SECURITY BOUNDARY: `chart` is authored in this repo's MDX (build-time,
       // not user input) and mermaid runs with securityLevel "strict", which

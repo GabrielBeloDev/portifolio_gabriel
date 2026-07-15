@@ -1,9 +1,8 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Check, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
 import { cn } from "../lib/cn";
 
 const THEME_OPTIONS = [
@@ -12,21 +11,9 @@ const THEME_OPTIONS = [
   { value: "system", label: "system", icon: Monitor },
 ] as const;
 
-const emptySubscribe = () => () => {};
-
-// next-themes only knows the real theme after hydration; marking the active
-// option during SSR would mismatch — so it renders unmarked until mounted
-function useMounted(): boolean {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
-}
-
 export function ThemeToggle({ className }: { className?: string }) {
+  // The menu only opens after hydration, so `theme` is always defined inside it
   const { theme, setTheme } = useTheme();
-  const mounted = useMounted();
 
   return (
     <DropdownMenu.Root>
@@ -44,24 +31,23 @@ export function ThemeToggle({ className }: { className?: string }) {
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className="z-50 min-w-28 rounded-md border border-line bg-surface p-1 shadow-sm"
+          className="z-50 min-w-32 rounded-md border border-line bg-surface p-1 shadow-sm"
         >
-          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
-            const isActive = mounted && theme === value;
-            return (
-              <DropdownMenu.Item
+          <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
+            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <DropdownMenu.RadioItem
                 key={value}
-                onSelect={() => setTheme(value)}
-                className={cn(
-                  "flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 font-mono text-xs outline-none select-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-foreground",
-                  isActive ? "text-accent" : "text-muted",
-                )}
+                value={value}
+                className="flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 font-mono text-xs text-muted outline-none select-none data-[highlighted]:bg-accent-soft data-[highlighted]:text-foreground data-[state=checked]:text-accent"
               >
                 <Icon aria-hidden className="size-3.5" />
                 {label}
-              </DropdownMenu.Item>
-            );
-          })}
+                <DropdownMenu.ItemIndicator className="ml-auto">
+                  <Check aria-hidden className="size-3" />
+                </DropdownMenu.ItemIndicator>
+              </DropdownMenu.RadioItem>
+            ))}
+          </DropdownMenu.RadioGroup>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

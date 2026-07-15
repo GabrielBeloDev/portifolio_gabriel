@@ -28,6 +28,7 @@ export default function ProjectsPage() {
                 key={project.slug}
                 project={project}
                 studySlug={findCaseStudyForProject(project.slug)?.slug}
+                headingLevel="h2"
               />
             ))}
           </div>

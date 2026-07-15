@@ -53,6 +53,20 @@ const caseStudies = defineCollection({
 export default defineConfig({
   root: "content",
   collections: { posts, projects, caseStudies },
+  // Referential integrity at build time: a case study pointing at a project
+  // that was renamed or removed must fail loudly, not silently drop its link
+  prepare: ({ projects, caseStudies }) => {
+    const projectSlugs = new Set(projects.map((project) => project.slug));
+    const orphans = caseStudies.filter(
+      (study) => study.projectSlug && !projectSlugs.has(study.projectSlug),
+    );
+    if (orphans.length > 0) {
+      const list = orphans
+        .map((study) => `${study.slug} → ${study.projectSlug}`)
+        .join(", ");
+      throw new Error(`Case studies com projectSlug órfão: ${list}`);
+    }
+  },
   mdx: {
     remarkPlugins: [remarkMermaid],
     rehypePlugins: [

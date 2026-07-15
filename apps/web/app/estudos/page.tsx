@@ -27,6 +27,7 @@ export default function CaseStudiesPage() {
               title={study.title}
               date={study.date}
               summary={study.summary}
+              headingLevel="h2"
             />
           ))}
         </ul>

@@ -24,7 +24,7 @@ export const amberPaper: ThemeRegistration = {
         "storage.modifier",
         "keyword.operator.new",
       ],
-      settings: { foreground: "#b4690e" },
+      settings: { foreground: "#a05c08" },
     },
     {
       scope: [
@@ -67,7 +67,7 @@ export const amberPaper: ThemeRegistration = {
     },
     {
       scope: ["entity.name.tag"],
-      settings: { foreground: "#b4690e" },
+      settings: { foreground: "#a05c08" },
     },
     {
       scope: ["entity.other.attribute-name"],

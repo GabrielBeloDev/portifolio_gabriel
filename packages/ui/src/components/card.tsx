@@ -12,9 +12,13 @@ export function Card({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-export function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
+type CardTitleProps = React.ComponentProps<"h3"> & {
+  as?: "h2" | "h3";
+};
+
+export function CardTitle({ className, as: Tag = "h3", ...props }: CardTitleProps) {
   return (
-    <h3
+    <Tag
       className={cn("text-base leading-snug font-semibold", className)}
       {...props}
     />

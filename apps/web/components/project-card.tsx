@@ -9,14 +9,16 @@ const externalLinkClasses =
 export function ProjectCard({
   project,
   studySlug,
+  headingLevel = "h3",
 }: {
   project: Project;
   studySlug?: string;
+  headingLevel?: "h2" | "h3";
 }) {
   return (
     <Card className="flex flex-col gap-3 transition-colors hover:border-accent">
       <div>
-        <CardTitle>{project.title}</CardTitle>
+        <CardTitle as={headingLevel}>{project.title}</CardTitle>
         <CardDescription>{project.summary}</CardDescription>
       </div>
       <div className="flex flex-wrap gap-1.5">
