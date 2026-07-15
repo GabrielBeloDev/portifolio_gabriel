@@ -16,4 +16,15 @@ export * from "./schema";
 
 // Consumers must get query operators from this package, not from their own
 // drizzle-orm copy — pnpm peer variants create nominally incompatible types
-export { and, asc, desc, eq, gte, isNull, sql } from "drizzle-orm";
+export {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";

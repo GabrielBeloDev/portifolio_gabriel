@@ -53,4 +53,16 @@ describe("buildCommentTree", () => {
 
     expect(tree.map((node) => node.id)).toEqual(["a", "b"]);
   });
+
+  it("attaches like counts and viewer state, defaulting to zero", () => {
+    const rows = [baseRow({ id: "a" }), baseRow({ id: "b" })];
+
+    const tree = buildCommentTree(rows, {
+      counts: new Map([["a", 3]]),
+      liked: new Set(["a"]),
+    });
+
+    expect(tree[0]?.likes).toEqual({ count: 3, liked: true });
+    expect(tree[1]?.likes).toEqual({ count: 0, liked: false });
+  });
 });

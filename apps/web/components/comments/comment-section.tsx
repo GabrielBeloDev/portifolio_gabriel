@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { CommentNode } from "@/lib/comment-tree";
+import type { CommentNode, LikeState } from "@/lib/comment-tree";
 import { CommentForm } from "./comment-form";
 import { CommentItem } from "./comment-item";
+import { LikeButton } from "./like-button";
 
 export type Viewer = { id: string; isAdmin: boolean } | null;
 
 type CommentsPayload = {
   comments: CommentNode[];
+  postLikes: LikeState;
   viewer: Viewer;
 };
 
@@ -54,9 +56,21 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
 
   return (
     <section aria-label="comentários" className="mt-16 border-t border-line pt-8">
-      <h2 className="font-mono text-sm font-medium tracking-widest text-muted uppercase">
-        comentários{payload ? ` (${countComments(payload.comments)})` : ""}
-      </h2>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-mono text-sm font-medium tracking-widest text-muted uppercase">
+          comentários{payload ? ` (${countComments(payload.comments)})` : ""}
+        </h2>
+        {payload && (
+          <LikeButton
+            key={`post-${payload.postLikes.count}-${payload.postLikes.liked}`}
+            targetType="post"
+            targetId={postSlug}
+            initialCount={payload.postLikes.count}
+            initialLiked={payload.postLikes.liked}
+            signedIn={payload.viewer !== null}
+          />
+        )}
+      </div>
 
       {failed && (
         <p className="mt-6 font-mono text-xs text-muted">
