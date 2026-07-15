@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, ReadingProgress } from "@gabriel/ui";
+import { CommentSection } from "@/components/comments/comment-section";
 import { MDXContent } from "@/components/mdx";
 import { findPost, publishedPosts } from "@/lib/content";
 import { formatDate } from "@/lib/format";
@@ -58,6 +59,7 @@ export default async function PostPage({
             <MDXContent code={post.code} />
           </div>
         </article>
+        <CommentSection postSlug={post.slug} />
         <footer className="mt-14">
           <Link
             href="/blog"

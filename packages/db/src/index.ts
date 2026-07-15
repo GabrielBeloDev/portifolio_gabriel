@@ -13,3 +13,7 @@ export function createDb(databaseUrl: string): Database {
 
 export * from "./auth-schema";
 export * from "./schema";
+
+// Consumers must get query operators from this package, not from their own
+// drizzle-orm copy — pnpm peer variants create nominally incompatible types
+export { and, asc, desc, eq, gte, isNull, sql } from "drizzle-orm";
