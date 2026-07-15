@@ -1,4 +1,8 @@
 import { defineConfig } from "@playwright/test";
+import { config } from "dotenv";
+
+// DB-backed specs (E2E_WITH_DB=1) talk to Postgres directly for setup/cleanup
+config({ path: [".env.local", ".env"] });
 
 const PORT = 3901;
 

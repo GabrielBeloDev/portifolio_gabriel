@@ -36,6 +36,27 @@ export const comment = pgTable(
   ],
 );
 
+export const draft = pgTable(
+  "draft",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    authorId: text("author_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // Permissive on purpose: autosave must never lose text, so validation
+    // only gates publishing (ADR-0007), not saving
+    title: text("title").notNull().default(""),
+    slug: text("slug").notNull().default(""),
+    summary: text("summary").notNull().default(""),
+    tags: text("tags").notNull().default(""),
+    body: text("body").notNull().default(""),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("draft_author_id_idx").on(table.authorId)],
+);
+
 export const like = pgTable(
   "like",
   {
