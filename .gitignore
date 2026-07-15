@@ -5,6 +5,7 @@ node_modules/
 .next/
 .turbo/
 .velite/
+apps/web/public/static/
 dist/
 *.tsbuildinfo
 

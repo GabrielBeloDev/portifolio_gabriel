@@ -1,0 +1,9 @@
+title: Este site
+summary: Portfólio + blog em monorepo — design system próprio, conteúdo MDX tipado e uma régua de números de linha como assinatura visual.
+stack:
+  - Next.js
+  - TypeScript
+  - Tailwind v4
+  - Turborepo
+repo: https://github.com/GabrielBeloDev/portifolio_gabriel
+order: 1
