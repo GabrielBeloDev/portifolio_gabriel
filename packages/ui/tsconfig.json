@@ -1,5 +1,5 @@
 {
   "extends": "@gabriel/config/typescript/react-library",
-  "include": ["src"],
+  "include": ["src", "vitest.setup.ts", "vitest.config.ts"],
   "exclude": ["node_modules"]
 }
