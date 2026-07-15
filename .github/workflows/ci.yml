@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+# Build-time only: next build evaluates route modules, which parse the typed
+# env. No connection is ever opened in CI.
+env:
+  DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci"
+  BETTER_AUTH_SECRET: "ci-only-secret-ci-only-secret-ci-only-secret"
+
 jobs:
   quality:
     runs-on: ubuntu-latest

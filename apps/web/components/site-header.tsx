@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "@gabriel/ui";
+import { UserMenu } from "@/components/user-menu";
 
 const NAV_LINKS = [
   { href: "/blog", label: "escritos" },
@@ -28,6 +29,7 @@ export function SiteHeader() {
               {label}
             </Link>
           ))}
+          <UserMenu />
           <ThemeToggle />
         </nav>
       </div>
