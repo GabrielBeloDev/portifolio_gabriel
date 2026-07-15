@@ -1,9 +1,5 @@
-import rehypePrettyCode from "rehype-pretty-code";
-import rehypeSlug from "rehype-slug";
 import { defineCollection, defineConfig, s } from "velite";
-import { remarkMermaid } from "./lib/remark-mermaid";
-import { amberInk } from "./lib/shiki/amber-ink";
-import { amberPaper } from "./lib/shiki/amber-paper";
+import { rehypePlugins, remarkPlugins } from "./lib/mdx-pipeline";
 
 const posts = defineCollection({
   name: "Post",
@@ -68,17 +64,7 @@ export default defineConfig({
     }
   },
   mdx: {
-    remarkPlugins: [remarkMermaid],
-    rehypePlugins: [
-      rehypeSlug,
-      [
-        rehypePrettyCode,
-        {
-          theme: { light: amberPaper, dark: amberInk },
-          keepBackground: false,
-          defaultLang: "txt",
-        },
-      ],
-    ],
+    remarkPlugins,
+    rehypePlugins,
   },
 });

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RuledPage, RuledSection } from "@gabriel/ui";
 import { auth } from "@/lib/auth";
@@ -21,7 +22,15 @@ export default async function AdminPage() {
       <RuledSection>
         <h1 className="text-3xl font-semibold">admin</h1>
         <p className="mt-3 max-w-prose text-muted">
-          Olá, {session.user.name}. O editor de posts chega aqui em breve.
+          Olá, {session.user.name}.
+        </p>
+        <p className="mt-6">
+          <Link
+            href="/admin/editor"
+            className="font-mono text-xs text-accent hover:underline"
+          >
+            drafts & editor →
+          </Link>
         </p>
       </RuledSection>
     </RuledPage>
