@@ -1,0 +1,28 @@
+---
+title: "ADRs num projeto solo: documentar o porquê"
+date: 2026-07-15
+summary: "Registro de decisão de arquitetura parece coisa de empresa grande. Comecei a usar num projeto de uma pessoa só e o beneficiado sou eu daqui a seis meses."
+tags: ["arquitetura", "processo"]
+---
+
+Antes de escrever a primeira linha deste site, escrevi cinco documentos. Parece burocracia — não é. É o contrário: cada um tem menos de vinte linhas e me pouparam de re-discutir comigo mesmo decisões que já tinham sido tomadas.
+
+Um ADR (*Architecture Decision Record*) responde três perguntas: qual era o contexto, o que foi decidido, e por quê. Só isso.
+
+```md title="0002-nextjs-app-router.md"
+# Next.js (App Router) como framework do apps/web
+
+Escolhemos Next.js em vez de Astro porque o objetivo primário
+é sinalizar competência pra vagas em times de produto — e com
+RSC a vantagem de perf do Astro encolheu.
+```
+
+A regra que uso pra decidir se algo merece ADR: precisa passar em **três testes ao mesmo tempo**.
+
+1. **Difícil de reverter** — trocar depois custa caro.
+2. **Surpreendente sem contexto** — alguém (eu, no futuro) vai olhar e perguntar "por que diabos fizeram assim?".
+3. **Fruto de trade-off real** — existia alternativa séria e a rejeição teve motivo.
+
+Se falha em qualquer um dos três, não vira ADR. Decisão fácil de reverter a gente simplesmente reverte; decisão óbvia ninguém questiona.
+
+Num time, ADR evita retrabalho de discussão. Num projeto solo, o "time" é você em momentos diferentes da vida — e o você de daqui seis meses não lembra do trade-off que o você de hoje pesou com cuidado. Documentar o porquê é mandar uma carta pra ele.

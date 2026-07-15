@@ -225,11 +225,13 @@
   line-height: 1.7;
 }
 
-[data-rehype-pretty-code-title] + pre {
+[data-rehype-pretty-code-title] + pre,
+[data-rehype-pretty-code-title] + div pre {
   border-top-left-radius: 0;
 }
 
-[data-rehype-pretty-code-figure] pre [data-line] {
+[data-rehype-pretty-code-figure] pre [data-line],
+[data-rehype-pretty-code-figure] pre .line {
   padding-inline: 1rem;
 }
 
