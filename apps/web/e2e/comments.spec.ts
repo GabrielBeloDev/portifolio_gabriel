@@ -29,6 +29,23 @@ test.describe("comentários", () => {
     await page.getByRole("button", { name: "comentar" }).click();
     await expect(page.getByText("comentário raiz e2e")).toBeVisible();
 
+    const postLike = page.getByRole("button", { name: "curtir post" });
+    await postLike.click();
+    await expect(postLike).toHaveText("1");
+    await expect(postLike).toHaveAttribute("aria-pressed", "true");
+
+    const commentLike = page
+      .getByRole("button", { name: "curtir comentário" })
+      .first();
+    await commentLike.click();
+    await expect(commentLike).toHaveText("1");
+
+    // Reload proves persistence beyond the optimistic state
+    await page.reload();
+    await expect(
+      page.getByRole("button", { name: "curtir post" }),
+    ).toHaveAttribute("aria-pressed", "true");
+
     // Same-author cooldown between comments is 15s by design
     await page.waitForTimeout(15_500);
 

@@ -8,6 +8,16 @@ export type CommentRow = {
   deletedAt: Date | null;
 };
 
+export type LikeState = {
+  count: number;
+  liked: boolean;
+};
+
+export type CommentLikes = {
+  counts: Map<string, number>;
+  liked: Set<string>;
+};
+
 export type CommentNode = {
   id: string;
   parentId: string | null;
@@ -16,12 +26,13 @@ export type CommentNode = {
   body: string | null;
   createdAt: string;
   deleted: boolean;
+  likes: LikeState;
   replies: CommentNode[];
 };
 
 // Reddit-style soft delete: a removed comment keeps its slot in the tree but
 // loses body and author, so replies below it stay attached and readable
-function toNode(row: CommentRow): CommentNode {
+function toNode(row: CommentRow, likes?: CommentLikes): CommentNode {
   const deleted = row.deletedAt !== null;
   return {
     id: row.id,
@@ -31,14 +42,21 @@ function toNode(row: CommentRow): CommentNode {
     body: deleted ? null : row.body,
     createdAt: row.createdAt.toISOString(),
     deleted,
+    likes: {
+      count: likes?.counts.get(row.id) ?? 0,
+      liked: likes?.liked.has(row.id) ?? false,
+    },
     replies: [],
   };
 }
 
-export function buildCommentTree(rows: CommentRow[]): CommentNode[] {
+export function buildCommentTree(
+  rows: CommentRow[],
+  likes?: CommentLikes,
+): CommentNode[] {
   const nodesById = new Map<string, CommentNode>();
   for (const row of rows) {
-    nodesById.set(row.id, toNode(row));
+    nodesById.set(row.id, toNode(row, likes));
   }
 
   const roots: CommentNode[] = [];

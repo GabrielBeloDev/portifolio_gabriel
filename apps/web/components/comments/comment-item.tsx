@@ -6,6 +6,7 @@ import { deleteComment } from "@/lib/actions/comments";
 import { formatDate } from "@/lib/format";
 import { CommentForm } from "./comment-form";
 import type { Viewer } from "./comment-section";
+import { LikeButton } from "./like-button";
 
 // Beyond this depth the thread collapses behind "continuar thread →",
 // otherwise mobile indentation squeezes text into a sliver (Reddit does the same)
@@ -59,6 +60,16 @@ export function CommentItem({
         <time dateTime={node.createdAt} className="text-muted">
           {formatDate(node.createdAt)}
         </time>
+        {!node.deleted && (
+          <LikeButton
+            key={`comment-${node.id}-${node.likes.count}-${node.likes.liked}`}
+            targetType="comment"
+            targetId={node.id}
+            initialCount={node.likes.count}
+            initialLiked={node.likes.liked}
+            signedIn={viewer !== null}
+          />
+        )}
         {!node.deleted && viewer && (
           <button
             type="button"
