@@ -8,6 +8,7 @@ import {
   uuid,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
+import { user } from "./auth-schema";
 
 export const likeTargetType = pgEnum("like_target_type", ["post", "comment"]);
 
@@ -16,8 +17,11 @@ export const comment = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     postSlug: text("post_slug").notNull(),
-    // FK to the Better Auth user table lands with the auth schema (#21)
-    authorId: text("author_id").notNull(),
+    // No cascade: deleting a mid-thread author's rows would orphan replies;
+    // account deletion flow is deliberately unresolved until it exists
+    authorId: text("author_id")
+      .notNull()
+      .references(() => user.id),
     parentId: uuid("parent_id").references((): AnyPgColumn => comment.id),
     body: text("body").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -36,7 +40,9 @@ export const like = pgTable(
   "like",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    readerId: text("reader_id").notNull(),
+    readerId: text("reader_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     targetType: likeTargetType("target_type").notNull(),
     targetId: text("target_id").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
