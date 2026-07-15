@@ -33,7 +33,7 @@ test("estudo independente não mostra bloco de projeto", async ({ page }) => {
 test("theme toggle alterna para dark", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Trocar tema" }).click();
-  await page.getByRole("menuitem", { name: /dark/ }).click();
+  await page.getByRole("menuitemradio", { name: /dark/ }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
 });
 
