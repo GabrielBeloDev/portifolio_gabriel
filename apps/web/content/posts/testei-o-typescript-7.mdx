@@ -1,0 +1,45 @@
+---
+title: "Testei o TypeScript 7 (Go) num monorepo Next real"
+date: 2026-07-15
+summary: "O typecheck ficou 2.4× mais rápido e nenhum tipo quebrou — mas o build do Next ainda não conversa com o compilador novo. Números e o critério que usei pra decidir voltar."
+tags: ["typescript", "tooling"]
+draft: true
+---
+
+O TypeScript 7 é a reescrita do compilador em Go — promessa de ~10× em projetos
+grandes. Rodei o experimento neste monorepo (3 pacotes, Next 16) com um critério
+combinado de antemão: **qualquer quebra sem workaround de uma linha e eu volto pro 5.9**.
+
+## Os números
+
+Typecheck (`tsc --noEmit`), melhor de cada rodada:
+
+| pacote | TS 5.9.3 | TS 7.0.2 | delta |
+| --- | --- | --- | --- |
+| packages/db | 0.40s | 1.35s | 3.4× pior |
+| packages/ui | 0.91s | 0.39s | 2.3× melhor |
+| apps/web | 1.22s | 0.50s | 2.4× melhor |
+
+Dois aprendizados nos números: o ganho aparece em projeto com *volume* (o db, minúsculo,
+paga o overhead de startup do binário e sai perdendo), e **zero erros novos de tipo** —
+a compatibilidade de checagem está impressionante.
+
+## Onde quebrou
+
+1. **`next build` morre**: `The "id" argument must be of type string. Received undefined`.
+   O typecheck interno do Next usa a API programática do compilador — que o binário Go
+   ainda não expõe do mesmo jeito. Dava pra "contornar" com `ignoreBuildErrors: true`,
+   mas desligar type-safety do build pra adotar um compilador mais rápido é trocar o
+   almoço pela fome.
+2. **typescript-eslint** declara `peerDependencies: typescript <6.1` — funciona com
+   warning, mas é aviso de território não suportado.
+
+## A decisão
+
+Critério aplicado: voltei pro 5.9.3. O experimento fica registrado e barato de repetir —
+quando o Next aceitar o compilador novo, são três `pnpm add -D typescript@7` e uma
+rodada de build pra confirmar.
+
+A parte que fica: decidir **antes** qual evidência muda a decisão transforma "testar o
+brinquedo novo" em engenharia — vinte minutos de experimento, resposta definitiva, zero
+dano ao projeto.
