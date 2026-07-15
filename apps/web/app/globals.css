@@ -1,0 +1,73 @@
+@import "tailwindcss";
+@source "../../../packages/ui/src";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ADR-0004 — "caderno de laboratório de engenharia"
+   Tinta/papel + acento âmbar de sinal. Dark e light são cidadãos de primeira classe. */
+:root {
+  --background: #f6f5f2;
+  --foreground: #1a1d21;
+  --muted: #6b665e;
+  --surface: #fdfcfa;
+  --line: #e3e1db;
+  --accent: #b4690e;
+  --accent-soft: #f0e2cb;
+  --code-bg: #fbfaf7;
+}
+
+.dark {
+  --background: #0e1116;
+  --foreground: #e6e1d8;
+  --muted: #9c968b;
+  --surface: #151a21;
+  --line: #2a2f37;
+  --accent: #ffb020;
+  --accent-soft: #2a2214;
+  --code-bg: #0b0e12;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-code: var(--code-bg);
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
+  --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--background);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}

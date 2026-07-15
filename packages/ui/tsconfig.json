@@ -1,0 +1,5 @@
+{
+  "extends": "@gabriel/config/typescript/react-library",
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
