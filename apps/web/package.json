@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@gabriel/config": "workspace:*",
+    "@neondatabase/serverless": "^1.1.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.3.2",
     "@types/mdast": "^4.0.4",
