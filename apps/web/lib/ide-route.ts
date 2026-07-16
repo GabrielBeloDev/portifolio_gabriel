@@ -19,14 +19,6 @@ export const ROUTE_FILES = {
   "/entrar": { href: "/entrar", label: "auth.config", icon: "⚙" },
 } as const satisfies Record<string, IdeFile>;
 
-const BASE_TAB_ROUTES = [
-  "/",
-  "/blog",
-  "/projects",
-  "/estudos",
-  "/sobre",
-] as const;
-
 const CONTENT_ROUTE = /^\/(blog|estudos)\/([^/]+)$/;
 
 function isKnownRoute(pathname: string): pathname is keyof typeof ROUTE_FILES {
@@ -45,13 +37,12 @@ export function ideCrumb(pathname: string): string {
   return pathname.replace(/^\//, "");
 }
 
-export function ideTabs(pathname: string): IdeTab[] {
-  const baseTabs = BASE_TAB_ROUTES.map((route) => ({
-    ...ROUTE_FILES[route],
-    modified: false,
-  }));
-  const deepTab = deriveDeepTab(pathname);
-  return deepTab ? [...baseTabs, deepTab] : baseTabs;
+// The tab descriptor a pathname opens in the session tab strip
+export function routeTab(pathname: string): IdeTab | null {
+  if (isKnownRoute(pathname)) {
+    return { ...ROUTE_FILES[pathname], modified: false };
+  }
+  return deriveDeepTab(pathname);
 }
 
 function deriveDeepTab(pathname: string): IdeTab | null {

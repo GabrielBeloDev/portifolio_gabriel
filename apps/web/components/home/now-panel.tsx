@@ -1,7 +1,17 @@
 const NOW_ENTRIES = [
-  { label: "construindo", value: "este site" },
-  { label: "aprendendo", value: "Kubernetes · Terraform" },
-  { label: "escrevendo", value: "o pipeline deste blog" },
+  {
+    label: "construindo",
+    value: "este site — cada feature nova vira um post no blog",
+  },
+  {
+    label: "aprendendo",
+    value:
+      "Kubernetes e Terraform — a meta é migrar este site pra um cluster meu",
+  },
+  {
+    label: "escrevendo",
+    value: "“o pipeline deste blog”",
+  },
 ] as const;
 
 export function NowPanel() {
@@ -14,14 +24,11 @@ export function NowPanel() {
         />
         agora
       </h2>
-      <dl>
+      <dl className="space-y-3">
         {NOW_ENTRIES.map((entry) => (
-          <div
-            key={entry.label}
-            className="flex justify-between gap-4 py-[5px] text-sm"
-          >
-            <dt className="text-muted-2">{entry.label}</dt>
-            <dd className="text-right">{entry.value}</dd>
+          <div key={entry.label}>
+            <dt className="font-mono text-xs text-muted-2">{entry.label}</dt>
+            <dd className="mt-0.5 text-sm leading-relaxed">{entry.value}</dd>
           </div>
         ))}
       </dl>

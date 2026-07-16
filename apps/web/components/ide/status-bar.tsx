@@ -2,8 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { ideCrumb } from "@/lib/ide-route";
-
-const REPO_URL = "https://github.com/GabrielBeloDev/portifolio_gabriel";
+import { REPO_URL } from "@/lib/site";
 
 export function StatusBar() {
   const pathname = usePathname();
@@ -25,8 +24,6 @@ export function StatusBar() {
       <span className="ml-auto hidden truncate sm:inline">
         {ideCrumb(pathname)}
       </span>
-      <span className="hidden md:inline">UTF-8</span>
-      <span className="hidden md:inline">LF</span>
       <span className="ml-auto sm:ml-0">
         <span aria-hidden>♥</span> feito por Gabriel
       </span>

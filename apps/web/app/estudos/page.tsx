@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Reveal } from "@/components/reveal";
 import { publishedCaseStudies } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
@@ -34,7 +35,9 @@ export default function CaseStudiesPage() {
           {"// nenhum estudo ainda"}
         </p>
       ) : (
-        <StudyList />
+        <Reveal>
+          <StudyList />
+        </Reveal>
       )}
     </div>
   );

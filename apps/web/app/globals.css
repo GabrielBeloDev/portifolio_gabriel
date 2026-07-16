@@ -79,9 +79,22 @@
    global-styles ticket. */
 .prose {
   font-family: var(--font-sans);
-  font-size: 1.0625rem;
-  line-height: 1.8;
+  font-size: 1.125rem;
+  line-height: 1.75;
   color: var(--muted);
+  max-width: 68ch;
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h2 {
+  margin-top: 2em;
+}
+
+.prose h3 {
+  margin-top: 1.6em;
 }
 
 .prose h2,
@@ -231,12 +244,42 @@ figure[data-rehype-pretty-code-figure]:not(
 @keyframes home-fade-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Opening a "file": quick fade on the editor pane at each route change */
+@keyframes pane-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pane-enter {
+  animation: pane-fade-in 150ms ease-out;
+}
+
+/* Scroll-reveal: hidden until the IntersectionObserver flips .reveal-in;
+   reduced-motion users (and no-JS crawlers via media fallback) see content
+   immediately through the media query below */
+.reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.reveal-in {
+  opacity: 1;
+  transform: none;
 }
 
 @keyframes home-typing {
@@ -259,16 +302,6 @@ figure[data-rehype-pretty-code-figure]:not(
   }
 }
 
-@keyframes home-floaty {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
 @keyframes home-pulse {
   0%,
   100% {
@@ -281,7 +314,7 @@ figure[data-rehype-pretty-code-figure]:not(
 
 .home-fade-up {
   opacity: 0;
-  animation: home-fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation: home-fade-up 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 
 .home-typing {
@@ -289,15 +322,11 @@ figure[data-rehype-pretty-code-figure]:not(
   overflow: hidden;
   white-space: nowrap;
   vertical-align: bottom;
-  animation: home-typing 1.5s steps(16) 0.3s both;
+  animation: home-typing 0.9s steps(16) 0.15s both;
 }
 
 .home-cursor {
   animation: home-blink 1.1s step-end infinite;
-}
-
-.home-floaty {
-  animation: home-floaty 4s ease-in-out infinite;
 }
 
 .home-pulse {
@@ -310,12 +339,18 @@ figure[data-rehype-pretty-code-figure]:not(
   .home-fade-up,
   .home-typing,
   .home-cursor,
-  .home-floaty,
-  .home-pulse {
+  .home-pulse,
+  .pane-enter {
     animation: none;
   }
 
   .home-fade-up {
     opacity: 1;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

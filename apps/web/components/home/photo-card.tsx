@@ -8,9 +8,14 @@ export function PhotoCard() {
           aqui
         </span>
       </div>
-      <p className="home-floaty absolute -bottom-[13px] left-4 rounded-lg bg-accent-fill px-[13px] py-[7px] font-mono text-xs font-bold text-on-accent">
+      <a
+        href="https://github.com/GabrielBeloDev"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute -bottom-[13px] left-4 rounded-lg bg-accent-fill px-[13px] py-[7px] font-mono text-xs font-bold text-on-accent transition-transform hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none"
+      >
         @GabrielBeloDev
-      </p>
+      </a>
     </div>
   );
 }

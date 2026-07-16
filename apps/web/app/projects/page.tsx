@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ProjectCard } from "@/components/project-card";
+import { Reveal } from "@/components/reveal";
 import { allProjects, findCaseStudyForProject } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -26,16 +27,18 @@ export default function ProjectsPage() {
           {"// ainda catalogando os trabalhos"}
         </p>
       ) : (
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {allProjects.map((project) => (
-            <ProjectCard
-              key={project.slug}
-              project={project}
-              studySlug={findCaseStudyForProject(project.slug)?.slug}
-              headingLevel="h2"
-            />
-          ))}
-        </div>
+        <Reveal>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            {allProjects.map((project) => (
+              <ProjectCard
+                key={project.slug}
+                project={project}
+                studySlug={findCaseStudyForProject(project.slug)?.slug}
+                headingLevel="h2"
+              />
+            ))}
+          </div>
+        </Reveal>
       )}
     </div>
   );
