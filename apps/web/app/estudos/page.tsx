@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Reveal } from "@/components/reveal";
 import { publishedCaseStudies } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
@@ -12,6 +13,10 @@ export const metadata: Metadata = {
 const formatRowNumber = (index: number) => String(index + 1).padStart(2, "0");
 
 export default function CaseStudiesPage() {
+  const studyCount = publishedCaseStudies.length;
+  const studyCountLabel =
+    studyCount === 1 ? "1 estudo" : `${studyCount} estudos`;
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 pb-20 md:px-10 md:py-14">
       <p className="mb-2.5 font-mono text-sm text-muted-2">
@@ -23,18 +28,16 @@ export default function CaseStudiesPage() {
       </h1>
       <p className="mt-2 max-w-prose text-lg text-muted-2">
         Histórias de construção: o problema, as decisões e o que saiu delas.{" "}
-        <span className="text-accent">
-          {publishedCaseStudies.length}{" "}
-          {publishedCaseStudies.length === 1 ? "estudo" : "estudos"}
-        </span>
-        .
+        <span className="text-accent">{studyCountLabel}</span>.
       </p>
-      {publishedCaseStudies.length === 0 ? (
+      {studyCount === 0 ? (
         <p className="mt-9 font-mono text-sm text-muted">
           {"// nenhum estudo ainda"}
         </p>
       ) : (
-        <StudyList />
+        <Reveal>
+          <StudyList />
+        </Reveal>
       )}
     </div>
   );

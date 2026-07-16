@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ideCrumb, ideTabs } from "./ide-route";
+import { ideCrumb, routeTab } from "./ide-route";
 
 describe("ideCrumb", () => {
   it("mapeia rotas estáticas para nomes de arquivo", () => {
@@ -21,45 +21,47 @@ describe("ideCrumb", () => {
   });
 });
 
-describe("ideTabs", () => {
-  it("mostra só as tabs base em rotas de índice", () => {
-    const tabs = ideTabs("/blog");
-    expect(tabs).toHaveLength(5);
-    expect(tabs.map((tab) => tab.label)).toEqual([
-      "home.tsx",
-      "blog",
-      "projetos",
-      "estudos",
-      "sobre.md",
-    ]);
+describe("routeTab", () => {
+  it("resolve a tab de rotas conhecidas com o arquivo certo", () => {
+    expect(routeTab("/")).toMatchObject({ label: "home.tsx", modified: false });
+    expect(routeTab("/blog")).toMatchObject({ label: "blog", modified: false });
+    expect(routeTab("/sobre")).toMatchObject({
+      label: "sobre.md",
+      modified: false,
+    });
   });
 
-  it("anexa tab modificada ao abrir um post", () => {
-    const tabs = ideTabs("/blog/pipeline-do-blog");
-    const deepTab = tabs.at(-1);
-    expect(deepTab).toMatchObject({
+  it("abre posts como tab .mdx modificada", () => {
+    expect(routeTab("/blog/pipeline-do-blog")).toMatchObject({
       href: "/blog/pipeline-do-blog",
       label: "pipeline-do-blog.mdx",
       modified: true,
     });
   });
 
-  it("anexa auth.config em /entrar sem marcador de modificado", () => {
-    const deepTab = ideTabs("/entrar").at(-1);
-    expect(deepTab).toMatchObject({ label: "auth.config", modified: false });
+  it("abre auth.config em /entrar sem marcador de modificado", () => {
+    expect(routeTab("/entrar")).toMatchObject({
+      label: "auth.config",
+      modified: false,
+    });
   });
 
-  it("anexa tab de editor modificada em /admin/editor", () => {
-    const deepTab = ideTabs("/admin/editor").at(-1);
-    expect(deepTab).toMatchObject({ label: "editor", modified: true });
+  it("abre tab de editor modificada em /admin/editor", () => {
+    expect(routeTab("/admin/editor")).toMatchObject({
+      label: "editor",
+      modified: true,
+    });
   });
 
-  it("anexa tab de admin sem marcador na raiz do admin", () => {
-    const deepTab = ideTabs("/admin").at(-1);
-    expect(deepTab).toMatchObject({
+  it("abre tab de admin sem marcador na raiz do admin", () => {
+    expect(routeTab("/admin")).toMatchObject({
       href: "/admin",
       label: "admin",
       modified: false,
     });
+  });
+
+  it("retorna null para rota desconhecida", () => {
+    expect(routeTab("/rota-inexistente")).toBeNull();
   });
 });

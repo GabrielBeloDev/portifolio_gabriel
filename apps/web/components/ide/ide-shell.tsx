@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityBar } from "./activity-bar";
 import { Explorer, type ExplorerPost } from "./explorer";
 import { MobileDrawer } from "./mobile-drawer";
@@ -20,6 +20,7 @@ export function IdeShell({
 }) {
   const pathname = usePathname();
   const contentRef = useRef<HTMLElement>(null);
+  const [explorerOpen, setExplorerOpen] = useState(true);
 
   // The editor pane is the scroll container, not the window — Next.js only
   // resets window scroll on navigation, so the pane must be reset by hand.
@@ -31,11 +32,16 @@ export function IdeShell({
     <div className="flex h-dvh flex-col overflow-hidden">
       <WinBar drawer={<MobileDrawer posts={posts} />} />
       <div className="flex min-h-0 flex-1">
-        <ActivityBar />
-        <Explorer
-          posts={posts}
-          className="hidden w-[246px] shrink-0 border-r border-line md:block"
+        <ActivityBar
+          explorerOpen={explorerOpen}
+          onToggleExplorer={() => setExplorerOpen((open) => !open)}
         />
+        {explorerOpen && (
+          <Explorer
+            posts={posts}
+            className="hidden w-[246px] shrink-0 border-r border-line md:block"
+          />
+        )}
         <div className="flex min-w-0 flex-1 flex-col bg-background">
           <TabsBar />
           <main
@@ -46,7 +52,9 @@ export function IdeShell({
             tabIndex={-1}
             className="min-h-0 flex-1 overflow-y-auto outline-none"
           >
-            {children}
+            <div key={pathname} className="pane-enter min-h-full">
+              {children}
+            </div>
           </main>
           <StatusBar />
         </div>

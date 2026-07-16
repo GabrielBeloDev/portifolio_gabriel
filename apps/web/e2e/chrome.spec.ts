@@ -70,6 +70,50 @@ test("pane de conteúdo avança a barra de leitura e reseta o scroll ao navegar"
   await expect.poll(() => pane.evaluate((el) => el.scrollTop)).toBe(0);
 });
 
+test("tabs acumulam histórico e o × fecha voltando pra vizinha", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const explorer = page.getByRole("navigation", { name: "principal" });
+  await explorer.getByRole("link", { name: "sobre.md" }).click();
+  await expect(page).toHaveURL(/\/sobre$/);
+
+  const tabs = page.getByRole("navigation", { name: "abas" });
+  await expect(tabs.getByRole("link", { name: "sobre.md" })).toBeVisible();
+
+  await tabs.getByRole("button", { name: "fechar sobre.md" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(tabs.getByRole("link", { name: "sobre.md" })).toHaveCount(0);
+});
+
+test("grupo do explorer colapsa e expande", async ({ page }) => {
+  await page.goto("/");
+  const explorer = page.getByRole("navigation", { name: "principal" });
+  const rootGroup = explorer.getByRole("button", {
+    name: "PORTIFOLIO_GABRIEL",
+  });
+
+  await rootGroup.click();
+  await expect(rootGroup).toHaveAttribute("aria-expanded", "false");
+  await expect(explorer.getByRole("link", { name: "sobre.md" })).toBeHidden();
+
+  await rootGroup.click();
+  await expect(explorer.getByRole("link", { name: "sobre.md" })).toBeVisible();
+});
+
+test("activity bar recolhe e mostra o explorer", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "recolher explorer" }).click();
+  await expect(
+    page.getByRole("navigation", { name: "principal" }),
+  ).toBeHidden();
+
+  await page.getByRole("button", { name: "mostrar explorer" }).click();
+  await expect(
+    page.getByRole("navigation", { name: "principal" }),
+  ).toBeVisible();
+});
+
 test("rota inexistente mostra o 404 na linguagem de IDE", async ({ page }) => {
   const response = await page.goto("/rota-que-nao-existe");
   expect(response?.status()).toBe(404);

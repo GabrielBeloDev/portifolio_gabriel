@@ -1,34 +1,52 @@
+"use client";
+
+import Link from "next/link";
 import { cn } from "@gabriel/ui";
+import { REPO_URL } from "@/lib/site";
 
-const TOP_ICONS = ["🗂", "⌕", "⑂", "◉"] as const;
-const BOTTOM_ICONS = ["◐", "⚙"] as const;
-
-function ActivityIcon({ icon, active = false }: { icon: string; active?: boolean }) {
-  return (
-    <span
-      className={cn(
-        "flex size-9 items-center justify-center text-lg",
-        active ? "-ml-0.5 border-l-2 border-accent text-accent" : "text-faint",
-      )}
-    >
-      {icon}
-    </span>
+const iconClasses = (active: boolean) =>
+  cn(
+    "flex size-9 items-center justify-center text-lg transition-colors hover:text-foreground",
+    active ? "-ml-0.5 border-l-2 border-accent text-accent" : "text-muted-2",
   );
-}
 
-export function ActivityBar() {
+export function ActivityBar({
+  explorerOpen,
+  onToggleExplorer,
+}: {
+  explorerOpen: boolean;
+  onToggleExplorer: () => void;
+}) {
   return (
-    <aside
-      aria-hidden="true"
-      className="hidden w-[52px] shrink-0 flex-col items-center gap-1.5 border-r border-line bg-background-2 py-3.5 md:flex"
-    >
-      {TOP_ICONS.map((icon, index) => (
-        <ActivityIcon key={icon} icon={icon} active={index === 0} />
-      ))}
+    <aside className="hidden w-[52px] shrink-0 flex-col items-center gap-1.5 border-r border-line bg-background-2 py-3.5 md:flex">
+      <button
+        type="button"
+        aria-label={explorerOpen ? "recolher explorer" : "mostrar explorer"}
+        title={explorerOpen ? "recolher explorer" : "mostrar explorer"}
+        onClick={onToggleExplorer}
+        className={iconClasses(explorerOpen)}
+      >
+        <span aria-hidden>🗂</span>
+      </button>
+      <a
+        href={REPO_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="repositório no GitHub"
+        title="repositório no GitHub"
+        className={iconClasses(false)}
+      >
+        <span aria-hidden>⑂</span>
+      </a>
       <span className="mt-auto flex flex-col gap-1.5">
-        {BOTTOM_ICONS.map((icon) => (
-          <ActivityIcon key={icon} icon={icon} />
-        ))}
+        <Link
+          href="/entrar"
+          aria-label="entrar"
+          title="entrar"
+          className={iconClasses(false)}
+        >
+          <span aria-hidden>⚙</span>
+        </Link>
       </span>
     </aside>
   );

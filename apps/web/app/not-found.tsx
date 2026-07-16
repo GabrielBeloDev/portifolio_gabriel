@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CtaLink } from "@/components/cta-link";
 
 export default function NotFound() {
   return (
@@ -12,12 +12,9 @@ export default function NotFound() {
       <p className="mt-3 max-w-prose font-mono text-sm leading-relaxed text-muted">
         {"// o arquivo foi movido, renomeado ou nunca existiu."}
       </p>
-      <Link
-        href="/"
-        className="mt-8 rounded-[9px] bg-accent-fill px-5 py-3 font-mono text-sm font-bold text-on-accent transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-fill/40"
-      >
+      <CtaLink href="/" className="mt-8">
         ← voltar para home.tsx
-      </Link>
+      </CtaLink>
     </div>
   );
 }

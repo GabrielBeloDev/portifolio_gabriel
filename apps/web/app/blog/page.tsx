@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PostRow } from "@/components/post-row";
+import { Reveal } from "@/components/reveal";
 import { publishedPosts } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -27,20 +28,22 @@ export default function BlogPage() {
       {postCount === 0 ? (
         <p className="font-mono text-sm text-muted">{"// nenhum post ainda"}</p>
       ) : (
-        <ul className="divide-y divide-line border-y border-line">
-          {publishedPosts.map((post, position) => (
-            <PostRow
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              title={post.title}
-              date={post.date}
-              summary={post.summary}
-              index={position + 1}
-              tag={post.tags[0]}
-              headingLevel="h2"
-            />
-          ))}
-        </ul>
+        <Reveal>
+          <ul className="divide-y divide-line border-y border-line">
+            {publishedPosts.map((post, position) => (
+              <PostRow
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                title={post.title}
+                date={post.date}
+                summary={post.summary}
+                index={position + 1}
+                tag={post.tags[0]}
+                headingLevel="h2"
+              />
+            ))}
+          </ul>
+        </Reveal>
       )}
     </div>
   );
