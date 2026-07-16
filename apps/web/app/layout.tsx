@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import {
+  Bricolage_Grotesque,
+  Instrument_Sans,
   JetBrains_Mono,
   Newsreader,
-  Onest,
-  Space_Grotesk,
 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import {
@@ -14,16 +14,16 @@ import { publishedCaseStudies, publishedPosts } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const onest = Onest({
+const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-onest",
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-bricolage",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-space-grotesk",
+  weight: ["400", "500", "600"],
+  variable: "--font-instrument",
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -75,7 +75,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${onest.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${newsreader.variable}`}
+      className={`${bricolageGrotesque.variable} ${instrumentSans.variable} ${jetbrainsMono.variable} ${newsreader.variable}`}
       suppressHydrationWarning
     >
       <body>

@@ -37,7 +37,7 @@ export default async function EditorListPage() {
           </button>
         </form>
       </div>
-      <div className="mt-8 overflow-hidden rounded-md border border-line bg-surface">
+      <div className="home-fade-up mt-8 overflow-hidden rounded-md border border-line bg-surface">
         <p className="flex items-center gap-1.5 border-b border-line bg-background-2 px-4 py-2 font-mono text-xs text-faint">
           <span aria-hidden>⌄</span>
           drafts/

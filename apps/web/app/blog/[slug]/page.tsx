@@ -29,7 +29,11 @@ function NextPostCta({ post }: { post: Post | undefined }) {
 
   return (
     <CtaLink href={`/blog/${post.slug}`}>
-      próximo: {shortPostTitle(post.title)} →
+      próximo:{" "}
+      <span className="inline-block max-w-[32ch] truncate align-bottom">
+        {shortPostTitle(post.title)}
+      </span>{" "}
+      →
     </CtaLink>
   );
 }

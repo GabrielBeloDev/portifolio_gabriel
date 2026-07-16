@@ -23,7 +23,7 @@ export function CtaLink({
     <Link
       href={href}
       className={cn(
-        "rounded-[9px] px-5 py-3 font-mono text-sm",
+        "rounded-[9px] px-5 py-3 font-sans text-sm font-medium whitespace-nowrap",
         VARIANT_CLASSES[variant],
         className,
       )}

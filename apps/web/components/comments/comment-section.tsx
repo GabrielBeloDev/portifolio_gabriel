@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Reveal } from "@/components/reveal";
 import type { CommentNode, LikeState } from "@/lib/comment-tree";
 import { CommentForm } from "./comment-form";
 import { CommentItem } from "./comment-item";
@@ -55,23 +56,28 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
   const reload = () => setReloadKey((key) => key + 1);
 
   return (
-    <section aria-label="comentários" className="mt-16 border-t border-line pt-8">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="font-mono text-sm tracking-wide text-muted-2">
-          {"// discussão"}
-          {payload ? ` (${countComments(payload.comments)})` : ""}
-        </h2>
-        {payload && (
-          <LikeButton
-            key={`post-${payload.postLikes.count}-${payload.postLikes.liked}`}
-            targetType="post"
-            targetId={postSlug}
-            initialCount={payload.postLikes.count}
-            initialLiked={payload.postLikes.liked}
-            signedIn={payload.viewer !== null}
-          />
-        )}
-      </div>
+    <section
+      aria-label="comentários"
+      className="mt-16 border-t border-line pt-8"
+    >
+      <Reveal>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-mono text-sm tracking-wide text-muted-2">
+            {"// discussão"}
+            {payload ? ` (${countComments(payload.comments)})` : ""}
+          </h2>
+          {payload && (
+            <LikeButton
+              key={`post-${payload.postLikes.count}-${payload.postLikes.liked}`}
+              targetType="post"
+              targetId={postSlug}
+              initialCount={payload.postLikes.count}
+              initialLiked={payload.postLikes.liked}
+              signedIn={payload.viewer !== null}
+            />
+          )}
+        </div>
+      </Reveal>
 
       {failed && (
         <p className="mt-6 font-mono text-xs text-muted">

@@ -68,7 +68,7 @@ export function CommentForm({
           size="sm"
           variant="solid"
           disabled={pending}
-          className="rounded-full bg-accent-fill font-semibold text-on-accent"
+          className="rounded-full bg-accent-fill font-sans font-medium text-on-accent"
         >
           {pending ? "enviando…" : parentId ? "responder" : "comentar"}
         </Button>

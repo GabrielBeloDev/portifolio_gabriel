@@ -35,9 +35,7 @@ export default function CaseStudiesPage() {
           {"// nenhum estudo ainda"}
         </p>
       ) : (
-        <Reveal>
-          <StudyList />
-        </Reveal>
+        <StudyList />
       )}
     </div>
   );
@@ -47,7 +45,8 @@ function StudyList() {
   return (
     <ul className="mt-9 border-b border-line">
       {publishedCaseStudies.map((study, index) => (
-          <li key={study.slug} className="border-t border-line">
+        <li key={study.slug} className="border-t border-line">
+          <Reveal delay={index * 0.05}>
             <Link
               href={`/estudos/${study.slug}`}
               className="group block px-4 py-5 transition-[background-color,padding] duration-200 hover:bg-surface hover:pl-7"
@@ -76,7 +75,8 @@ function StudyList() {
                 {study.summary}
               </p>
             </Link>
-          </li>
+          </Reveal>
+        </li>
       ))}
     </ul>
   );

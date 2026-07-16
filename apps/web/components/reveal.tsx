@@ -5,9 +5,11 @@ import { cn } from "@gabriel/ui";
 
 export function Reveal({
   className,
+  delay,
   children,
 }: {
   className?: string;
+  delay?: number;
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -33,7 +35,11 @@ export function Reveal({
   }, []);
 
   return (
-    <div ref={ref} className={cn("reveal", className)}>
+    <div
+      ref={ref}
+      className={cn("reveal", className)}
+      style={delay !== undefined ? { transitionDelay: `${delay}s` } : undefined}
+    >
       {children}
     </div>
   );

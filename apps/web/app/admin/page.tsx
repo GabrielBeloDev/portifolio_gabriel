@@ -24,7 +24,7 @@ export default async function AdminPage() {
       <p className="font-mono text-sm tracking-wide text-faint"># admin</p>
       <h1 className="mt-2 text-3xl font-semibold">admin</h1>
       <p className="mt-3 max-w-prose text-muted">Olá, {session.user.name}.</p>
-      <div className="mt-8 overflow-hidden rounded-md border border-line bg-surface font-mono text-[13px]">
+      <div className="home-fade-up mt-8 overflow-hidden rounded-md border border-line bg-surface font-mono text-[13px]">
         <p className="flex items-center gap-1.5 border-b border-line bg-background-2 px-4 py-2 text-xs text-faint">
           <span aria-hidden>⌄</span>
           workspace
