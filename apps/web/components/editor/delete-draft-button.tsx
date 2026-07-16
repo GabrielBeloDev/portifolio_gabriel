@@ -53,7 +53,7 @@ export function DeleteDraftButton({ draftId }: { draftId: string }) {
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="rounded-sm border border-line bg-background-2 px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent"
+                className="rounded-sm border border-line bg-background-2 px-3 py-1.5 font-sans text-xs font-medium text-muted transition-colors hover:border-accent"
               >
                 cancelar
               </button>
@@ -62,7 +62,7 @@ export function DeleteDraftButton({ draftId }: { draftId: string }) {
               type="button"
               onClick={handleConfirm}
               disabled={isPending}
-              className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-danger transition-colors hover:border-danger disabled:opacity-60"
+              className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-danger transition-colors hover:border-danger disabled:opacity-60"
             >
               {isPending ? "apagando…" : "sim, apagar"}
             </button>

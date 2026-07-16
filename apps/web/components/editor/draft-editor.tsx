@@ -304,7 +304,7 @@ export function DraftEditor({
                   <button
                     type="button"
                     onClick={handleCopyMdx}
-                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-link transition-colors hover:border-accent"
+                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-link transition-colors hover:border-accent"
                   >
                     {mdxCopied ? "copiado ✓" : "copiar .mdx"}
                   </button>
