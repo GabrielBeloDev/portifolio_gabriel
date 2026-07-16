@@ -15,6 +15,30 @@ test("outline aparece no desktop com as seções do post", async ({ page }) => {
   await expect(
     outline(page).getByRole("link", { name: "Diagramas como texto" }),
   ).toBeVisible();
+
+  // The outline urls (velite s.toc) and the heading ids (rehype-slug) come
+  // from independent pipelines — every anchor must resolve to a real heading
+  const anchorIds = await outline(page)
+    .getByRole("link")
+    .evaluateAll((links) =>
+      links.map((link) => link.getAttribute("href")?.slice(1) ?? ""),
+    );
+  expect(anchorIds.length).toBeGreaterThan(0);
+  for (const anchorId of anchorIds) {
+    await expect(page.locator(`[id="${anchorId}"]`)).toBeAttached();
+  }
+});
+
+test("post sem seções não mostra outline", async ({ page }) => {
+  await page.goto("/blog/adrs-num-projeto-solo");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(outline(page)).toHaveCount(0);
+});
+
+test("post sem tag em comum não mostra relacionados", async ({ page }) => {
+  await page.goto("/blog/o-pipeline-deste-blog");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByText("// relacionados")).toHaveCount(0);
 });
 
 test("clicar numa seção do outline navega para a âncora", async ({ page }) => {
@@ -31,6 +55,9 @@ test("clicar numa seção do outline navega para a âncora", async ({ page }) =>
 test("seção ativa fica marcada no outline após o scroll", async ({ page }) => {
   await page.goto("/blog/o-pipeline-deste-blog");
 
+  const heading = page.locator('[id="código-com-a-cara-da-casa"]');
+  await expect(heading).toBeAttached();
+
   // A middle section always has a full section below it, so it can always
   // reach the top band of the pane — the last one can't when the page tail
   // is short (e.g. no comments on CI)
@@ -43,11 +70,25 @@ test("seção ativa fica marcada no outline após o scroll", async ({ page }) =>
   // marks the section as active
   await expect
     .poll(async () => {
-      await page.evaluate(() => {
-        document.getElementById("código-com-a-cara-da-casa")?.scrollIntoView();
-      });
+      await heading.evaluate((el) => el.scrollIntoView());
       return activeLink.getAttribute("aria-current");
     })
-    .toBe("true");
-  await expect(activeLink).toHaveClass(/text-accent/);
+    .toBe("location");
+  await expect(activeLink).toHaveClass(/(?:^|\s)text-accent(?:\s|$)/);
+});
+
+test.describe("mobile", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("outline colapsável abre e navega para a seção", async ({ page }) => {
+    await page.goto("/blog/o-pipeline-deste-blog");
+
+    await page.locator("summary").click();
+    await outline(page)
+      .getByRole("link", { name: "Diagramas como texto" })
+      .click();
+
+    await expect(page).toHaveURL(/#diagramas-como-texto$/);
+    await expect(page.locator("#diagramas-como-texto")).toBeInViewport();
+  });
 });

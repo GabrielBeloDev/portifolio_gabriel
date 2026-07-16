@@ -2,14 +2,11 @@
 
 import { cn } from "@gabriel/ui";
 import { useEffect, useMemo, useState } from "react";
+import type { Post } from "#velite";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 
-// Velite's s.toc() entry shape (the type itself is not exported by velite)
-export type TocEntry = {
-  title: string;
-  url: string;
-  items: TocEntry[];
-};
+// Velite doesn't export its TocEntry type; derive it from the generated Post
+type TocEntry = Post["toc"][number];
 
 type TocItem = {
   id: string;
@@ -88,7 +85,7 @@ export function PostToc({ entries, variant }: PostTocProps) {
           <li key={item.id} className={cn(item.depth === 2 && "pl-4")}>
             <a
               href={`#${item.id}`}
-              aria-current={isActive ? "true" : undefined}
+              aria-current={isActive ? "location" : undefined}
               onClick={(event) => scrollToHeading(event, item.id)}
               className={cn(
                 "block text-sm leading-snug transition-colors",
@@ -107,7 +104,7 @@ export function PostToc({ entries, variant }: PostTocProps) {
     return (
       <details className="mt-7 rounded-md border border-line bg-surface px-4 py-3 xl:hidden">
         <summary className="cursor-pointer font-mono text-xs tracking-[0.1em] text-muted-2">
-          {"// outline"}
+          <span aria-hidden="true">{"// "}</span>outline
         </summary>
         <nav aria-label="outline do post" className="mt-3.5">
           {list}
@@ -123,7 +120,7 @@ export function PostToc({ entries, variant }: PostTocProps) {
         className="sticky top-12 max-h-[calc(100dvh-220px)] overflow-y-auto"
       >
         <p className="mb-3.5 font-mono text-xs tracking-[0.1em] text-muted-2">
-          {"// outline"}
+          <span aria-hidden="true">{"// "}</span>outline
         </p>
         {list}
       </nav>

@@ -10,10 +10,13 @@ const posts = defineCollection({
     summary: s.string().max(300),
     tags: s.array(s.string()).default([]),
     draft: s.boolean().default(false),
-    series: s.object({ name: s.string(), part: s.number() }).optional(),
+    series: s
+      .object({ name: s.string(), part: s.number().int().min(1) })
+      .optional(),
     slug: s.path().transform((path) => path.replace(/^posts\//, "")),
     metadata: s.metadata(),
-    toc: s.toc(),
+    // The outline renders h2/h3 only; cap the extraction to match
+    toc: s.toc({ maxDepth: 3 }),
     code: s.mdx(),
   }),
 });

@@ -7,14 +7,16 @@ export function SeriesNav({ post }: { post: Post }) {
   const series = post.series;
   if (!series) return null;
 
+  const previousPart = series.part - 1;
+  const nextPart = series.part + 1;
   const seriesPosts = publishedPosts.filter(
     (candidate) => candidate.series?.name === series.name,
   );
   const previousPost = seriesPosts.find(
-    (candidate) => candidate.series?.part === series.part - 1,
+    (candidate) => candidate.series?.part === previousPart,
   );
   const nextPost = seriesPosts.find(
-    (candidate) => candidate.series?.part === series.part + 1,
+    (candidate) => candidate.series?.part === nextPart,
   );
 
   return (
@@ -32,7 +34,7 @@ export function SeriesNav({ post }: { post: Post }) {
             href={`/blog/${previousPost.slug}`}
             className="text-muted transition-colors hover:text-accent"
           >
-            ← parte {series.part - 1}
+            ← parte {previousPart}
           </Link>
         )}
         {nextPost !== undefined && (
@@ -40,7 +42,7 @@ export function SeriesNav({ post }: { post: Post }) {
             href={`/blog/${nextPost.slug}`}
             className="text-muted transition-colors hover:text-accent"
           >
-            parte {series.part + 1} →
+            parte {nextPart} →
           </Link>
         )}
       </p>
