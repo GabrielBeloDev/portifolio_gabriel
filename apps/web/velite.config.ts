@@ -10,8 +10,10 @@ const posts = defineCollection({
     summary: s.string().max(300),
     tags: s.array(s.string()).default([]),
     draft: s.boolean().default(false),
+    series: s.object({ name: s.string(), part: s.number() }).optional(),
     slug: s.path().transform((path) => path.replace(/^posts\//, "")),
     metadata: s.metadata(),
+    toc: s.toc(),
     code: s.mdx(),
   }),
 });
