@@ -18,7 +18,12 @@ const inputClasses =
 
 const labelClasses = "font-mono text-xs text-muted";
 
-export function AuthForm() {
+const socialButtonClasses =
+  "flex h-10 items-center justify-center rounded-sm border border-line font-mono text-xs transition-colors hover:border-accent hover:text-accent disabled:opacity-50";
+
+type SocialProviders = { github: boolean; google: boolean };
+
+export function AuthForm({ social }: { social: SocialProviders }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [name, setName] = useState("");
@@ -26,6 +31,19 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const hasSocial = social.github || social.google;
+
+  async function handleSocial(provider: "github" | "google") {
+    setError(null);
+    const { error: authError } = await authClient.signIn.social({
+      provider,
+      callbackURL: "/",
+    });
+    if (authError) {
+      setError(authError.message ?? "não foi possível autenticar");
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,6 +102,36 @@ export function AuthForm() {
           </button>
         ))}
       </div>
+
+      {hasSocial && (
+        <>
+          <div className="flex flex-col gap-2">
+            {social.github && (
+              <button
+                type="button"
+                onClick={() => handleSocial("github")}
+                className={socialButtonClasses}
+              >
+                continuar com GitHub
+              </button>
+            )}
+            {social.google && (
+              <button
+                type="button"
+                onClick={() => handleSocial("google")}
+                className={socialButtonClasses}
+              >
+                continuar com Google
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-3 font-mono text-xs text-muted">
+            <span className="h-px flex-1 bg-line" />
+            ou
+            <span className="h-px flex-1 bg-line" />
+          </div>
+        </>
+      )}
 
       {mode === "sign-up" && (
         <div className="flex flex-col gap-1.5">
