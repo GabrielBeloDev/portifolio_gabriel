@@ -7,7 +7,13 @@ import { ideCrumb } from "@/lib/ide-route";
 
 const WINDOW_DOTS = ["#ff5f57", "#febc2e", "#28c840"] as const;
 
-export function WinBar({ drawer }: { drawer: React.ReactNode }) {
+export function WinBar({
+  palette,
+  drawer,
+}: {
+  palette: React.ReactNode;
+  drawer: React.ReactNode;
+}) {
   const pathname = usePathname();
 
   return (
@@ -26,6 +32,7 @@ export function WinBar({ drawer }: { drawer: React.ReactNode }) {
         <span className="text-muted-2">{ideCrumb(pathname)}</span>
       </span>
       <span className="ml-auto flex shrink-0 items-center gap-3">
+        {palette}
         <UserMenu />
         <ThemeToggle />
         {drawer}
