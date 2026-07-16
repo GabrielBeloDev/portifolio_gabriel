@@ -57,7 +57,7 @@ export function CommentItem({
         ) : (
           <span className="font-medium">{node.authorName}</span>
         )}
-        <time dateTime={node.createdAt} className="text-muted">
+        <time dateTime={node.createdAt} className="text-faint">
           {formatDate(node.createdAt)}
         </time>
         {!node.deleted && (
@@ -98,7 +98,7 @@ export function CommentItem({
       )}
 
       {error && (
-        <p role="alert" className="mt-1 font-mono text-xs text-accent">
+        <p role="alert" className="mt-1 font-mono text-xs text-danger">
           {error}
         </p>
       )}

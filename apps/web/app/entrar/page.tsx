@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { RuledPage, RuledSection } from "@gabriel/ui";
 import { AuthForm } from "@/components/auth-form";
 import { enabledSocialProviders } from "@/lib/auth";
 
@@ -13,18 +12,23 @@ const hasSocial =
 
 export default function SignInPage() {
   return (
-    <RuledPage className="mx-auto max-w-3xl px-6 pb-16">
-      <RuledSection>
-        <h1 className="text-3xl font-semibold">entrar</h1>
-        <p className="mt-3 max-w-prose text-muted">
-          {hasSocial
-            ? "Entre com uma conta social ou com email para comentar e curtir."
-            : "Uma conta aqui serve para comentar e curtir."}
+    <div className="mx-auto w-full max-w-md px-6 pt-14 pb-16">
+      <p className="font-mono text-sm tracking-wide text-faint"># auth.config</p>
+      <h1 className="mt-2 text-3xl font-semibold">entrar</h1>
+      <p className="mt-3 text-muted">
+        {hasSocial
+          ? "Entre com uma conta social ou com email para comentar e curtir."
+          : "Uma conta aqui serve para comentar e curtir."}
+      </p>
+      <div className="mt-8 overflow-hidden rounded-md border border-line bg-surface">
+        <p className="flex items-center gap-2 border-b border-line bg-background-2 px-4 py-2.5 font-mono text-xs text-faint">
+          <span aria-hidden className="size-2 rounded-full bg-accent-fill" />
+          auth.config
         </p>
-        <div className="mt-10 max-w-sm">
+        <div className="p-5">
           <AuthForm social={enabledSocialProviders} />
         </div>
-      </RuledSection>
-    </RuledPage>
+      </div>
+    </div>
   );
 }

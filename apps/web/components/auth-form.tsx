@@ -14,12 +14,12 @@ const MODES = [
 ] as const;
 
 const inputClasses =
-  "w-full rounded-sm border border-line bg-surface px-3 py-2 text-sm transition-colors focus:border-accent";
+  "w-full rounded-sm border border-line bg-background-2 px-3 py-2 text-sm transition-colors focus:border-accent";
 
 const labelClasses = "font-mono text-xs text-muted";
 
 const socialButtonClasses =
-  "flex h-10 items-center justify-center rounded-sm border border-line font-mono text-xs transition-colors hover:border-accent hover:text-accent disabled:opacity-50";
+  "flex h-10 items-center justify-center rounded-full border border-line font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50";
 
 type SocialProviders = { github: boolean; google: boolean };
 
@@ -79,7 +79,7 @@ export function AuthForm({ social }: { social: SocialProviders }) {
       <div
         role="tablist"
         aria-label="modo de acesso"
-        className="flex gap-1 rounded-sm border border-line p-1"
+        className="flex gap-1 rounded-sm border border-line bg-background-2 p-1"
       >
         {MODES.map(({ value, label }) => (
           <button
@@ -125,7 +125,7 @@ export function AuthForm({ social }: { social: SocialProviders }) {
               </button>
             )}
           </div>
-          <div className="flex items-center gap-3 font-mono text-xs text-muted">
+          <div className="flex items-center gap-3 font-mono text-xs text-faint">
             <span className="h-px flex-1 bg-line" />
             ou
             <span className="h-px flex-1 bg-line" />
@@ -177,12 +177,17 @@ export function AuthForm({ social }: { social: SocialProviders }) {
       </div>
 
       {error && (
-        <p role="alert" className="font-mono text-xs text-accent">
+        <p role="alert" className="font-mono text-xs text-danger">
           {error}
         </p>
       )}
 
-      <Button type="submit" variant="solid" disabled={submitting}>
+      <Button
+        type="submit"
+        variant="solid"
+        disabled={submitting}
+        className="rounded-full bg-accent-fill font-semibold text-on-accent"
+      >
         {submitting
           ? "enviando…"
           : mode === "sign-up"

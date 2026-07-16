@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { RuledPage, RuledSection } from "@gabriel/ui";
 import { auth } from "@/lib/auth";
 import { createDraft, listDrafts } from "@/lib/actions/drafts";
 import { formatDate } from "@/lib/format";
@@ -25,37 +24,45 @@ export default async function EditorListPage() {
   const drafts = await listDrafts();
 
   return (
-    <RuledPage className="mx-auto max-w-3xl px-6 pb-16">
-      <RuledSection>
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-3xl font-semibold">drafts</h1>
-          <form action={createAndOpenDraft}>
-            <button
-              type="submit"
-              className="rounded-sm border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
-            >
-              novo draft →
-            </button>
-          </form>
-        </div>
+    <div className="mx-auto w-full max-w-3xl px-6 pt-14 pb-16">
+      <p className="font-mono text-sm tracking-wide text-faint"># drafts</p>
+      <div className="mt-2 flex items-center justify-between gap-4">
+        <h1 className="text-3xl font-semibold">drafts</h1>
+        <form action={createAndOpenDraft}>
+          <button
+            type="submit"
+            className="rounded-full border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+          >
+            novo draft →
+          </button>
+        </form>
+      </div>
+      <div className="mt-8 overflow-hidden rounded-md border border-line bg-surface">
+        <p className="flex items-center gap-1.5 border-b border-line bg-background-2 px-4 py-2 font-mono text-xs text-faint">
+          <span aria-hidden>⌄</span>
+          drafts/
+        </p>
         {drafts.length === 0 ? (
-          <p className="mt-8 font-mono text-sm text-muted">
+          <p className="px-4 py-6 font-mono text-sm text-faint">
             // nenhum draft — comece um novo
           </p>
         ) : (
-          <ul className="mt-8 divide-y divide-line">
+          <ul className="divide-y divide-line">
             {drafts.map((item) => (
               <li key={item.id}>
                 <Link
                   href={`/admin/editor/${item.id}`}
-                  className="group flex items-baseline justify-between gap-4 py-3"
+                  className="group flex items-baseline justify-between gap-4 px-4 py-3 transition-colors hover:bg-background-2"
                 >
-                  <span className="font-medium transition-colors group-hover:text-accent">
+                  <span className="min-w-0 truncate font-medium transition-colors group-hover:text-accent">
+                    <span aria-hidden className="mr-2 font-mono text-xs">
+                      📝
+                    </span>
                     {item.title || "(sem título)"}
                   </span>
                   <time
                     dateTime={item.updatedAt.toISOString()}
-                    className="shrink-0 font-mono text-xs text-muted"
+                    className="shrink-0 font-mono text-xs text-faint"
                   >
                     {formatDate(item.updatedAt.toISOString())}
                   </time>
@@ -64,7 +71,7 @@ export default async function EditorListPage() {
             ))}
           </ul>
         )}
-      </RuledSection>
-    </RuledPage>
+      </div>
+    </div>
   );
 }
