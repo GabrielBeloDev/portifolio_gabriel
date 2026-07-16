@@ -23,8 +23,16 @@ test.describe("ferramentas de escrita do editor", () => {
   test("contador de palavras, Cmd+S, copiar .mdx e apagar draft com confirmação", async ({
     page,
   }) => {
+    // The rate-limit wait below consumes half of the default 30s budget
+    test.setTimeout(60_000);
+
     const databaseUrl = process.env.DATABASE_URL;
     expect(databaseUrl, "DATABASE_URL precisa estar no ambiente").toBeTruthy();
+
+    // better-auth rate-limits /sign-up/email to 3 requests per 10s per IP and
+    // the parallel specs already consume that burst — wait out the window so
+    // this fourth signup does not 429 a neighbour spec (nor get 429'd itself)
+    await page.waitForTimeout(15_000);
 
     await page.goto("/entrar");
     await page.getByRole("tab", { name: "criar conta" }).click();
