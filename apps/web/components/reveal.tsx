@@ -12,8 +12,8 @@ export function Reveal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Flips a class instead of state: no re-render, and reduced-motion users
-  // never depend on JS because the CSS media query keeps .reveal visible
+  // Flips a class instead of state: no re-render; the hiding CSS only applies
+  // under @media (scripting: enabled), so no-JS visitors see content directly
   useEffect(() => {
     const element = ref.current;
     if (!element) return;

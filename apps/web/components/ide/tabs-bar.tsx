@@ -91,7 +91,7 @@ export function TabsBar() {
                 type="button"
                 aria-label={`fechar ${tab.label}`}
                 onClick={() => closeTab(tab.href)}
-                className="px-2 py-2.5 text-faint transition-colors hover:text-danger"
+                className="px-2 py-2.5 text-muted-2 transition-colors hover:text-danger"
               >
                 ×
               </button>

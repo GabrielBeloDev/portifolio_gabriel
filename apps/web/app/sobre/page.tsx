@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SocialLinks } from "@/components/social-links";
+import { REPO_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "sobre",
@@ -53,7 +54,7 @@ export default function AboutPage() {
         que quebra o build se eu errar, e CI que publica sozinho a cada merge. O
         código é aberto e está no{" "}
         <a
-          href="https://github.com/GabrielBeloDev/portifolio_gabriel"
+          href={REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="border-b border-link/35 text-link transition-colors hover:border-link"

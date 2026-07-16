@@ -266,15 +266,17 @@ figure[data-rehype-pretty-code-figure]:not(
   animation: pane-fade-in 150ms ease-out;
 }
 
-/* Scroll-reveal: hidden until the IntersectionObserver flips .reveal-in;
-   reduced-motion users (and no-JS crawlers via media fallback) see content
-   immediately through the media query below */
-.reveal {
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
-    transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+/* Scroll-reveal: hidden until the IntersectionObserver flips .reveal-in.
+   Gated by scripting so a no-JS visitor (where the observer never runs)
+   still sees the content; reduced-motion is neutralized further below */
+@media (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 }
 
 .reveal-in {

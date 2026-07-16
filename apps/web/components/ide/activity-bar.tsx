@@ -7,7 +7,7 @@ import { REPO_URL } from "@/lib/site";
 const iconClasses = (active: boolean) =>
   cn(
     "flex size-9 items-center justify-center text-lg transition-colors hover:text-foreground",
-    active ? "-ml-0.5 border-l-2 border-accent text-accent" : "text-faint",
+    active ? "-ml-0.5 border-l-2 border-accent text-accent" : "text-muted-2",
   );
 
 export function ActivityBar({
@@ -22,7 +22,6 @@ export function ActivityBar({
       <button
         type="button"
         aria-label={explorerOpen ? "recolher explorer" : "mostrar explorer"}
-        aria-pressed={explorerOpen}
         title={explorerOpen ? "recolher explorer" : "mostrar explorer"}
         onClick={onToggleExplorer}
         className={iconClasses(explorerOpen)}

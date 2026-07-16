@@ -1,6 +1,8 @@
 export const REPO_URL =
   "https://github.com/GabrielBeloDev/portifolio_gabriel";
 
+export const GITHUB_PROFILE_URL = "https://github.com/GabrielBeloDev";
+
 export interface SocialLink {
   readonly label: string;
   readonly href: string;
@@ -8,7 +10,7 @@ export interface SocialLink {
 }
 
 export const SOCIAL_LINKS: readonly SocialLink[] = [
-  { label: "github", href: "https://github.com/GabrielBeloDev", external: true },
+  { label: "github", href: GITHUB_PROFILE_URL, external: true },
   {
     label: "linkedin",
     href: "https://www.linkedin.com/in/gabriel--belo/",
