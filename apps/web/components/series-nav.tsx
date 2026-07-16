@@ -1,7 +1,6 @@
 import Link from "next/link";
+import type { Post } from "#velite";
 import { publishedPosts } from "@/lib/content";
-
-type Post = (typeof publishedPosts)[number];
 
 export function SeriesNav({ post }: { post: Post }) {
   const series = post.series;

@@ -1,9 +1,8 @@
 import Link from "next/link";
+import type { Post } from "#velite";
 import { publishedPosts } from "@/lib/content";
 
 const MAX_RELATED_POSTS = 3;
-
-type Post = (typeof publishedPosts)[number];
 
 // publishedPosts is already sorted newest-first, so the slice keeps date order
 function findRelatedPosts(post: Post) {

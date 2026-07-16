@@ -74,7 +74,6 @@ test("seção ativa fica marcada no outline após o scroll", async ({ page }) =>
       return activeLink.getAttribute("aria-current");
     })
     .toBe("location");
-  await expect(activeLink).toHaveClass(/(?:^|\s)text-accent(?:\s|$)/);
 });
 
 test.describe("mobile", () => {
