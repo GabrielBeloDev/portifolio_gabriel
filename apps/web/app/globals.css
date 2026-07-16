@@ -4,43 +4,72 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ADR-0004 — "caderno de laboratório de engenharia"
-   Tinta/papel + acento âmbar de sinal. Dark e light são cidadãos de primeira classe. */
+/* ADR-0009 — IDE. Dark é o tema nativo (:root); .light é o tema claro derivado.
+   Papéis de cor: accent=âmbar (ação/status), ok=verde (vivo/hover), link=azul,
+   danger=vermelho. accent-fill/on-accent são fixos (CTA e statusbar do mock). */
 :root {
-  --background: #f6f5f2;
-  --foreground: #1a1d21;
-  --muted: #6b665e;
-  --surface: #fdfcfa;
-  --line: #e3e1db;
-  --accent: #a05c08;
-  --accent-soft: #f0e2cb;
-  --code-bg: #fbfaf7;
+  --background: #0b0d10;
+  --background-2: #0a0c0f;
+  --foreground: #e6e9ee;
+  --muted: #98a0ad;
+  --muted-2: #767d8c;
+  --faint: #565d6b;
+  --surface: #101319;
+  --line: #16191f;
+  --line-2: #14171c;
+  --accent: #f5a623;
+  --accent-soft: #171207;
+  --accent-fill: #f5a623;
+  --on-accent: #0b0d10;
+  --ok: #7fd88f;
+  --link: #6cb6ff;
+  --danger: #ff7a6b;
+  --code-bg: #08090c;
 }
 
-.dark {
-  --background: #0e1116;
-  --foreground: #e6e1d8;
-  --muted: #9c968b;
-  --surface: #151a21;
-  --line: #2a2f37;
-  --accent: #ffb020;
-  --accent-soft: #2a2214;
-  --code-bg: #0b0e12;
+.light {
+  --background: #f7f8fa;
+  --background-2: #eff1f4;
+  --foreground: #1a1e26;
+  --muted: #565d6b;
+  --muted-2: #6f7683;
+  --faint: #8b93a3;
+  --surface: #ffffff;
+  --line: #e2e5ea;
+  --line-2: #e8eaee;
+  --accent: #9a5b00;
+  --accent-soft: #f7ead2;
+  --accent-fill: #f5a623;
+  --on-accent: #0b0d10;
+  --ok: #1e7b3c;
+  --link: #0b62c4;
+  --danger: #c22f1f;
+  --code-bg: #f2f3f6;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-2: var(--background-2);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-faint: var(--faint);
   --color-surface: var(--surface);
   --color-line: var(--line);
+  --color-line-2: var(--line-2);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-fill: var(--accent-fill);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-link: var(--link);
+  --color-danger: var(--danger);
   --color-code: var(--code-bg);
 
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
-  --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-onest), sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 }
 
 @layer base {
@@ -63,8 +92,7 @@
   }
 
   ::selection {
-    background-color: var(--accent);
-    color: var(--background);
+    background-color: color-mix(in srgb, var(--accent) 28%, transparent);
   }
 
   :focus-visible {

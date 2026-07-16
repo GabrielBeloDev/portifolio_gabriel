@@ -4,28 +4,28 @@ import { useTheme } from "next-themes";
 import { useEffect, useId, useState } from "react";
 
 const DARK_VARIABLES = {
-  background: "#0e1116",
-  primaryColor: "#2a2214",
-  primaryTextColor: "#e6e1d8",
-  primaryBorderColor: "#ffb020",
-  secondaryColor: "#151a21",
-  tertiaryColor: "#151a21",
-  lineColor: "#9c968b",
-  textColor: "#e6e1d8",
-  fontFamily: "IBM Plex Mono, monospace",
+  background: "#0b0d10",
+  primaryColor: "#171207",
+  primaryTextColor: "#e6e9ee",
+  primaryBorderColor: "#f5a623",
+  secondaryColor: "#101319",
+  tertiaryColor: "#101319",
+  lineColor: "#98a0ad",
+  textColor: "#e6e9ee",
+  fontFamily: "JetBrains Mono, monospace",
   fontSize: "14px",
 };
 
 const LIGHT_VARIABLES = {
-  background: "#f6f5f2",
-  primaryColor: "#f0e2cb",
-  primaryTextColor: "#1a1d21",
-  primaryBorderColor: "#b4690e",
-  secondaryColor: "#fdfcfa",
-  tertiaryColor: "#fdfcfa",
-  lineColor: "#6b665e",
-  textColor: "#1a1d21",
-  fontFamily: "IBM Plex Mono, monospace",
+  background: "#f7f8fa",
+  primaryColor: "#f7ead2",
+  primaryTextColor: "#1a1e26",
+  primaryBorderColor: "#9a5b00",
+  secondaryColor: "#ffffff",
+  tertiaryColor: "#ffffff",
+  lineColor: "#565d6b",
+  textColor: "#1a1e26",
+  fontFamily: "JetBrains Mono, monospace",
   fontSize: "14px",
 };
 
