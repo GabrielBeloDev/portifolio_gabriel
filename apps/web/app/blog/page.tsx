@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { PostRow } from "@/components/post-row";
-import { Reveal } from "@/components/reveal";
 import { publishedPosts } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -18,7 +17,7 @@ export default function BlogPage() {
         const posts = await getAll(
         <span className="text-ok">&apos;blog&apos;</span>)
       </p>
-      <h1 className="font-display text-4xl font-bold leading-tight tracking-[-0.02em] sm:text-[46px]">
+      <h1 className="font-display text-4xl leading-tight font-bold tracking-[-0.02em] sm:text-[46px]">
         Blog
       </h1>
       <p className="mt-1.5 mb-9 text-[17px] text-muted-2">
@@ -28,23 +27,22 @@ export default function BlogPage() {
       {postCount === 0 ? (
         <p className="font-mono text-sm text-muted">{"// nenhum post ainda"}</p>
       ) : (
-        <Reveal>
-          <ul className="divide-y divide-line border-y border-line">
-            {publishedPosts.map((post, position) => (
-              <PostRow
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                title={post.title}
-                date={post.date}
-                summary={post.summary}
-                index={position + 1}
-                tag={post.tags[0]}
-                viewsSlug={post.slug}
-                headingLevel="h2"
-              />
-            ))}
-          </ul>
-        </Reveal>
+        <ul className="divide-y divide-line border-y border-line">
+          {publishedPosts.map((post, position) => (
+            <PostRow
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              title={post.title}
+              date={post.date}
+              summary={post.summary}
+              index={position + 1}
+              tag={post.tags[0]}
+              viewsSlug={post.slug}
+              headingLevel="h2"
+              revealDelay={position * 0.05}
+            />
+          ))}
+        </ul>
       )}
     </div>
   );

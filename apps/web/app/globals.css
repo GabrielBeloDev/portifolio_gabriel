@@ -67,8 +67,8 @@
   --color-danger: var(--danger);
   --color-code: var(--code-bg);
 
-  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-onest), sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-instrument), sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 }
