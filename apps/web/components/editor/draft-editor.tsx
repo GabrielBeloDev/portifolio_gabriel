@@ -214,7 +214,9 @@ export function DraftEditor({
               aria-label="corpo em MDX"
               value={fields.body}
               onChange={(event) => update({ body: event.target.value })}
-              placeholder={"## Escreva em MDX\n\n```ts\nconst codigo = true;\n```\n\n```mermaid\ngraph LR; A-->B\n```"}
+              placeholder={
+                "## Escreva em MDX\n\n```ts\nconst codigo = true;\n```\n\n```mermaid\ngraph LR; A-->B\n```"
+              }
               rows={24}
               className={`${fieldClasses} min-h-[50vh] resize-y font-mono text-sm leading-relaxed`}
             />
@@ -242,7 +244,7 @@ export function DraftEditor({
                 <button
                   type="button"
                   onClick={handleGenerateShareLink}
-                  className="mt-2 rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-link transition-colors hover:border-accent"
+                  className="mt-2 rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-link transition-colors hover:border-accent"
                 >
                   gerar link de revisão
                 </button>
@@ -257,14 +259,14 @@ export function DraftEditor({
                   <button
                     type="button"
                     onClick={() => handleCopyShareLink(shareUrl)}
-                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-link transition-colors hover:border-accent"
+                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-link transition-colors hover:border-accent"
                   >
                     {shareUrlCopied ? "copiado ✓" : "copiar"}
                   </button>
                   <button
                     type="button"
                     onClick={handleRevokeShareLink}
-                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-danger transition-colors hover:border-danger"
+                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-danger transition-colors hover:border-danger"
                   >
                     revogar
                   </button>
