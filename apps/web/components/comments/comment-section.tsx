@@ -57,8 +57,9 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
   return (
     <section aria-label="comentários" className="mt-16 border-t border-line pt-8">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-mono text-sm font-medium tracking-widest text-muted uppercase">
-          comentários{payload ? ` (${countComments(payload.comments)})` : ""}
+        <h2 className="font-mono text-sm tracking-wide text-faint">
+          {"// discussão"}
+          {payload ? ` (${countComments(payload.comments)})` : ""}
         </h2>
         {payload && (
           <LikeButton
@@ -78,7 +79,7 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
           <button
             type="button"
             onClick={reload}
-            className="text-accent hover:underline"
+            className="text-link hover:underline"
           >
             tentar de novo
           </button>
@@ -99,7 +100,7 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
             </div>
           ) : (
             <p className="mt-6 font-mono text-xs text-muted">
-              <Link href="/entrar" className="text-accent hover:underline">
+              <Link href="/entrar" className="text-link hover:underline">
                 entre
               </Link>{" "}
               para comentar e curtir.
@@ -107,7 +108,7 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
           )}
 
           {payload.comments.length === 0 ? (
-            <p className="mt-8 font-mono text-xs text-muted">
+            <p className="mt-8 font-mono text-xs text-faint">
               // ainda sem comentários — seja a primeira pessoa
             </p>
           ) : (

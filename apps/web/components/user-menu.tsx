@@ -16,7 +16,7 @@ export function UserMenu() {
     return (
       <Link
         href="/entrar"
-        className="font-mono text-xs text-accent transition-colors hover:underline"
+        className="rounded-full border border-line px-2.5 py-0.5 font-mono text-xs text-accent transition-colors hover:border-accent"
       >
         entrar
       </Link>
@@ -38,14 +38,17 @@ export function UserMenu() {
           href="/admin"
           className="text-accent transition-colors hover:underline"
         >
-          admin
+          <span aria-hidden>⚙</span> admin
         </Link>
       )}
-      <span className="text-muted">{firstName}</span>
+      <span className="flex items-center gap-1.5 text-muted-2">
+        <span aria-hidden className="size-1.5 rounded-full bg-ok" />
+        {firstName}
+      </span>
       <button
         type="button"
         onClick={handleSignOut}
-        className="text-muted transition-colors hover:text-accent"
+        className="text-muted-2 transition-colors hover:text-danger"
       >
         sair
       </button>

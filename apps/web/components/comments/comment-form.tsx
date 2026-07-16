@@ -58,12 +58,18 @@ export function CommentForm({
         className="w-full resize-y rounded-sm border border-line bg-surface px-3 py-2 text-sm transition-colors focus:border-accent"
       />
       {error && (
-        <p role="alert" className="font-mono text-xs text-accent">
+        <p role="alert" className="font-mono text-xs text-danger">
           {error}
         </p>
       )}
       <div>
-        <Button type="submit" size="sm" variant="solid" disabled={pending}>
+        <Button
+          type="submit"
+          size="sm"
+          variant="solid"
+          disabled={pending}
+          className="rounded-full bg-accent-fill font-semibold text-on-accent"
+        >
           {pending ? "enviando…" : parentId ? "responder" : "comentar"}
         </Button>
       </div>

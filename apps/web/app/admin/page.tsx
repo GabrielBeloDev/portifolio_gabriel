@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RuledPage, RuledSection } from "@gabriel/ui";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -18,21 +17,22 @@ export default async function AdminPage() {
   }
 
   return (
-    <RuledPage className="mx-auto max-w-3xl px-6 pb-16">
-      <RuledSection>
-        <h1 className="text-3xl font-semibold">admin</h1>
-        <p className="mt-3 max-w-prose text-muted">
-          Olá, {session.user.name}.
+    <div className="mx-auto w-full max-w-3xl px-6 pt-14 pb-16">
+      <p className="font-mono text-sm tracking-wide text-faint"># admin</p>
+      <h1 className="mt-2 text-3xl font-semibold">admin</h1>
+      <p className="mt-3 max-w-prose text-muted">Olá, {session.user.name}.</p>
+      <div className="mt-8 overflow-hidden rounded-md border border-line bg-surface font-mono text-[13px]">
+        <p className="flex items-center gap-1.5 border-b border-line bg-background-2 px-4 py-2 text-xs text-faint">
+          <span aria-hidden>⌄</span>
+          workspace
         </p>
-        <p className="mt-6">
-          <Link
-            href="/admin/editor"
-            className="font-mono text-xs text-accent hover:underline"
-          >
-            drafts & editor →
-          </Link>
-        </p>
-      </RuledSection>
-    </RuledPage>
+        <Link
+          href="/admin/editor"
+          className="flex items-center gap-2 px-4 py-2.5 text-muted transition-colors hover:bg-background-2 hover:text-accent"
+        >
+          <span aria-hidden>📝</span> drafts &amp; editor →
+        </Link>
+      </div>
+    </div>
   );
 }

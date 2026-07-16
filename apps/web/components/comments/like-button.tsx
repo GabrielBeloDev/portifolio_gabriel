@@ -33,7 +33,7 @@ export function LikeButton({
       <Link
         href="/entrar"
         aria-label={`${label} (requer login)`}
-        className="inline-flex items-center gap-1 font-mono text-xs text-muted transition-colors hover:text-accent"
+        className="inline-flex items-center gap-1 font-mono text-xs text-muted transition-colors hover:text-danger"
       >
         <Heart aria-hidden className="size-3.5" />
         {likeCount}
@@ -67,7 +67,7 @@ export function LikeButton({
         aria-pressed={liked}
         className={cn(
           "inline-flex items-center gap-1 font-mono text-xs transition-colors",
-          liked ? "text-accent" : "text-muted hover:text-accent",
+          liked ? "text-danger" : "text-muted hover:text-danger",
         )}
       >
         <Heart
@@ -78,7 +78,7 @@ export function LikeButton({
         {likeCount}
       </button>
       {failed && (
-        <span role="alert" className="font-mono text-xs text-accent">
+        <span role="alert" className="font-mono text-xs text-danger">
           não foi possível curtir
         </span>
       )}
