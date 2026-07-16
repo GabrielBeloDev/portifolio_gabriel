@@ -39,6 +39,7 @@ export default function BlogPage() {
                 summary={post.summary}
                 index={position + 1}
                 tag={post.tags[0]}
+                viewsSlug={post.slug}
                 headingLevel="h2"
               />
             ))}

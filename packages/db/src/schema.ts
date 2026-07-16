@@ -1,5 +1,6 @@
 import {
   index,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -56,6 +57,12 @@ export const draft = pgTable(
   },
   (table) => [index("draft_author_id_idx").on(table.authorId)],
 );
+
+// Aggregate-only by design: no per-reader tracking, so views stay anonymous
+export const postView = pgTable("post_view", {
+  slug: text("slug").primaryKey(),
+  count: integer("count").notNull().default(0),
+});
 
 export const like = pgTable(
   "like",
