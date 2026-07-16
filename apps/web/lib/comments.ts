@@ -3,10 +3,14 @@ import {
   asc,
   comment,
   count,
+  desc,
   eq,
   inArray,
+  isNotNull,
+  isNull,
   like,
   or,
+  sql,
   user,
 } from "@gabriel/db";
 import {
@@ -22,6 +26,39 @@ export type CommentsPayload = {
   comments: CommentNode[];
   postLikes: LikeState;
 };
+
+export type ModerationComment = {
+  id: string;
+  postSlug: string;
+  authorName: string;
+  body: string;
+  createdAt: Date;
+  reportedAt: Date | null;
+};
+
+export async function listCommentsForModeration(): Promise<ModerationComment[]> {
+  return db
+    .select({
+      id: comment.id,
+      postSlug: comment.postSlug,
+      authorName: user.name,
+      body: comment.body,
+      createdAt: comment.createdAt,
+      reportedAt: comment.reportedAt,
+    })
+    .from(comment)
+    .innerJoin(user, eq(comment.authorId, user.id))
+    .where(isNull(comment.deletedAt))
+    .orderBy(sql`${comment.reportedAt} DESC NULLS LAST`, desc(comment.createdAt));
+}
+
+export async function countReportedComments(): Promise<number> {
+  const [row] = await db
+    .select({ total: count() })
+    .from(comment)
+    .where(and(isNotNull(comment.reportedAt), isNull(comment.deletedAt)));
+  return row?.total ?? 0;
+}
 
 export async function getCommentsPayload(
   postSlug: string,

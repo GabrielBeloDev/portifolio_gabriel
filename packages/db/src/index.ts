@@ -24,6 +24,7 @@ export {
   eq,
   gte,
   inArray,
+  isNotNull,
   isNull,
   or,
   sql,

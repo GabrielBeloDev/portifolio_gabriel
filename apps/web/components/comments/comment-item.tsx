@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { CommentNode } from "@/lib/comment-tree";
-import { deleteComment } from "@/lib/actions/comments";
+import { deleteComment, reportComment } from "@/lib/actions/comments";
 import { formatDate } from "@/lib/format";
 import { CommentForm } from "./comment-form";
 import type { Viewer } from "./comment-section";
@@ -30,10 +30,14 @@ export function CommentItem({
   const [replying, setReplying] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reported, setReported] = useState(false);
   const [deleting, startDelete] = useTransition();
+  const [reporting, startReport] = useTransition();
 
   const canDelete =
     !node.deleted && viewer !== null && (viewer.isAdmin || viewer.id === node.authorId);
+  const canReport =
+    !node.deleted && viewer !== null && !viewer.isAdmin && viewer.id !== node.authorId;
   const hasHiddenReplies =
     depth >= MAX_VISIBLE_DEPTH && node.replies.length > 0 && !expanded;
 
@@ -46,6 +50,18 @@ export function CommentItem({
         return;
       }
       onChanged();
+    });
+  }
+
+  function handleReport() {
+    setError(null);
+    startReport(async () => {
+      const result = await reportComment({ id: node.id });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setReported(true);
     });
   }
 
@@ -89,6 +105,19 @@ export function CommentItem({
             {deleting ? "apagando…" : "apagar"}
           </button>
         )}
+        {canReport &&
+          (reported ? (
+            <span className="text-faint">reportado ✓</span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleReport}
+              disabled={reporting}
+              className="text-muted transition-colors hover:text-accent disabled:opacity-50"
+            >
+              {reporting ? "reportando…" : "reportar"}
+            </button>
+          ))}
       </div>
 
       {!node.deleted && (

@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import {
   createCommentSchema,
   deleteCommentSchema,
+  reportCommentSchema,
 } from "@/lib/validation/comment";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -102,6 +103,67 @@ export async function deleteComment(input: unknown): Promise<ActionResult> {
   await db
     .update(comment)
     .set({ deletedAt: new Date() })
+    .where(eq(comment.id, parsed.data.id));
+
+  return { ok: true };
+}
+
+export async function reportComment(input: unknown): Promise<ActionResult> {
+  const viewer = await getViewer();
+  if (!viewer) return { ok: false, error: "entre para reportar" };
+
+  const parsed = reportCommentSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "dados inválidos" };
+  }
+
+  const [target] = await db
+    .select({
+      id: comment.id,
+      authorId: comment.authorId,
+      deletedAt: comment.deletedAt,
+      reportedAt: comment.reportedAt,
+    })
+    .from(comment)
+    .where(eq(comment.id, parsed.data.id))
+    .limit(1);
+  if (!target) {
+    return { ok: false, error: "comentário não encontrado" };
+  }
+  if (target.deletedAt) {
+    return { ok: false, error: "comentário já removido" };
+  }
+  if (target.authorId === viewer.id) {
+    return { ok: false, error: "não dá para reportar o próprio comentário" };
+  }
+
+  // Globally idempotent: a second report keeps the original timestamp
+  if (target.reportedAt) {
+    return { ok: true };
+  }
+
+  await db
+    .update(comment)
+    .set({ reportedAt: new Date() })
+    .where(eq(comment.id, parsed.data.id));
+
+  return { ok: true };
+}
+
+export async function dismissReport(input: unknown): Promise<ActionResult> {
+  const viewer = await getViewer();
+  if (!viewer || viewer.role !== "admin") {
+    return { ok: false, error: "sem permissão" };
+  }
+
+  const parsed = reportCommentSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "dados inválidos" };
+  }
+
+  await db
+    .update(comment)
+    .set({ reportedAt: null })
     .where(eq(comment.id, parsed.data.id));
 
   return { ok: true };
