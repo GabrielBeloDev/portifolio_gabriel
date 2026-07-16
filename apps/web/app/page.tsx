@@ -32,7 +32,7 @@ export default function HomePage() {
           <HeroCtas />
         </FadeUp>
         <FadeUp delay={1.3} className="mb-1">
-          <p className="font-mono text-xs tracking-[0.1em] text-faint">
+          <p className="font-mono text-xs tracking-[0.1em] text-muted-2">
             // escrito recentemente
           </p>
         </FadeUp>

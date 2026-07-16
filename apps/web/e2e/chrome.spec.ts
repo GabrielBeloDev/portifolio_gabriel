@@ -70,6 +70,16 @@ test("pane de conteúdo avança a barra de leitura e reseta o scroll ao navegar"
   await expect.poll(() => pane.evaluate((el) => el.scrollTop)).toBe(0);
 });
 
+test("rota inexistente mostra o 404 na linguagem de IDE", async ({ page }) => {
+  const response = await page.goto("/rota-que-nao-existe");
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "arquivo não encontrado",
+  );
+  await page.getByRole("link", { name: "← voltar para home.tsx" }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test.describe("mobile", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 

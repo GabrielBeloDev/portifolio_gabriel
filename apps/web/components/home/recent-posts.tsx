@@ -24,7 +24,7 @@ export function RecentPosts() {
                 →
               </span>
             </span>
-            <span className="font-mono text-xs text-faint">
+            <span className="font-mono text-xs text-muted-2">
               {post.tags[0]}
             </span>
           </Link>

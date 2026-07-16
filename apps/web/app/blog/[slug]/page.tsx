@@ -90,7 +90,7 @@ export default async function PostPage({
         />
         <article>
           <header>
-            <p className="font-mono text-[12.5px] text-faint">
+            <p className="font-mono text-[12.5px] text-muted-2">
               ---{" "}
               {primaryTag !== undefined && (
                 <>

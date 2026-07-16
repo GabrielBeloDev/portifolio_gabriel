@@ -32,7 +32,8 @@
   --background-2: #eff1f4;
   --foreground: #1a1e26;
   --muted: #565d6b;
-  --muted-2: #6f7683;
+  /* 4.7:1 on --background — AA for the row metadata that uses muted-2 */
+  --muted-2: #68707e;
   --faint: #8b93a3;
   --surface: #ffffff;
   --line: #e2e5ea;
@@ -180,6 +181,27 @@ figure[data-rehype-pretty-code-figure]:not(
 @layer base {
   html {
     scroll-behavior: smooth;
+  }
+
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--faint) 45%, var(--background));
+    border-radius: 6px;
+    border: 3px solid var(--background);
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--faint) 45%, var(--background))
+      transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {

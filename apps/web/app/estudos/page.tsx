@@ -14,7 +14,7 @@ const formatRowNumber = (index: number) => String(index + 1).padStart(2, "0");
 export default function CaseStudiesPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 pb-20 md:px-10 md:py-14">
-      <p className="mb-2.5 font-mono text-sm text-faint">
+      <p className="mb-2.5 font-mono text-sm text-muted-2">
         const estudos = await getAll(
         <span className="text-ok">&apos;estudos&apos;</span>)
       </p>
@@ -29,8 +29,21 @@ export default function CaseStudiesPage() {
         </span>
         .
       </p>
-      <ul className="mt-9 border-b border-line">
-        {publishedCaseStudies.map((study, index) => (
+      {publishedCaseStudies.length === 0 ? (
+        <p className="mt-9 font-mono text-sm text-muted">
+          {"// nenhum estudo ainda"}
+        </p>
+      ) : (
+        <StudyList />
+      )}
+    </div>
+  );
+}
+
+function StudyList() {
+  return (
+    <ul className="mt-9 border-b border-line">
+      {publishedCaseStudies.map((study, index) => (
           <li key={study.slug} className="border-t border-line">
             <Link
               href={`/estudos/${study.slug}`}
@@ -40,7 +53,7 @@ export default function CaseStudiesPage() {
                 <span className="font-mono text-[13px] text-accent">
                   {formatRowNumber(index)}
                 </span>
-                <span className="font-mono text-xs text-faint">
+                <span className="font-mono text-xs text-muted-2">
                   <time dateTime={study.date.slice(0, 10)}>
                     {formatDate(study.date)}
                   </time>{" "}
@@ -61,8 +74,7 @@ export default function CaseStudiesPage() {
               </p>
             </Link>
           </li>
-        ))}
-      </ul>
-    </div>
+      ))}
+    </ul>
   );
 }

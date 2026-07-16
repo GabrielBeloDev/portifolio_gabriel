@@ -57,7 +57,7 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
   return (
     <section aria-label="comentários" className="mt-16 border-t border-line pt-8">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-mono text-sm tracking-wide text-faint">
+        <h2 className="font-mono text-sm tracking-wide text-muted-2">
           {"// discussão"}
           {payload ? ` (${countComments(payload.comments)})` : ""}
         </h2>
@@ -108,7 +108,7 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
           )}
 
           {payload.comments.length === 0 ? (
-            <p className="mt-8 font-mono text-xs text-faint">
+            <p className="mt-8 font-mono text-xs text-muted-2">
               // ainda sem comentários — seja a primeira pessoa
             </p>
           ) : (
