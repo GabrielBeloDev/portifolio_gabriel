@@ -4,17 +4,17 @@ export const amberInk: ThemeRegistration = {
   name: "amber-ink",
   type: "dark",
   colors: {
-    "editor.background": "#0b0e12",
-    "editor.foreground": "#e6e1d8",
+    "editor.background": "#08090c",
+    "editor.foreground": "#e6e9ee",
   },
   tokenColors: [
     {
       scope: ["comment", "punctuation.definition.comment"],
-      settings: { foreground: "#6f7683", fontStyle: "italic" },
+      settings: { foreground: "#565d6b", fontStyle: "italic" },
     },
     {
       scope: ["string", "string.quoted", "string.template"],
-      settings: { foreground: "#a8c08a" },
+      settings: { foreground: "#7fd88f" },
     },
     {
       scope: [
@@ -24,7 +24,7 @@ export const amberInk: ThemeRegistration = {
         "storage.modifier",
         "keyword.operator.new",
       ],
-      settings: { foreground: "#ffb020" },
+      settings: { foreground: "#f5a623" },
     },
     {
       scope: [
@@ -33,7 +33,7 @@ export const amberInk: ThemeRegistration = {
         "constant.character",
         "variable.other.constant",
       ],
-      settings: { foreground: "#e8927c" },
+      settings: { foreground: "#ff7a6b" },
     },
     {
       scope: [
@@ -41,7 +41,7 @@ export const amberInk: ThemeRegistration = {
         "support.function",
         "meta.function-call entity.name.function",
       ],
-      settings: { foreground: "#ead9b0" },
+      settings: { foreground: "#e2c88a" },
     },
     {
       scope: [
@@ -51,27 +51,27 @@ export const amberInk: ThemeRegistration = {
         "support.class",
         "entity.other.inherited-class",
       ],
-      settings: { foreground: "#8fb8d8" },
+      settings: { foreground: "#6cb6ff" },
     },
     {
       scope: ["variable", "variable.other", "variable.parameter"],
-      settings: { foreground: "#e6e1d8" },
+      settings: { foreground: "#e6e9ee" },
     },
     {
       scope: ["variable.other.property", "support.variable.property", "meta.object-literal.key"],
-      settings: { foreground: "#c9cfd6" },
+      settings: { foreground: "#cdd2db" },
     },
     {
       scope: ["keyword.operator", "punctuation"],
-      settings: { foreground: "#9aa3ad" },
+      settings: { foreground: "#98a0ad" },
     },
     {
       scope: ["entity.name.tag"],
-      settings: { foreground: "#ffb020" },
+      settings: { foreground: "#f5a623" },
     },
     {
       scope: ["entity.other.attribute-name"],
-      settings: { foreground: "#8fb8d8" },
+      settings: { foreground: "#6cb6ff" },
     },
   ],
 };
