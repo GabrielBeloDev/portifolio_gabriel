@@ -5,6 +5,9 @@ import { CommentSection } from "@/components/comments/comment-section";
 import { CtaLink } from "@/components/cta-link";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
+import { PostToc } from "@/components/post-toc";
+import { RelatedPosts } from "@/components/related-posts";
+import { SeriesNav } from "@/components/series-nav";
 import { ViewTracker } from "@/components/view-tracker";
 import { findPost, publishedPosts } from "@/lib/content";
 import { formatDateHuman } from "@/lib/format";
@@ -71,39 +74,45 @@ export default async function PostPage({
   const primaryTag = post.tags[0];
 
   return (
-    <div className="relative mx-auto max-w-[720px] px-6 py-10 sm:py-14">
+    <div className="relative mx-auto max-w-[720px] px-6 py-10 sm:py-14 xl:grid xl:max-w-[1080px] xl:grid-cols-[minmax(0,720px)_220px] xl:justify-center xl:gap-x-16">
       <ReadingProgress
         className="left-0"
         scrollContainerId={CONTENT_SCROLL_CONTAINER_ID}
       />
-      <article>
-        <header>
-          <p className="text-sm text-muted-2">
-            {primaryTag !== undefined && <>{primaryTag} · </>}
-            <time dateTime={post.date.slice(0, 10)}>
-              {formatDateHuman(post.date)}
-            </time>{" "}
-            · {post.metadata.readingTime} min de leitura
-            <ViewTracker slug={post.slug} />
-          </p>
-          <h1 className="mt-4 font-display text-4xl leading-[1.08] font-bold tracking-[-0.02em] sm:text-[44px]">
-            {post.title}
-          </h1>
-          <p className="mt-5 text-lg leading-[1.75] text-muted">
-            {post.summary}
-          </p>
-        </header>
-        <div className="prose mt-10">
-          <MDXContent code={post.code} />
-        </div>
-      </article>
-      <footer className="mt-9 flex flex-wrap items-center gap-3 border-t border-line pt-6">
-        <CtaLink href="/blog" variant="ghost">
-          ← voltar ao blog
-        </CtaLink>
-        <NextPostCta post={nextPost} />
-      </footer>
-      <CommentSection postSlug={post.slug} />
+      <div className="min-w-0">
+        <article>
+          <header>
+            <p className="text-sm text-muted-2">
+              {primaryTag !== undefined && <>{primaryTag} · </>}
+              <time dateTime={post.date.slice(0, 10)}>
+                {formatDateHuman(post.date)}
+              </time>{" "}
+              · {post.metadata.readingTime} min de leitura
+              <ViewTracker slug={post.slug} />
+            </p>
+            <h1 className="mt-4 font-display text-4xl leading-[1.08] font-bold tracking-[-0.02em] sm:text-[44px]">
+              {post.title}
+            </h1>
+            <p className="mt-5 text-lg leading-[1.75] text-muted">
+              {post.summary}
+            </p>
+          </header>
+          <SeriesNav post={post} />
+          <PostToc entries={post.toc} variant="details" />
+          <div className="prose mt-10">
+            <MDXContent code={post.code} />
+          </div>
+        </article>
+        <footer className="mt-9 flex flex-wrap items-center gap-3 border-t border-line pt-6">
+          <CtaLink href="/blog" variant="ghost">
+            ← voltar ao blog
+          </CtaLink>
+          <NextPostCta post={nextPost} />
+        </footer>
+        <RelatedPosts post={post} />
+        <CommentSection postSlug={post.slug} />
+      </div>
+      <PostToc entries={post.toc} variant="aside" />
     </div>
   );
 }

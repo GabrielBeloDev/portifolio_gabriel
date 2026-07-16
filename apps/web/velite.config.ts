@@ -10,8 +10,13 @@ const posts = defineCollection({
     summary: s.string().max(300),
     tags: s.array(s.string()).default([]),
     draft: s.boolean().default(false),
+    series: s
+      .object({ name: s.string(), part: s.number().int().min(1) })
+      .optional(),
     slug: s.path().transform((path) => path.replace(/^posts\//, "")),
     metadata: s.metadata(),
+    // The outline renders h2/h3 only; cap the extraction to match
+    toc: s.toc({ maxDepth: 3 }),
     code: s.mdx(),
   }),
 });
@@ -50,8 +55,21 @@ export default defineConfig({
   root: "content",
   collections: { posts, projects, caseStudies },
   // Referential integrity at build time: a case study pointing at a project
-  // that was renamed or removed must fail loudly, not silently drop its link
-  prepare: ({ projects, caseStudies }) => {
+  // that was renamed or removed must fail loudly, not silently drop its link.
+  // Same for series: two posts claiming the same part would render nonsense
+  // navigation, so duplicates fail the build instead
+  prepare: ({ posts, projects, caseStudies }) => {
+    const seenParts = new Set<string>();
+    for (const post of posts) {
+      if (!post.series) continue;
+      const key = `${post.series.name}#${post.series.part}`;
+      if (seenParts.has(key)) {
+        throw new Error(
+          `Parte duplicada na série "${post.series.name}": parte ${post.series.part} (${post.slug})`,
+        );
+      }
+      seenParts.add(key);
+    }
     const projectSlugs = new Set(projects.map((project) => project.slug));
     const orphans = caseStudies.filter(
       (study) => study.projectSlug && !projectSlugs.has(study.projectSlug),
