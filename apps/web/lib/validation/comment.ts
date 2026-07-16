@@ -14,4 +14,8 @@ export const deleteCommentSchema = z.object({
   id: z.uuid(),
 });
 
+export const reportCommentSchema = z.object({
+  id: z.uuid(),
+});
+
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;

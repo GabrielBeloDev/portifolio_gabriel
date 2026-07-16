@@ -30,6 +30,9 @@ export const comment = pgTable(
       .defaultNow(),
     // Soft delete: removing a mid-thread comment must not orphan its subtree
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    // Moderation flag: any signed-in reader can raise it once (globally idempotent);
+    // admin clears it by dismissing or soft-deleting. No reporter identity by design.
+    reportedAt: timestamp("reported_at", { withTimezone: true }),
   },
   (table) => [
     index("comment_post_slug_idx").on(table.postSlug),
