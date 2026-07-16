@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewCount } from "@/components/view-count";
 import { formatDate } from "@/lib/format";
 
 type PostRowProps = {
@@ -8,6 +9,7 @@ type PostRowProps = {
   summary: string;
   index?: number;
   tag?: string;
+  viewsSlug?: string;
   headingLevel?: "h2" | "h3";
 };
 
@@ -18,6 +20,7 @@ export function PostRow({
   summary,
   index,
   tag,
+  viewsSlug,
   headingLevel: Heading = "h3",
 }: PostRowProps) {
   return (
@@ -35,6 +38,7 @@ export function PostRow({
           <span className="text-xs text-muted-2">
             <time dateTime={date.slice(0, 10)}>{formatDate(date)}</time>
             {tag !== undefined && <> · {tag}</>}
+            {viewsSlug !== undefined && <ViewCount slug={viewsSlug} />}
           </span>
         </p>
         <Heading className="mt-2 font-display text-2xl font-semibold">

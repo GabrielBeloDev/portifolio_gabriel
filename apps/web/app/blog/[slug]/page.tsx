@@ -5,6 +5,7 @@ import { CommentSection } from "@/components/comments/comment-section";
 import { CtaLink } from "@/components/cta-link";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
+import { ViewTracker } from "@/components/view-tracker";
 import { findPost, publishedPosts } from "@/lib/content";
 import { formatDateHuman } from "@/lib/format";
 
@@ -83,6 +84,7 @@ export default async function PostPage({
               {formatDateHuman(post.date)}
             </time>{" "}
             · {post.metadata.readingTime} min de leitura
+            <ViewTracker slug={post.slug} />
           </p>
           <h1 className="mt-4 font-display text-4xl leading-[1.08] font-bold tracking-[-0.02em] sm:text-[44px]">
             {post.title}
