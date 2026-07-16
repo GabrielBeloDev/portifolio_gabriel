@@ -171,7 +171,9 @@ export function AuthForm({ social }: { social: SocialProviders }) {
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+          autoComplete={
+            mode === "sign-up" ? "new-password" : "current-password"
+          }
           className={inputClasses}
         />
       </div>
@@ -186,7 +188,7 @@ export function AuthForm({ social }: { social: SocialProviders }) {
         type="submit"
         variant="solid"
         disabled={submitting}
-        className="rounded-full bg-accent-fill font-semibold text-on-accent"
+        className="rounded-full bg-accent-fill font-sans font-medium text-on-accent"
       >
         {submitting
           ? "enviando…"
