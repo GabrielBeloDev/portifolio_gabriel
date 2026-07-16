@@ -58,7 +58,7 @@ export default async function CaseStudyPage({
         />
         <article>
           <header>
-            <p className="font-mono text-[12.5px] text-faint">
+            <p className="font-mono text-[12.5px] text-muted-2">
               --- <span className="text-accent">estudo</span> ·{" "}
               <time dateTime={study.date.slice(0, 10)}>
                 {formatDate(study.date)}

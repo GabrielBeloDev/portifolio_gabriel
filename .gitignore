@@ -29,3 +29,6 @@ CLAUDE.md
 # os
 .DS_Store
 .vercel
+
+# Agent worktrees are local working copies, never content
+.claude/

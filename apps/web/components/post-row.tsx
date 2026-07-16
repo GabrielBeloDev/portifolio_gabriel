@@ -32,7 +32,7 @@ export function PostRow({
               {String(index).padStart(2, "0")}
             </span>
           )}
-          <span className="text-xs text-faint">
+          <span className="text-xs text-muted-2">
             <time dateTime={date.slice(0, 10)}>{formatDate(date)}</time>
             {tag !== undefined && <> · {tag}</>}
           </span>

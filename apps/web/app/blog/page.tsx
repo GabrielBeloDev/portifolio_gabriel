@@ -13,7 +13,7 @@ export default function BlogPage() {
 
   return (
     <div className="max-w-[900px] px-6 py-10 sm:px-[60px] sm:py-14">
-      <p className="mb-2.5 font-mono text-sm text-faint">
+      <p className="mb-2.5 font-mono text-sm text-muted-2">
         const posts = await getAll(
         <span className="text-ok">&apos;blog&apos;</span>)
       </p>
@@ -24,20 +24,24 @@ export default function BlogPage() {
         Tudo que aprendi e achei que valia escrever.{" "}
         <span className="text-accent">{postCountLabel}</span>.
       </p>
-      <ul className="divide-y divide-line border-y border-line">
-        {publishedPosts.map((post, position) => (
-          <PostRow
-            key={post.slug}
-            href={`/blog/${post.slug}`}
-            title={post.title}
-            date={post.date}
-            summary={post.summary}
-            index={position + 1}
-            tag={post.tags[0]}
-            headingLevel="h2"
-          />
-        ))}
-      </ul>
+      {postCount === 0 ? (
+        <p className="font-mono text-sm text-muted">{"// nenhum post ainda"}</p>
+      ) : (
+        <ul className="divide-y divide-line border-y border-line">
+          {publishedPosts.map((post, position) => (
+            <PostRow
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              title={post.title}
+              date={post.date}
+              summary={post.summary}
+              index={position + 1}
+              tag={post.tags[0]}
+              headingLevel="h2"
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
