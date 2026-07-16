@@ -72,6 +72,111 @@
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 }
 
+/* Reading prose + code blocks — IDE look (ADR-0009). Overrides the base
+   .prose/pretty-code rules imported from @gabriel/ui at the top of this file;
+   must stay before @layer base — the end of this file belongs to the
+   global-styles ticket. */
+.prose {
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.prose h2,
+.prose h3 {
+  font-family: var(--font-display);
+  color: var(--foreground);
+}
+
+.prose h2 {
+  font-size: 1.625rem;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+}
+
+.prose strong {
+  color: var(--foreground);
+}
+
+.prose a {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--link) 35%, transparent);
+  transition: border-bottom-color 150ms;
+}
+
+.prose a:hover {
+  border-bottom-color: var(--link);
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--background));
+  padding: 0.875rem 1.375rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--accent) 28%, var(--muted));
+}
+
+/* Code blocks: bordered card with a title bar (amber dot + optional filename).
+   Scoped to figure — rehype-pretty-code also puts this attribute on inline
+   code spans, which must keep the plain inline treatment. */
+figure[data-rehype-pretty-code-figure] {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--code-bg);
+}
+
+[data-rehype-pretty-code-title] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.5625rem 0.875rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--faint);
+}
+
+[data-rehype-pretty-code-title]::before {
+  content: "";
+  flex-shrink: 0;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Fences without a title keep the bar, showing only the dot */
+figure[data-rehype-pretty-code-figure]:not(
+    :has([data-rehype-pretty-code-title])
+  )::before {
+  content: "";
+  display: block;
+  height: 2.125rem;
+  border-bottom: 1px solid var(--line);
+  background: radial-gradient(circle, var(--accent) 0.25rem, transparent 0.28rem)
+    0.875rem center / 0.5625rem 0.5625rem no-repeat;
+}
+
+[data-rehype-pretty-code-figure] pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding-block: 1rem;
+  font-size: 0.84375rem;
+  line-height: 1.75;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
