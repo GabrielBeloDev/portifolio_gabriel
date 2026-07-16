@@ -23,7 +23,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const study = findCaseStudy(slug);
   if (!study) return {};
-  return { title: study.title, description: study.summary };
+  return {
+    title: study.title,
+    description: study.summary,
+    openGraph: {
+      title: study.title,
+      description: study.summary,
+      type: "article",
+      publishedTime: study.date,
+    },
+    twitter: {
+      card: "summary_large_image",
+    },
+  };
 }
 
 export default async function CaseStudyPage({

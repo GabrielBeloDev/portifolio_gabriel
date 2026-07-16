@@ -1,3 +1,6 @@
+export const SITE_URL =
+  "https://portifolio-gabriel-gabriels-projects-c9fd91a7.vercel.app";
+
 export const REPO_URL =
   "https://github.com/GabrielBeloDev/portifolio_gabriel";
 
