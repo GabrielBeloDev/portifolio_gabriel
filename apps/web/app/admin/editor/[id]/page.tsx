@@ -37,6 +37,7 @@ export default async function DraftEditorPage({
           tags: current.tags,
           body: current.body,
         }}
+        shareToken={current.shareToken}
       />
     </div>
   );

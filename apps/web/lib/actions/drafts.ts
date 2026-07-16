@@ -72,6 +72,47 @@ export async function deleteDraft(input: unknown): Promise<ActionResult> {
   return { ok: true, data: undefined };
 }
 
+export async function generateShareToken(
+  input: unknown,
+): Promise<ActionResult<{ shareToken: string }>> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "sem permissão" };
+
+  const parsed = z.object({ id: z.uuid() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "dados inválidos" };
+
+  const shareToken = crypto.randomUUID();
+  const updated = await db
+    .update(draft)
+    .set({ shareToken })
+    .where(and(eq(draft.id, parsed.data.id), eq(draft.authorId, admin.id)))
+    .returning({ id: draft.id });
+  if (updated.length === 0) {
+    return { ok: false, error: "draft não encontrado" };
+  }
+
+  return { ok: true, data: { shareToken } };
+}
+
+export async function revokeShareToken(input: unknown): Promise<ActionResult> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "sem permissão" };
+
+  const parsed = z.object({ id: z.uuid() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "dados inválidos" };
+
+  const updated = await db
+    .update(draft)
+    .set({ shareToken: null })
+    .where(and(eq(draft.id, parsed.data.id), eq(draft.authorId, admin.id)))
+    .returning({ id: draft.id });
+  if (updated.length === 0) {
+    return { ok: false, error: "draft não encontrado" };
+  }
+
+  return { ok: true, data: undefined };
+}
+
 export async function previewDraft(
   input: unknown,
 ): Promise<ActionResult<{ code: string }>> {
