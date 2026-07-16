@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { DeleteDraftButton } from "@/components/editor/delete-draft-button";
 import { MDXContent } from "@/components/mdx";
 import {
   generateShareToken,
@@ -9,6 +16,7 @@ import {
   revokeShareToken,
   saveDraft,
 } from "@/lib/actions/drafts";
+import { draftToMdx } from "@/lib/draft-mdx";
 import { publishReadinessIssues } from "@/lib/validation/draft";
 
 type DraftFields = {
@@ -23,6 +31,8 @@ type DraftFields = {
 type SaveState = "saved" | "saving" | "dirty" | "error";
 
 const AUTOSAVE_DELAY_MS = 1_500;
+const COPY_FEEDBACK_MS = 2_000;
+const READING_WORDS_PER_MINUTE = 200;
 
 const fieldClasses =
   "w-full rounded-sm border border-line bg-background-2 px-3 py-2 text-sm transition-colors focus:border-accent";
@@ -74,12 +84,30 @@ export function DraftEditor({
   const [shareToken, setShareToken] = useState(initialShareToken);
   const [shareUrlCopied, setShareUrlCopied] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [mdxCopied, setMdxCopied] = useState(false);
   const origin = useSyncExternalStore(
     subscribeToNothing,
     getOrigin,
     getServerOrigin,
   );
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Latest-value refs so the mount-only Cmd+S listener never reads stale state
+  const fieldsRef = useRef(fields);
+  const saveStateRef = useRef(saveState);
+  useEffect(() => {
+    fieldsRef.current = fields;
+    saveStateRef.current = saveState;
+  }, [fields, saveState]);
+
+  const commitSave = useCallback((next: DraftFields) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setSaveState("saving");
+    void saveDraft(next).then((result) => {
+      setSaveState(result.ok ? "saved" : "error");
+    });
+  }, []);
 
   function update(patch: Partial<DraftFields>) {
     const next = { ...fields, ...patch };
@@ -87,19 +115,41 @@ export function DraftEditor({
     setSaveState("dirty");
 
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      setSaveState("saving");
-      void saveDraft(next).then((result) => {
-        setSaveState(result.ok ? "saved" : "error");
-      });
-    }, AUTOSAVE_DELAY_MS);
+    saveTimer.current = setTimeout(() => commitSave(next), AUTOSAVE_DELAY_MS);
   }
 
   useEffect(() => {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
+      if (copyFeedbackTimer.current) clearTimeout(copyFeedbackTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    function handleSaveShortcut(event: KeyboardEvent) {
+      const isSaveShortcut =
+        (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s";
+      if (!isSaveShortcut) return;
+      // Always swallow the browser save dialog, even with nothing to flush
+      event.preventDefault();
+      const hasPendingChanges =
+        saveStateRef.current === "dirty" || saveStateRef.current === "error";
+      if (hasPendingChanges) commitSave(fieldsRef.current);
+    }
+    window.addEventListener("keydown", handleSaveShortcut);
+    return () => window.removeEventListener("keydown", handleSaveShortcut);
+  }, [commitSave]);
+
+  const isModified = saveState !== "saved";
+
+  useEffect(() => {
+    if (!isModified) return;
+    function warnBeforeLeaving(event: BeforeUnloadEvent) {
+      event.preventDefault();
+    }
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [isModified]);
 
   // Preview follows the body with its own debounce, hitting the real MDX
   // pipeline server-side so drafts render exactly like published posts
@@ -144,18 +194,36 @@ export function DraftEditor({
     setShareUrlCopied(true);
   }
 
+  async function handleCopyMdx() {
+    await navigator.clipboard.writeText(draftToMdx(fields));
+    setMdxCopied(true);
+    if (copyFeedbackTimer.current) clearTimeout(copyFeedbackTimer.current);
+    copyFeedbackTimer.current = setTimeout(
+      () => setMdxCopied(false),
+      COPY_FEEDBACK_MS,
+    );
+  }
+
   const issues = publishReadinessIssues(fields);
-  const isModified = saveState !== "saved";
   const draftFileName = `${fields.slug || "novo-post"}.mdx`;
+  const wordCount = fields.body.split(/\s+/).filter(Boolean).length;
+  const readingMinutes = Math.max(
+    1,
+    Math.round(wordCount / READING_WORDS_PER_MINUTE),
+  );
+  const showEmptyPreviewHint = fields.body.trim() === "";
   const shareUrl =
     shareToken === null ? null : `${origin}/rascunho/${shareToken}`;
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-line bg-surface px-3 py-2 font-mono text-xs">
-        <Link href="/admin/editor" className="text-link hover:underline">
-          ← drafts
-        </Link>
+        <span className="flex items-center gap-4">
+          <Link href="/admin/editor" className="text-link hover:underline">
+            ← drafts
+          </Link>
+          <DeleteDraftButton draftId={fields.id} />
+        </span>
         <span className="flex items-center gap-2">
           <span
             aria-hidden
@@ -177,6 +245,10 @@ export function DraftEditor({
                 ●
               </span>
             )}
+            <span className="ml-auto">
+              {wordCount} palavras
+              {wordCount > 0 && ` · ~${readingMinutes} min de leitura`}
+            </span>
           </p>
           <div className="flex flex-col gap-4 p-4">
             <input
@@ -223,9 +295,22 @@ export function DraftEditor({
                 pronto para publicar?
               </p>
               {issues.length === 0 ? (
-                <p className="mt-2 font-mono text-xs text-ok">
-                  ✓ frontmatter válido — publicar chega na próxima fase
-                </p>
+                <div className="mt-2 flex flex-col items-start gap-2">
+                  <p className="font-mono text-xs text-ok">
+                    ✓ frontmatter válido
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleCopyMdx}
+                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-link transition-colors hover:border-accent"
+                  >
+                    {mdxCopied ? "copiado ✓" : "copiar .mdx"}
+                  </button>
+                  <p className="font-mono text-xs text-faint">
+                    cole em content/posts/{fields.slug}.mdx e commite —
+                    publicar direto daqui chega na próxima fase
+                  </p>
+                </div>
               ) : (
                 <ul className="mt-2 flex flex-col gap-1 font-mono text-xs text-muted">
                   {issues.map((issue) => (
@@ -289,6 +374,11 @@ export function DraftEditor({
               <pre className="overflow-x-auto rounded-sm border border-danger p-3 font-mono text-xs text-danger">
                 {previewError}
               </pre>
+            ) : showEmptyPreviewHint ? (
+              <p className="font-mono text-sm text-faint">
+                // escreva MDX à esquerda — headings, código com highlight e
+                blocos mermaid viram diagrama aqui
+              </p>
             ) : (
               <article>
                 {fields.title && (
