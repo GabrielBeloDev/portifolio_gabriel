@@ -1,50 +1,43 @@
 import type { Metadata } from "next";
-import { RuledPage, RuledSection, SectionHeading } from "@gabriel/ui";
 import { PostRow } from "@/components/post-row";
 import { publishedPosts } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "escritos",
+  title: "blog",
   description: "Posts sobre o que estou construindo e estudando.",
 };
 
-function groupPostsByYear() {
-  const byYear = new Map<string, typeof publishedPosts>();
-  for (const post of publishedPosts) {
-    const year = post.date.slice(0, 4);
-    byYear.set(year, [...(byYear.get(year) ?? []), post]);
-  }
-  return [...byYear.entries()];
-}
-
 export default function BlogPage() {
-  const postGroups = groupPostsByYear();
+  const postCount = publishedPosts.length;
+  const postCountLabel = postCount === 1 ? "1 post" : `${postCount} posts`;
 
   return (
-    <RuledPage className="mx-auto max-w-3xl px-6 pb-16">
-      <RuledSection>
-        <h1 className="text-3xl font-semibold">escritos</h1>
-        <p className="mt-3 max-w-prose text-muted">
-          O que estou estudando, lendo e construindo — escrito para eu entender
-          melhor.
-        </p>
-      </RuledSection>
-      {postGroups.map(([year, posts]) => (
-        <RuledSection key={year}>
-          <SectionHeading>{year}</SectionHeading>
-          <ul className="mt-2 divide-y divide-line">
-            {posts.map((post) => (
-              <PostRow
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                title={post.title}
-                date={post.date}
-                summary={post.summary}
-              />
-            ))}
-          </ul>
-        </RuledSection>
-      ))}
-    </RuledPage>
+    <div className="max-w-[900px] px-6 py-10 sm:px-[60px] sm:py-14">
+      <p className="mb-2.5 font-mono text-sm text-faint">
+        const posts = await getAll(
+        <span className="text-ok">&apos;blog&apos;</span>)
+      </p>
+      <h1 className="font-display text-4xl font-bold leading-tight tracking-[-0.02em] sm:text-[46px]">
+        Blog
+      </h1>
+      <p className="mt-1.5 mb-9 text-[17px] text-muted-2">
+        Tudo que aprendi e achei que valia escrever.{" "}
+        <span className="text-accent">{postCountLabel}</span>.
+      </p>
+      <ul className="divide-y divide-line border-y border-line">
+        {publishedPosts.map((post, position) => (
+          <PostRow
+            key={post.slug}
+            href={`/blog/${post.slug}`}
+            title={post.title}
+            date={post.date}
+            summary={post.summary}
+            index={position + 1}
+            tag={post.tags[0]}
+            headingLevel="h2"
+          />
+        ))}
+      </ul>
+    </div>
   );
 }
