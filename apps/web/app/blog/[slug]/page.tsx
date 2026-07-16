@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, ReadingProgress } from "@gabriel/ui";
 import { CommentSection } from "@/components/comments/comment-section";
+import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
 import { findPost, publishedPosts } from "@/lib/content";
 import { formatDate } from "@/lib/format";
@@ -34,7 +35,10 @@ export default async function PostPage({
   return (
     <div className="mx-auto max-w-3xl px-6">
       <div className="relative border-l border-line py-12 pl-6 sm:pl-10">
-        <ReadingProgress className="-left-px" />
+        <ReadingProgress
+          className="-left-px"
+          scrollContainerId={CONTENT_SCROLL_CONTAINER_ID}
+        />
         <article>
           <header>
             <p className="font-mono text-xs text-muted">

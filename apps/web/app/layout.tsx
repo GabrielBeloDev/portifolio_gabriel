@@ -6,8 +6,11 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import {
+  CONTENT_SCROLL_CONTAINER_ID,
+  IdeShell,
+} from "@/components/ide/ide-shell";
+import { publishedPosts } from "@/lib/content";
 import "./globals.css";
 
 const onest = Onest({
@@ -43,6 +46,11 @@ export const metadata: Metadata = {
   description: "Dev. Escrevo sobre o que construo e estudo.",
 };
 
+const explorerPosts = publishedPosts.map(({ slug, title }) => ({
+  slug,
+  title,
+}));
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -52,7 +60,7 @@ export default function RootLayout({
       className={`${onest.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${newsreader.variable}`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-dvh flex-col">
+      <body>
         {/* Dark is the native theme (ADR-0009): an IDE boots dark */}
         <ThemeProvider
           attribute="class"
@@ -61,16 +69,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <a
-            href="#conteudo"
+            href={`#${CONTENT_SCROLL_CONTAINER_ID}`}
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-sm focus:border focus:border-accent focus:bg-surface focus:px-3 focus:py-2 focus:font-mono focus:text-xs"
           >
             pular para o conteúdo
           </a>
-          <SiteHeader />
-          <main id="conteudo" className="flex-1">
-            {children}
-          </main>
-          <SiteFooter />
+          <IdeShell posts={explorerPosts}>{children}</IdeShell>
         </ThemeProvider>
       </body>
     </html>
