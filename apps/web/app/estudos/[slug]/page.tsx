@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReadingProgress } from "@gabriel/ui";
+import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
 import {
   findCaseStudy,
@@ -41,7 +42,10 @@ export default async function CaseStudyPage({
   return (
     <div className="mx-auto max-w-3xl px-6">
       <div className="relative border-l border-line py-12 pl-6 sm:pl-10">
-        <ReadingProgress className="-left-px" scrollContainerId="conteudo" />
+        <ReadingProgress
+          className="-left-px"
+          scrollContainerId={CONTENT_SCROLL_CONTAINER_ID}
+        />
         <article>
           <header>
             <p className="font-mono text-xs text-muted">

@@ -9,6 +9,8 @@ import { StatusBar } from "./status-bar";
 import { TabsBar } from "./tabs-bar";
 import { WinBar } from "./win-bar";
 
+export const CONTENT_SCROLL_CONTAINER_ID = "conteudo";
+
 export function IdeShell({
   posts,
   children,
@@ -37,9 +39,12 @@ export function IdeShell({
         <div className="flex min-w-0 flex-1 flex-col bg-background">
           <TabsBar />
           <main
-            id="conteudo"
+            id={CONTENT_SCROLL_CONTAINER_ID}
             ref={contentRef}
-            className="min-h-0 flex-1 overflow-y-auto"
+            // Focusable so the skip link lands reliably and Safari keyboard
+            // users can scroll the pane (it never gains focus otherwise)
+            tabIndex={-1}
+            className="min-h-0 flex-1 overflow-y-auto outline-none"
           >
             {children}
           </main>

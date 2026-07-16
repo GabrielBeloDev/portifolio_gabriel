@@ -1,19 +1,42 @@
 import { neon } from "@neondatabase/serverless";
 import { expect, test } from "@playwright/test";
 
+const email = `e2e-comments-${process.pid}@example.com`;
 const E2E_EMAIL_PATTERN = "e2e-comments-%@example.com";
 
-// A run that dies mid-test leaves comments/likes behind in the real database;
-// sweep every fixture user's data so reruns start from a clean thread
-async function purgeCommentFixtures() {
+function requireDb() {
   const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) return;
-  const sql = neon(databaseUrl);
-  await sql`DELETE FROM "like" WHERE reader_id IN (SELECT id FROM "user" WHERE email LIKE ${E2E_EMAIL_PATTERN})`;
-  await sql`DELETE FROM "like" WHERE target_type = 'comment' AND target_id IN (SELECT id::text FROM comment WHERE author_id IN (SELECT id FROM "user" WHERE email LIKE ${E2E_EMAIL_PATTERN}))`;
-  await sql`DELETE FROM comment WHERE parent_id IS NOT NULL AND author_id IN (SELECT id FROM "user" WHERE email LIKE ${E2E_EMAIL_PATTERN})`;
-  await sql`DELETE FROM comment WHERE author_id IN (SELECT id FROM "user" WHERE email LIKE ${E2E_EMAIL_PATTERN})`;
-  await sql`DELETE FROM "user" WHERE email LIKE ${E2E_EMAIL_PATTERN}`;
+  // This hook only runs with E2E_WITH_DB=1, so a missing URL is always
+  // misconfiguration — failing loud beats a silent no-op sweep
+  if (!databaseUrl) {
+    throw new Error("E2E_WITH_DB=1 requer DATABASE_URL para o sweep de fixtures");
+  }
+  return neon(databaseUrl);
+}
+
+async function purgeFixtureUsers(userIds: string[]) {
+  if (userIds.length === 0) return;
+  const sql = requireDb();
+  await sql`DELETE FROM "like" WHERE reader_id = ANY(${userIds})`;
+  await sql`DELETE FROM "like" WHERE target_type = 'comment' AND target_id IN (SELECT id::text FROM comment WHERE author_id = ANY(${userIds}))`;
+  await sql`DELETE FROM comment WHERE parent_id IS NOT NULL AND author_id = ANY(${userIds})`;
+  await sql`DELETE FROM comment WHERE author_id = ANY(${userIds})`;
+  await sql`DELETE FROM "user" WHERE id = ANY(${userIds})`;
+}
+
+// A run that dies mid-test leaves data behind in the real database. The sweep
+// targets this run's exact email plus fixtures older than an hour — never a
+// live wildcard, so concurrent runs and any real user stay untouched
+async function purgeStaleFixtures() {
+  const sql = requireDb();
+  const fixtureUsers = await sql`SELECT id FROM "user" WHERE email = ${email} OR (email LIKE ${E2E_EMAIL_PATTERN} AND created_at < now() - interval '1 hour')`;
+  await purgeFixtureUsers(fixtureUsers.map((row) => String(row.id)));
+}
+
+async function purgeThisRun() {
+  const sql = requireDb();
+  const runUsers = await sql`SELECT id FROM "user" WHERE email = ${email}`;
+  await purgeFixtureUsers(runUsers.map((row) => String(row.id)));
 }
 
 // Needs the real database and auth stack — run locally with E2E_WITH_DB=1
@@ -23,10 +46,9 @@ test.describe("comentários", () => {
     "requer banco real (E2E_WITH_DB=1)",
   );
 
-  test.beforeAll(purgeCommentFixtures);
-  test.afterAll(purgeCommentFixtures);
+  test.beforeAll(purgeStaleFixtures);
+  test.afterAll(purgeThisRun);
 
-  const email = `e2e-comments-${process.pid}@example.com`;
   const postUrl = "/blog/o-pipeline-deste-blog";
   const rootComment = `comentário raiz e2e ${process.pid}`;
   const replyComment = `resposta aninhada e2e ${process.pid}`;
@@ -54,6 +76,7 @@ test.describe("comentários", () => {
     // not an absolute count, so likes from real users don't break the test
     const postLike = page.getByRole("button", { name: "curtir post" });
     const likesBefore = Number((await postLike.textContent())?.trim());
+    expect(Number.isFinite(likesBefore), "contador de likes deve ser um número").toBe(true);
     await postLike.click();
     await expect(postLike).toHaveText(String(likesBefore + 1));
     await expect(postLike).toHaveAttribute("aria-pressed", "true");

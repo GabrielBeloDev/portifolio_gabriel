@@ -1,34 +1,43 @@
-export interface IdeTab {
-  href: string;
-  label: string;
-  icon: string;
-  modified: boolean;
+export type IdeIcon = "🏠" | "📁" | "📄" | "📝" | "⚙";
+
+export interface IdeFile {
+  readonly href: string;
+  readonly label: string;
+  readonly icon: IdeIcon;
 }
 
-const BASE_TABS: readonly IdeTab[] = [
-  { href: "/", label: "home.tsx", icon: "🏠", modified: false },
-  { href: "/blog", label: "blog", icon: "📁", modified: false },
-  { href: "/projects", label: "projetos", icon: "📁", modified: false },
-  { href: "/estudos", label: "estudos", icon: "📁", modified: false },
-  { href: "/sobre", label: "sobre.md", icon: "📄", modified: false },
-];
+export interface IdeTab extends IdeFile {
+  readonly modified: boolean;
+}
 
-const STATIC_CRUMBS: Record<string, string> = {
-  "/": "~/home",
-  "/sobre": "sobre.md",
-  "/blog": "blog",
-  "/projects": "projetos",
-  "/estudos": "estudos",
-  "/entrar": "auth.config",
-  "/admin": "admin",
-  "/admin/editor": "admin / editor",
-};
+export const ROUTE_FILES = {
+  "/": { href: "/", label: "home.tsx", icon: "🏠" },
+  "/blog": { href: "/blog", label: "blog", icon: "📁" },
+  "/projects": { href: "/projects", label: "projetos", icon: "📁" },
+  "/estudos": { href: "/estudos", label: "estudos", icon: "📁" },
+  "/sobre": { href: "/sobre", label: "sobre.md", icon: "📄" },
+  "/entrar": { href: "/entrar", label: "auth.config", icon: "⚙" },
+} as const satisfies Record<string, IdeFile>;
+
+const BASE_TAB_ROUTES = [
+  "/",
+  "/blog",
+  "/projects",
+  "/estudos",
+  "/sobre",
+] as const;
 
 const CONTENT_ROUTE = /^\/(blog|estudos)\/([^/]+)$/;
 
+function isKnownRoute(pathname: string): pathname is keyof typeof ROUTE_FILES {
+  return pathname in ROUTE_FILES;
+}
+
 export function ideCrumb(pathname: string): string {
-  const staticCrumb = STATIC_CRUMBS[pathname];
-  if (staticCrumb) return staticCrumb;
+  if (pathname === "/") return "~/home";
+  if (isKnownRoute(pathname)) return ROUTE_FILES[pathname].label;
+  if (pathname === "/admin") return "admin";
+  if (pathname === "/admin/editor") return "admin / editor";
 
   const contentMatch = pathname.match(CONTENT_ROUTE);
   if (contentMatch) return `${contentMatch[1]} / ${contentMatch[2]}.mdx`;
@@ -37,8 +46,12 @@ export function ideCrumb(pathname: string): string {
 }
 
 export function ideTabs(pathname: string): IdeTab[] {
+  const baseTabs = BASE_TAB_ROUTES.map((route) => ({
+    ...ROUTE_FILES[route],
+    modified: false,
+  }));
   const deepTab = deriveDeepTab(pathname);
-  return deepTab ? [...BASE_TABS, deepTab] : [...BASE_TABS];
+  return deepTab ? [...baseTabs, deepTab] : baseTabs;
 }
 
 function deriveDeepTab(pathname: string): IdeTab | null {
@@ -53,7 +66,7 @@ function deriveDeepTab(pathname: string): IdeTab | null {
   }
 
   if (pathname === "/entrar") {
-    return { href: "/entrar", label: "auth.config", icon: "⚙", modified: false };
+    return { ...ROUTE_FILES["/entrar"], modified: false };
   }
 
   if (pathname === "/admin/editor") {

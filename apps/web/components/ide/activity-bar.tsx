@@ -1,14 +1,15 @@
+import { cn } from "@gabriel/ui";
+
 const TOP_ICONS = ["🗂", "⌕", "⑂", "◉"] as const;
 const BOTTOM_ICONS = ["◐", "⚙"] as const;
 
 function ActivityIcon({ icon, active = false }: { icon: string; active?: boolean }) {
   return (
     <span
-      className={
-        active
-          ? "-ml-0.5 flex size-9 items-center justify-center border-l-2 border-accent text-lg text-accent"
-          : "flex size-9 items-center justify-center text-lg text-faint"
-      }
+      className={cn(
+        "flex size-9 items-center justify-center text-lg",
+        active ? "-ml-0.5 border-l-2 border-accent text-accent" : "text-faint",
+      )}
     >
       {icon}
     </span>

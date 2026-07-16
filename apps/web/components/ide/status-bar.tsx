@@ -14,17 +14,22 @@ export function StatusBar() {
         href={REPO_URL}
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="código no GitHub"
         className="hover:underline"
       >
-        ⑂ main
+        <span aria-hidden>⑂</span> main
       </a>
-      <span className="hidden sm:inline">✓ 0 problemas</span>
+      <span className="hidden sm:inline">
+        <span aria-hidden>✓</span> 0 problemas
+      </span>
       <span className="ml-auto hidden truncate sm:inline">
         {ideCrumb(pathname)}
       </span>
       <span className="hidden md:inline">UTF-8</span>
       <span className="hidden md:inline">LF</span>
-      <span className="ml-auto sm:ml-0">♥ feito por Gabriel</span>
+      <span className="ml-auto sm:ml-0">
+        <span aria-hidden>♥</span> feito por Gabriel
+      </span>
     </footer>
   );
 }

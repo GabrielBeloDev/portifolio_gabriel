@@ -53,4 +53,13 @@ describe("ideTabs", () => {
     const deepTab = ideTabs("/admin/editor").at(-1);
     expect(deepTab).toMatchObject({ label: "editor", modified: true });
   });
+
+  it("anexa tab de admin sem marcador na raiz do admin", () => {
+    const deepTab = ideTabs("/admin").at(-1);
+    expect(deepTab).toMatchObject({
+      href: "/admin",
+      label: "admin",
+      modified: false,
+    });
+  });
 });

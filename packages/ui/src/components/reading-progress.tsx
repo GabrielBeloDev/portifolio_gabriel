@@ -19,6 +19,13 @@ export function ReadingProgress({
     const container = scrollContainerId
       ? document.getElementById(scrollContainerId)
       : null;
+    // The document fallback is fine for window-scrolling pages, but a missing
+    // id means a broken wiring that would otherwise freeze the bar at 0%
+    if (scrollContainerId && !container && process.env.NODE_ENV !== "production") {
+      console.warn(
+        `ReadingProgress: #${scrollContainerId} not found, falling back to document scroll`,
+      );
+    }
     const target = container ?? document.documentElement;
     const listenTarget: EventTarget = container ?? window;
     let frame = 0;
@@ -47,6 +54,7 @@ export function ReadingProgress({
   return (
     <div
       aria-hidden="true"
+      data-testid="reading-progress"
       className={cn("pointer-events-none absolute inset-y-0 w-px", className)}
     >
       <div ref={barRef} className="w-full bg-accent" style={{ height: "0%" }} />

@@ -6,7 +6,10 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { IdeShell } from "@/components/ide/ide-shell";
+import {
+  CONTENT_SCROLL_CONTAINER_ID,
+  IdeShell,
+} from "@/components/ide/ide-shell";
 import { publishedPosts } from "@/lib/content";
 import "./globals.css";
 
@@ -66,7 +69,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <a
-            href="#conteudo"
+            href={`#${CONTENT_SCROLL_CONTAINER_ID}`}
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-sm focus:border focus:border-accent focus:bg-surface focus:px-3 focus:py-2 focus:font-mono focus:text-xs"
           >
             pular para o conteúdo

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@gabriel/ui";
+import { ROUTE_FILES, type IdeFile, type IdeIcon } from "@/lib/ide-route";
 
 export interface ExplorerPost {
   slug: string;
@@ -17,12 +18,19 @@ interface ExplorerProps {
 
 interface ExplorerLinkProps {
   href: string;
-  icon: string;
+  icon: IdeIcon;
   onNavigate?: () => void;
   indent?: boolean;
   title?: string;
   children: React.ReactNode;
 }
+
+const TOP_FILES: readonly IdeFile[] = [ROUTE_FILES["/"], ROUTE_FILES["/sobre"]];
+const BOTTOM_FILES: readonly IdeFile[] = [
+  ROUTE_FILES["/projects"],
+  ROUTE_FILES["/estudos"],
+  ROUTE_FILES["/entrar"],
+];
 
 function ExplorerGroup({ children }: { children: React.ReactNode }) {
   return (
@@ -78,12 +86,16 @@ export function Explorer({ posts, onNavigate, className }: ExplorerProps) {
         EXPLORER
       </p>
       <ExplorerGroup>PORTIFOLIO_GABRIEL</ExplorerGroup>
-      <ExplorerLink href="/" icon="🏠" onNavigate={onNavigate}>
-        home.tsx
-      </ExplorerLink>
-      <ExplorerLink href="/sobre" icon="📄" onNavigate={onNavigate}>
-        sobre.md
-      </ExplorerLink>
+      {TOP_FILES.map((file) => (
+        <ExplorerLink
+          key={file.href}
+          href={file.href}
+          icon={file.icon}
+          onNavigate={onNavigate}
+        >
+          {file.label}
+        </ExplorerLink>
+      ))}
       <ExplorerGroup>blog</ExplorerGroup>
       <ExplorerLink href="/blog" icon="📁" onNavigate={onNavigate} indent>
         index
@@ -100,15 +112,16 @@ export function Explorer({ posts, onNavigate, className }: ExplorerProps) {
           {post.slug}.mdx
         </ExplorerLink>
       ))}
-      <ExplorerLink href="/projects" icon="📁" onNavigate={onNavigate}>
-        projetos
-      </ExplorerLink>
-      <ExplorerLink href="/estudos" icon="📁" onNavigate={onNavigate}>
-        estudos
-      </ExplorerLink>
-      <ExplorerLink href="/entrar" icon="⚙" onNavigate={onNavigate}>
-        auth.config
-      </ExplorerLink>
+      {BOTTOM_FILES.map((file) => (
+        <ExplorerLink
+          key={file.href}
+          href={file.href}
+          icon={file.icon}
+          onNavigate={onNavigate}
+        >
+          {file.label}
+        </ExplorerLink>
+      ))}
     </nav>
   );
 }
