@@ -11,6 +11,7 @@ import {
   IdeShell,
 } from "@/components/ide/ide-shell";
 import { publishedPosts } from "@/lib/content";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const onest = Onest({
@@ -39,11 +40,23 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Gabriel Belo",
     template: "%s · Gabriel Belo",
   },
   description: "Dev. Escrevo sobre o que construo e estudo.",
+  openGraph: {
+    siteName: "Gabriel Belo",
+    type: "website",
+    locale: "pt_BR",
+    url: SITE_URL,
+    title: "Gabriel Belo",
+    description: "Dev. Escrevo sobre o que construo e estudo.",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 const explorerPosts = publishedPosts.map(({ slug, title }) => ({
