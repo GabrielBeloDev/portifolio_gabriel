@@ -10,7 +10,7 @@ import {
   CONTENT_SCROLL_CONTAINER_ID,
   IdeShell,
 } from "@/components/ide/ide-shell";
-import { publishedPosts } from "@/lib/content";
+import { publishedCaseStudies, publishedPosts } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -64,6 +64,11 @@ const explorerPosts = publishedPosts.map(({ slug, title }) => ({
   title,
 }));
 
+const paletteCaseStudies = publishedCaseStudies.map(({ slug, title }) => ({
+  slug,
+  title,
+}));
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -87,7 +92,9 @@ export default function RootLayout({
           >
             pular para o conteúdo
           </a>
-          <IdeShell posts={explorerPosts}>{children}</IdeShell>
+          <IdeShell posts={explorerPosts} caseStudies={paletteCaseStudies}>
+            {children}
+          </IdeShell>
         </ThemeProvider>
       </body>
     </html>
