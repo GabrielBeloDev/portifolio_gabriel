@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ActivityBar } from "./activity-bar";
+import { CommandPalette, type PaletteDoc } from "./command-palette";
 import { Explorer, type ExplorerPost } from "./explorer";
 import { MobileDrawer } from "./mobile-drawer";
 import { StatusBar } from "./status-bar";
@@ -13,9 +14,11 @@ export const CONTENT_SCROLL_CONTAINER_ID = "conteudo";
 
 export function IdeShell({
   posts,
+  caseStudies,
   children,
 }: {
   posts: ExplorerPost[];
+  caseStudies: PaletteDoc[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -30,7 +33,10 @@ export function IdeShell({
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
-      <WinBar drawer={<MobileDrawer posts={posts} />} />
+      <WinBar
+        palette={<CommandPalette posts={posts} caseStudies={caseStudies} />}
+        drawer={<MobileDrawer posts={posts} />}
+      />
       <div className="flex min-h-0 flex-1">
         <ActivityBar
           explorerOpen={explorerOpen}
