@@ -6,8 +6,8 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { IdeShell } from "@/components/ide/ide-shell";
+import { publishedPosts } from "@/lib/content";
 import "./globals.css";
 
 const onest = Onest({
@@ -43,6 +43,11 @@ export const metadata: Metadata = {
   description: "Dev. Escrevo sobre o que construo e estudo.",
 };
 
+const explorerPosts = publishedPosts.map(({ slug, title }) => ({
+  slug,
+  title,
+}));
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -52,7 +57,7 @@ export default function RootLayout({
       className={`${onest.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${newsreader.variable}`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-dvh flex-col">
+      <body>
         {/* Dark is the native theme (ADR-0009): an IDE boots dark */}
         <ThemeProvider
           attribute="class"
@@ -66,11 +71,7 @@ export default function RootLayout({
           >
             pular para o conteúdo
           </a>
-          <SiteHeader />
-          <main id="conteudo" className="flex-1">
-            {children}
-          </main>
-          <SiteFooter />
+          <IdeShell posts={explorerPosts}>{children}</IdeShell>
         </ThemeProvider>
       </body>
     </html>

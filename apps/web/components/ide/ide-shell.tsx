@@ -1,0 +1,51 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { ActivityBar } from "./activity-bar";
+import { Explorer, type ExplorerPost } from "./explorer";
+import { MobileDrawer } from "./mobile-drawer";
+import { StatusBar } from "./status-bar";
+import { TabsBar } from "./tabs-bar";
+import { WinBar } from "./win-bar";
+
+export function IdeShell({
+  posts,
+  children,
+}: {
+  posts: ExplorerPost[];
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const contentRef = useRef<HTMLElement>(null);
+
+  // The editor pane is the scroll container, not the window — Next.js only
+  // resets window scroll on navigation, so the pane must be reset by hand.
+  useEffect(() => {
+    contentRef.current?.scrollTo(0, 0);
+  }, [pathname]);
+
+  return (
+    <div className="flex h-dvh flex-col overflow-hidden">
+      <WinBar drawer={<MobileDrawer posts={posts} />} />
+      <div className="flex min-h-0 flex-1">
+        <ActivityBar />
+        <Explorer
+          posts={posts}
+          className="hidden w-[246px] shrink-0 border-r border-line md:block"
+        />
+        <div className="flex min-w-0 flex-1 flex-col bg-background">
+          <TabsBar />
+          <main
+            id="conteudo"
+            ref={contentRef}
+            className="min-h-0 flex-1 overflow-y-auto"
+          >
+            {children}
+          </main>
+          <StatusBar />
+        </div>
+      </div>
+    </div>
+  );
+}

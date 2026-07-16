@@ -34,7 +34,7 @@ export default async function PostPage({
   return (
     <div className="mx-auto max-w-3xl px-6">
       <div className="relative border-l border-line py-12 pl-6 sm:pl-10">
-        <ReadingProgress className="-left-px" />
+        <ReadingProgress className="-left-px" scrollContainerId="conteudo" />
         <article>
           <header>
             <p className="font-mono text-xs text-muted">
