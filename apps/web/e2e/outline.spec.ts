@@ -31,8 +31,11 @@ test("clicar numa seção do outline navega para a âncora", async ({ page }) =>
 test("seção ativa fica marcada no outline após o scroll", async ({ page }) => {
   await page.goto("/blog/o-pipeline-deste-blog");
 
+  // A middle section always has a full section below it, so it can always
+  // reach the top band of the pane — the last one can't when the page tail
+  // is short (e.g. no comments on CI)
   const activeLink = outline(page).getByRole("link", {
-    name: "Diagramas como texto",
+    name: "Código com a cara da casa",
   });
 
   // The pane resets its scroll when React mounts, so a single scroll issued
@@ -41,7 +44,7 @@ test("seção ativa fica marcada no outline após o scroll", async ({ page }) =>
   await expect
     .poll(async () => {
       await page.evaluate(() => {
-        document.getElementById("diagramas-como-texto")?.scrollIntoView();
+        document.getElementById("código-com-a-cara-da-casa")?.scrollIntoView();
       });
       return activeLink.getAttribute("aria-current");
     })
