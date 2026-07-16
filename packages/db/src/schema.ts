@@ -51,11 +51,17 @@ export const draft = pgTable(
     summary: text("summary").notNull().default(""),
     tags: text("tags").notNull().default(""),
     body: text("body").notNull().default(""),
+    // Secret review link: the token itself is the credential — anyone holding
+    // it can read the draft without login; null means not shared
+    shareToken: uuid("share_token"),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
-  (table) => [index("draft_author_id_idx").on(table.authorId)],
+  (table) => [
+    index("draft_author_id_idx").on(table.authorId),
+    uniqueIndex("draft_share_token_uq").on(table.shareToken),
+  ],
 );
 
 // Aggregate-only by design: no per-reader tracking, so views stay anonymous

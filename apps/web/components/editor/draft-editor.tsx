@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MDXContent } from "@/components/mdx";
-import { previewDraft, saveDraft } from "@/lib/actions/drafts";
+import {
+  generateShareToken,
+  previewDraft,
+  revokeShareToken,
+  saveDraft,
+} from "@/lib/actions/drafts";
 import { publishReadinessIssues } from "@/lib/validation/draft";
 
 type DraftFields = {
@@ -49,11 +54,31 @@ const saveDotTone: Record<SaveState, string> = {
   error: "bg-danger",
 };
 
-export function DraftEditor({ draft: initial }: { draft: DraftFields }) {
+// window.location.origin never changes during a session, so subscribing is a no-op;
+// the empty server snapshot keeps SSR and the first client render identical
+const subscribeToNothing = () => () => {};
+const getOrigin = () => window.location.origin;
+const getServerOrigin = () => "";
+
+export function DraftEditor({
+  draft: initial,
+  shareToken: initialShareToken,
+}: {
+  draft: DraftFields;
+  shareToken: string | null;
+}) {
   const [fields, setFields] = useState(initial);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [previewCode, setPreviewCode] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [shareToken, setShareToken] = useState(initialShareToken);
+  const [shareUrlCopied, setShareUrlCopied] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const origin = useSyncExternalStore(
+    subscribeToNothing,
+    getOrigin,
+    getServerOrigin,
+  );
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function update(patch: Partial<DraftFields>) {
@@ -92,9 +117,38 @@ export function DraftEditor({ draft: initial }: { draft: DraftFields }) {
     return () => clearTimeout(handle);
   }, [fields.body]);
 
+  async function handleGenerateShareLink() {
+    const result = await generateShareToken({ id: fields.id });
+    if (!result.ok) {
+      setShareError(result.error);
+      return;
+    }
+    setShareToken(result.data.shareToken);
+    setShareUrlCopied(false);
+    setShareError(null);
+  }
+
+  async function handleRevokeShareLink() {
+    const result = await revokeShareToken({ id: fields.id });
+    if (!result.ok) {
+      setShareError(result.error);
+      return;
+    }
+    setShareToken(null);
+    setShareUrlCopied(false);
+    setShareError(null);
+  }
+
+  async function handleCopyShareLink(shareUrl: string) {
+    await navigator.clipboard.writeText(shareUrl);
+    setShareUrlCopied(true);
+  }
+
   const issues = publishReadinessIssues(fields);
   const isModified = saveState !== "saved";
   const draftFileName = `${fields.slug || "novo-post"}.mdx`;
+  const shareUrl =
+    shareToken === null ? null : `${origin}/rascunho/${shareToken}`;
 
   return (
     <div>
@@ -178,6 +232,48 @@ export function DraftEditor({ draft: initial }: { draft: DraftFields }) {
                     <li key={issue}>• {issue}</li>
                   ))}
                 </ul>
+              )}
+            </div>
+            <div className="rounded-sm border border-line bg-background-2 p-3">
+              <p className="font-mono text-xs tracking-widest text-faint uppercase">
+                link de revisão
+              </p>
+              {shareUrl === null ? (
+                <button
+                  type="button"
+                  onClick={handleGenerateShareLink}
+                  className="mt-2 rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-link transition-colors hover:border-accent"
+                >
+                  gerar link de revisão
+                </button>
+              ) : (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <input
+                    aria-label="URL do link de revisão"
+                    readOnly
+                    value={shareUrl}
+                    className="min-w-0 flex-1 rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleCopyShareLink(shareUrl)}
+                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-link transition-colors hover:border-accent"
+                  >
+                    {shareUrlCopied ? "copiado ✓" : "copiar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRevokeShareLink}
+                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-mono text-xs text-danger transition-colors hover:border-danger"
+                  >
+                    revogar
+                  </button>
+                </div>
+              )}
+              {shareError !== null && (
+                <p className="mt-2 font-mono text-xs text-danger">
+                  {shareError}
+                </p>
               )}
             </div>
           </div>
