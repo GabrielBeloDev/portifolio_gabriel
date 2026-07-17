@@ -11,6 +11,7 @@ import { PostHistory } from "@/components/post-history";
 import { PostToc } from "@/components/post-toc";
 import { RelatedPosts } from "@/components/related-posts";
 import { SeriesNav } from "@/components/series-nav";
+import { ShareSelection } from "@/components/share-selection";
 import { ViewTracker } from "@/components/view-tracker";
 import { findPost, publishedPosts } from "@/lib/content";
 import { formatDateHuman } from "@/lib/format";
@@ -117,9 +118,11 @@ export default async function PostPage({
           </header>
           <SeriesNav post={post} />
           <PostToc entries={post.toc} variant="details" />
-          <div className="prose mt-10">
-            <MDXContent code={post.code} />
-          </div>
+          <ShareSelection>
+            <div className="prose mt-10">
+              <MDXContent code={post.code} />
+            </div>
+          </ShareSelection>
         </article>
         <footer className="mt-9 flex flex-wrap items-center gap-3 border-t border-line pt-6">
           <CtaLink href="/blog" variant="ghost">
