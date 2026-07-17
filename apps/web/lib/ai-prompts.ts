@@ -42,6 +42,28 @@ export function buildImproveTextPrompt(text: string): ChatPrompt {
   };
 }
 
+export const TLDR_BULLET_COUNT = 3;
+
+// Groq context is generous but the summary only needs the opening of the post;
+// truncating keeps the call cheap and deterministic for very long posts
+const TLDR_SOURCE_MAX_CHARS = 8000;
+
+export function buildTldrPrompt(body: string): ChatPrompt {
+  return {
+    system:
+      "Você resume posts de um blog pessoal de engenharia de software mantendo a voz do autor: português natural, primeira pessoa. Não use travessão e não use dois-pontos no meio de frase. Responda apenas com 3 bullets curtos, um por linha, cada linha começando com '- ', sem nada antes ou depois.",
+    user: `Resuma o post abaixo em 3 bullets que digam ao leitor o que ele vai encontrar.\n\n${body.slice(0, TLDR_SOURCE_MAX_CHARS)}`,
+  };
+}
+
+export function parseTldrBullets(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.replace(/^\s*[-*•]\s*/, "").trim())
+    .filter((line) => line.length > 0)
+    .slice(0, TLDR_BULLET_COUNT);
+}
+
 export type PromotionDraft = {
   title: string;
   summary: string;
@@ -69,10 +91,7 @@ export function splitPromotionResult(text: string): PromotionBlock[] {
   if (linkedinIndex === -1) {
     return [{ label: "divulgação", content: text.trim() }];
   }
-  const thread = text
-    .slice(0, linkedinIndex)
-    .replace(THREAD_MARKER, "")
-    .trim();
+  const thread = text.slice(0, linkedinIndex).replace(THREAD_MARKER, "").trim();
   const linkedin = text.slice(linkedinIndex + LINKEDIN_MARKER.length).trim();
   return [
     { label: "thread pro x", content: thread },

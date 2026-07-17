@@ -86,6 +86,17 @@ export const postViewDaily = pgTable(
   (table) => [primaryKey({ columns: [table.slug, table.day] })],
 );
 
+// Cache filled on first read of a post: the Groq summary is generated once
+// and reused forever, never one call per pageview
+export const postTldr = pgTable("post_tldr", {
+  slug: text("slug").primaryKey(),
+  // JSON array of 3 bullet strings
+  bullets: text("bullets").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const like = pgTable(
   "like",
   {

@@ -4,6 +4,8 @@ import {
   buildOutlinePrompt,
   buildPromotionPrompt,
   buildSuggestTopicsPrompt,
+  buildTldrPrompt,
+  parseTldrBullets,
   splitPromotionResult,
 } from "./ai-prompts";
 
@@ -43,6 +45,38 @@ describe("buildImproveTextPrompt", () => {
     expect(system).toContain("primeira pessoa");
     expect(system).toContain("travessão");
     expect(system).toContain("dois-pontos");
+  });
+});
+
+describe("buildTldrPrompt", () => {
+  it("embeds the post body and asks for 3 bullets in the author voice", () => {
+    const prompt = buildTldrPrompt("## Seção\n\ntexto do post");
+    expect(prompt.user).toContain("3 bullets");
+    expect(prompt.user).toContain("## Seção\n\ntexto do post");
+    expect(prompt.system).toContain("primeira pessoa");
+    expect(prompt.system).toContain("travessão");
+    expect(prompt.system).toContain("dois-pontos");
+  });
+
+  it("truncates very long bodies so the call stays cheap", () => {
+    const prompt = buildTldrPrompt("x".repeat(20_000));
+    expect(prompt.user.length).toBeLessThan(10_000);
+  });
+});
+
+describe("parseTldrBullets", () => {
+  it("strips the bullet markers and keeps one item per line", () => {
+    expect(
+      parseTldrBullets("- primeiro ponto\n- segundo ponto\n- terceiro ponto"),
+    ).toEqual(["primeiro ponto", "segundo ponto", "terceiro ponto"]);
+  });
+
+  it("drops blank lines and caps the result at 3 bullets", () => {
+    expect(parseTldrBullets("- a\n\n- b\n- c\n- d")).toEqual(["a", "b", "c"]);
+  });
+
+  it("returns an empty list when the response has no content", () => {
+    expect(parseTldrBullets("  \n\n")).toEqual([]);
   });
 });
 
