@@ -1,6 +1,8 @@
 import type { MDXComponents } from "mdx/types";
+import { Children, isValidElement } from "react";
 import * as runtime from "react/jsx-runtime";
 import { Mermaid } from "./mermaid";
+import { ZoomImage } from "./zoom-image";
 
 type MDXComponent = React.ComponentType<{ components?: MDXComponents }>;
 
@@ -20,6 +22,42 @@ function getMDXComponent(code: string): MDXComponent {
   return component;
 }
 
+function isElementOfType(
+  node: React.ReactNode,
+  type: string,
+): node is React.ReactElement<{ children?: React.ReactNode }> {
+  return isValidElement(node) && node.type === type;
+}
+
+function countFootnoteItems(children: React.ReactNode): number {
+  const list = Children.toArray(children).find((child) =>
+    isElementOfType(child, "ol"),
+  );
+  if (!list) return 0;
+  return Children.toArray(list.props.children).filter((item) =>
+    isElementOfType(item, "li"),
+  ).length;
+}
+
+// remark-gfm emits footnotes as a trailing <section data-footnotes>; restyled
+// here as a collapsible panel in the IDE language (like revisões/outline).
+// The sr-only h2#footnote-label stays inside: every footnote ref points at it
+// via aria-describedby.
+function FootnotesPanel({ children }: { children?: React.ReactNode }) {
+  const noteCount = countFootnoteItems(children);
+  return (
+    <details
+      data-footnotes
+      className="rounded-md border border-line bg-surface px-4 py-3"
+    >
+      <summary className="cursor-pointer font-mono text-xs tracking-[0.1em] text-muted-2">
+        <span aria-hidden="true">{"// "}</span>notas ({noteCount})
+      </summary>
+      <div className="mt-3.5">{children}</div>
+    </details>
+  );
+}
+
 const sharedComponents: MDXComponents = {
   Mermaid,
   a: ({ href = "", ...props }: React.ComponentProps<"a">) => {
@@ -27,10 +65,18 @@ const sharedComponents: MDXComponents = {
     return (
       <a
         href={href}
-        {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        {...(isExternal
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
         {...props}
       />
     );
+  },
+  img: ZoomImage,
+  section: ({ children, ...props }: React.ComponentProps<"section">) => {
+    const isFootnotesSection = "data-footnotes" in props;
+    if (isFootnotesSection) return <FootnotesPanel>{children}</FootnotesPanel>;
+    return <section {...props}>{children}</section>;
   },
 };
 
