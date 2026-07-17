@@ -8,6 +8,7 @@ import { CtaLink } from "@/components/cta-link";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
 import { PostHistory } from "@/components/post-history";
+import { PostTldr } from "@/components/post-tldr";
 import { PostToc } from "@/components/post-toc";
 import { RelatedPosts } from "@/components/related-posts";
 import { SeriesNav } from "@/components/series-nav";
@@ -117,6 +118,7 @@ export default async function PostPage({
             </p>
           </header>
           <SeriesNav post={post} />
+          <PostTldr slug={post.slug} />
           <PostToc entries={post.toc} variant="details" />
           <ShareSelection>
             <div className="prose mt-10">
