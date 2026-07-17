@@ -35,10 +35,27 @@ test("post sem seções não mostra outline", async ({ page }) => {
   await expect(outline(page)).toHaveCount(0);
 });
 
-test("post sem tag em comum não mostra relacionados", async ({ page }) => {
+// Asserting that a specific post has ZERO related entries couples the test to
+// editorial state (any future post sharing a tag breaks CI); assert the
+// behavioral invariants instead: never lists itself, never more than 3
+test("relacionados nunca inclui o próprio post e mostra no máximo 3", async ({
+  page,
+}) => {
   await page.goto("/blog/o-pipeline-deste-blog");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByText("// relacionados")).toHaveCount(0);
+
+  const relatedSection = page.getByText("// relacionados");
+  const sectionCount = await relatedSection.count();
+  if (sectionCount === 0) return;
+
+  const relatedLinks = page
+    .locator("section", { has: relatedSection })
+    .locator('a[href^="/blog/"]');
+  const hrefs = await relatedLinks.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href")),
+  );
+  expect(hrefs.length).toBeLessThanOrEqual(3);
+  expect(hrefs).not.toContain("/blog/o-pipeline-deste-blog");
 });
 
 test("clicar numa seção do outline navega para a âncora", async ({ page }) => {
