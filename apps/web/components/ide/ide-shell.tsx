@@ -15,10 +15,12 @@ export const CONTENT_SCROLL_CONTAINER_ID = "conteudo";
 export function IdeShell({
   posts,
   caseStudies,
+  ciStatus,
   children,
 }: {
   posts: (ExplorerPost & PaletteDoc)[];
   caseStudies: PaletteDoc[];
+  ciStatus: React.ReactNode;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -75,7 +77,7 @@ export function IdeShell({
               {children}
             </div>
           </main>
-          <StatusBar />
+          <StatusBar ciStatus={ciStatus} />
         </div>
       </div>
     </div>

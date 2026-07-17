@@ -42,6 +42,7 @@ const BOTTOM_FILES: readonly IdeFile[] = [
   ROUTE_FILES["/projects"],
   ROUTE_FILES["/estudos"],
   ROUTE_FILES["/entrar"],
+  ROUTE_FILES["/commits"],
 ];
 
 function ExplorerGroup({ label, indent = false, children }: ExplorerGroupProps) {

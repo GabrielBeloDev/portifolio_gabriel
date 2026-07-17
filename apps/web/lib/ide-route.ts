@@ -1,4 +1,4 @@
-export type IdeIcon = "🏠" | "📁" | "📄" | "📝" | "⚙";
+export type IdeIcon = "🏠" | "📁" | "📄" | "📝" | "⚙" | "⑂";
 
 export interface IdeFile {
   readonly href: string;
@@ -18,6 +18,7 @@ export const ROUTE_FILES = {
   "/sobre": { href: "/sobre", label: "sobre.md", icon: "📄" },
   "/uses": { href: "/uses", label: ".dotfiles", icon: "⚙" },
   "/entrar": { href: "/entrar", label: "auth.config", icon: "⚙" },
+  "/commits": { href: "/commits", label: ".git/log", icon: "⑂" },
 } as const satisfies Record<string, IdeFile>;
 
 export interface UsesDotfile {

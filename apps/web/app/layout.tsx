@@ -6,6 +6,7 @@ import {
   Newsreader,
 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { CiStatus } from "@/components/ide/ci-status";
 import {
   CONTENT_SCROLL_CONTAINER_ID,
   IdeShell,
@@ -113,7 +114,11 @@ export default function RootLayout({
           >
             pular para o conteúdo
           </a>
-          <IdeShell posts={explorerPosts} caseStudies={paletteCaseStudies}>
+          <IdeShell
+            posts={explorerPosts}
+            caseStudies={paletteCaseStudies}
+            ciStatus={<CiStatus />}
+          >
             {children}
           </IdeShell>
         </ThemeProvider>
