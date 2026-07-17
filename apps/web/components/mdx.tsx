@@ -1,5 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import * as runtime from "react/jsx-runtime";
+import { cn } from "@gabriel/ui";
+import { CopyCodeButton } from "./copy-code-button";
 import { Mermaid } from "./mermaid";
 
 type MDXComponent = React.ComponentType<{ components?: MDXComponents }>;
@@ -22,6 +24,28 @@ function getMDXComponent(code: string): MDXComponent {
 
 const sharedComponents: MDXComponents = {
   Mermaid,
+  // rehype-pretty-code draws the title bar via CSS only, so the copy button
+  // is mounted here, absolutely positioned over that bar
+  figure: ({
+    className,
+    children,
+    ...props
+  }: React.ComponentProps<"figure">) => {
+    const isCodeFigure = "data-rehype-pretty-code-figure" in props;
+    if (!isCodeFigure) {
+      return (
+        <figure className={className} {...props}>
+          {children}
+        </figure>
+      );
+    }
+    return (
+      <figure className={cn("relative", className)} {...props}>
+        {children}
+        <CopyCodeButton />
+      </figure>
+    );
+  },
   a: ({ href = "", ...props }: React.ComponentProps<"a">) => {
     const isExternal = href.startsWith("http");
     return (

@@ -17,7 +17,7 @@ export function IdeShell({
   caseStudies,
   children,
 }: {
-  posts: ExplorerPost[];
+  posts: (ExplorerPost & PaletteDoc)[];
   caseStudies: PaletteDoc[];
   children: React.ReactNode;
 }) {

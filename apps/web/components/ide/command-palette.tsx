@@ -1,6 +1,6 @@
 "use client";
 
-import { Command } from "cmdk";
+import { Command, useCommandState } from "cmdk";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ROUTE_FILES, type IdeFile, type IdeIcon } from "@/lib/ide-route";
@@ -8,6 +8,7 @@ import { ROUTE_FILES, type IdeFile, type IdeIcon } from "@/lib/ide-route";
 export interface PaletteDoc {
   slug: string;
   title: string;
+  searchText: string;
 }
 
 interface CommandPaletteProps {
@@ -19,6 +20,7 @@ interface PaletteItemProps {
   href: string;
   icon: IdeIcon;
   path?: string;
+  searchText?: string;
   onOpenRoute: (href: string) => void;
   children: string;
 }
@@ -31,20 +33,71 @@ const FIXED_ROUTES: readonly IdeFile[] = [
   ROUTE_FILES["/sobre"],
 ];
 
+const EXCERPT_RADIUS = 40;
+const TITLE_MATCH_SCORE = 1;
+const CONTENT_MATCH_SCORE = 0.5;
+
+function matchTitleOrContent(
+  value: string,
+  search: string,
+  keywords?: string[],
+): number {
+  const query = search.trim().toLowerCase();
+  if (query.length === 0) return TITLE_MATCH_SCORE;
+  if (value.toLowerCase().includes(query)) return TITLE_MATCH_SCORE;
+  const matchesContent =
+    keywords?.some((text) => text.includes(query)) ?? false;
+  return matchesContent ? CONTENT_MATCH_SCORE : 0;
+}
+
+function deriveContentExcerpt(
+  matchedValue: string,
+  searchText: string | undefined,
+  search: string,
+): string | null {
+  const query = search.trim().toLowerCase();
+  if (query.length === 0 || !searchText) return null;
+  if (matchedValue.toLowerCase().includes(query)) return null;
+  const matchIndex = searchText.indexOf(query);
+  if (matchIndex === -1) return null;
+  const start = Math.max(0, matchIndex - EXCERPT_RADIUS);
+  const end = Math.min(
+    searchText.length,
+    matchIndex + query.length + EXCERPT_RADIUS,
+  );
+  const prefix = start > 0 ? "…" : "";
+  const suffix = end < searchText.length ? "…" : "";
+  return `${prefix}${searchText.slice(start, end)}${suffix}`;
+}
+
 function PaletteItem({
   href,
   icon,
   path,
+  searchText,
   onOpenRoute,
   children,
 }: PaletteItemProps) {
+  const search = useCommandState((state) => state.search);
+  const matchedValue = path ? `${children} ${path}` : children;
+  const excerpt = deriveContentExcerpt(matchedValue, searchText, search);
+
   return (
     <Command.Item
+      value={matchedValue}
+      keywords={searchText ? [searchText] : undefined}
       onSelect={() => onOpenRoute(href)}
       className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-[13px] text-muted-2 data-[selected=true]:bg-accent-soft data-[selected=true]:text-accent"
     >
       <span aria-hidden>{icon}</span>
-      <span className="truncate">{children}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate">{children}</span>
+        {excerpt && (
+          <span aria-hidden className="block truncate text-[11px] text-muted-2">
+            {excerpt}
+          </span>
+        )}
+      </span>
       {path && (
         <span className="ml-auto shrink-0 text-[11px] text-faint">{path}</span>
       )}
@@ -87,6 +140,7 @@ export function CommandPalette({ posts, caseStudies }: CommandPaletteProps) {
         open={open}
         onOpenChange={setOpen}
         label="buscar"
+        filter={matchTitleOrContent}
         overlayClassName="fixed inset-0 z-40 bg-black/50"
         contentClassName="fixed top-[18%] left-1/2 z-50 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2"
         className="flex w-full flex-col overflow-hidden rounded-md border border-line bg-surface font-mono shadow-xl outline-none"
@@ -118,6 +172,7 @@ export function CommandPalette({ posts, caseStudies }: CommandPaletteProps) {
                 href={`/blog/${post.slug}`}
                 icon="📝"
                 path={`blog/${post.slug}.mdx`}
+                searchText={post.searchText}
                 onOpenRoute={openRoute}
               >
                 {post.title}
@@ -131,6 +186,7 @@ export function CommandPalette({ posts, caseStudies }: CommandPaletteProps) {
                 href={`/estudos/${study.slug}`}
                 icon="📄"
                 path={`estudos/${study.slug}.mdx`}
+                searchText={study.searchText}
                 onOpenRoute={openRoute}
               >
                 {study.title}
