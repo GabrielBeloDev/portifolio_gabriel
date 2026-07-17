@@ -27,7 +27,20 @@ export function IdeShell({
 
   // The editor pane is the scroll container, not the window — Next.js only
   // resets window scroll on navigation, so the pane must be reset by hand.
+  // A hash deep link would be swallowed by that reset, so it wins instead.
   useEffect(() => {
+    const anchorId = decodeURIComponent(window.location.hash.slice(1));
+    const anchor = anchorId ? document.getElementById(anchorId) : null;
+    if (anchor) {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      anchor.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
+      return;
+    }
     contentRef.current?.scrollTo(0, 0);
   }, [pathname]);
 

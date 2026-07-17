@@ -45,11 +45,17 @@ export function PostToc({ entries, variant }: PostTocProps) {
 
     // The negative bottom margin limits the hit area to the top band of the
     // pane, so the section being read wins over the ones still below the fold
+    const intersectingIds = new Set<string>();
     const observer = new IntersectionObserver(
       (observed) => {
         for (const entry of observed) {
-          if (entry.isIntersecting) setActiveId(entry.target.id);
+          if (entry.isIntersecting) intersectingIds.add(entry.target.id);
+          else intersectingIds.delete(entry.target.id);
         }
+        // Short sections let two headings share the band — the topmost one
+        // is the section actually being read
+        const topmost = items.find((item) => intersectingIds.has(item.id));
+        if (topmost) setActiveId(topmost.id);
       },
       { root: scrollContainer, rootMargin: "0px 0px -70% 0px" },
     );

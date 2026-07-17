@@ -101,6 +101,7 @@
 .prose h3 {
   font-family: var(--font-display);
   color: var(--foreground);
+  scroll-margin-top: 1rem;
 }
 
 .prose h2 {

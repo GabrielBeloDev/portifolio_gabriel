@@ -99,7 +99,8 @@ test.describe("mobile", () => {
   test("outline colapsável abre e navega para a seção", async ({ page }) => {
     await page.goto("/blog/o-pipeline-deste-blog");
 
-    await page.locator("summary").click();
+    // The revisions section renders a second <summary>; target the outline one
+    await page.locator("summary", { hasText: "outline" }).click();
     await outline(page)
       .getByRole("link", { name: "Diagramas como texto" })
       .click();
