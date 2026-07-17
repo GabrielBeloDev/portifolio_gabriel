@@ -28,14 +28,23 @@ async function selectProseText(page: Page) {
   }, SELECTION_LENGTH);
 }
 
+// Selecting before hydration finds no selectionchange listener yet, so the
+// selection is retried until the popover reacts
+async function openSharePopover(page: Page) {
+  const toolbar = page.getByRole("toolbar", { name: "compartilhar trecho" });
+  await expect(async () => {
+    await selectProseText(page);
+    await expect(toolbar).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 15_000 });
+  return toolbar;
+}
+
 test("selecionar um trecho do post abre o popover de compartilhar", async ({
   page,
 }) => {
   await page.goto(POST_PATH);
-  await selectProseText(page);
 
-  const toolbar = page.getByRole("toolbar", { name: "compartilhar trecho" });
-  await expect(toolbar).toBeVisible();
+  const toolbar = await openSharePopover(page);
   await expect(
     toolbar.getByRole("button", { name: "copiar link" }),
   ).toBeVisible();
@@ -51,9 +60,9 @@ test("copiar link coloca no clipboard a URL com text fragment", async ({
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto(POST_PATH);
-  await selectProseText(page);
 
-  const copyButton = page.getByRole("button", { name: "copiar link" });
+  const toolbar = await openSharePopover(page);
+  const copyButton = toolbar.getByRole("button", { name: "copiar link" });
   await copyButton.click();
   await expect(copyButton).toHaveText("copiado ✓");
 
