@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import {
+  DailyViewsAreaChart,
   PostViewsBarChart,
   SignupsAreaChart,
 } from "@/components/admin/metrics-charts";
@@ -9,6 +10,7 @@ import {
   getAdminTotals,
   listSignupsByDay,
   listUsersWithLastSession,
+  listViewsByDay,
   listViewsByPost,
 } from "@/lib/admin-metrics";
 import { auth } from "@/lib/auth";
@@ -28,12 +30,14 @@ export default async function AdminDashboardPage() {
     notFound();
   }
 
-  const [users, signupsByDay, viewsByPost, totals] = await Promise.all([
-    listUsersWithLastSession(),
-    listSignupsByDay(),
-    listViewsByPost(),
-    getAdminTotals(),
-  ]);
+  const [users, signupsByDay, viewsByDay, viewsByPost, totals] =
+    await Promise.all([
+      listUsersWithLastSession(),
+      listSignupsByDay(),
+      listViewsByDay(),
+      listViewsByPost(),
+      getAdminTotals(),
+    ]);
 
   const totalCards = [
     { label: "comentários", value: totals.comments },
@@ -117,6 +121,14 @@ export default async function AdminDashboardPage() {
           cadastros por dia (30d)/
         </p>
         <SignupsAreaChart data={signupsByDay} />
+      </section>
+
+      <section className="mt-8 overflow-hidden rounded-md border border-line bg-surface">
+        <p className="flex items-center gap-1.5 border-b border-line bg-background-2 px-4 py-2 font-mono text-xs text-faint">
+          <span aria-hidden>⌄</span>
+          views por dia (30d)/
+        </p>
+        <DailyViewsAreaChart data={viewsByDay} />
       </section>
 
       <section className="mt-8 overflow-hidden rounded-md border border-line bg-surface">

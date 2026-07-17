@@ -17,6 +17,7 @@ import { formatDateHuman } from "@/lib/format";
 // Local shapes on purpose: importing lib/admin-metrics here would pull the
 // server-only db client into the client bundle
 type SignupPoint = { day: string; total: number };
+type ViewsByDayPoint = { day: string; total: number };
 type PostViewsPoint = { slug: string; title: string; views: number };
 
 const AXIS_TICK = { fill: "var(--muted-2)", fontSize: 11 };
@@ -108,6 +109,60 @@ export function SignupsAreaChart({ data }: { data: SignupPoint[] }) {
             activeDot={{
               r: 4,
               fill: "var(--accent)",
+              stroke: "var(--surface)",
+            }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function DailyViewsAreaChart({ data }: { data: ViewsByDayPoint[] }) {
+  return (
+    <div
+      role="img"
+      aria-label="Gráfico de área com o número de views por dia nos últimos 30 dias"
+      className="px-2 py-3 font-mono"
+    >
+      <ResponsiveContainer width="100%" height={240}>
+        <AreaChart
+          data={data}
+          margin={{ top: 8, right: 12, bottom: 0, left: 0 }}
+        >
+          <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+          <XAxis
+            dataKey="day"
+            tick={AXIS_TICK}
+            tickLine={false}
+            axisLine={AXIS_LINE}
+            tickFormatter={formatDayTick}
+            minTickGap={24}
+          />
+          <YAxis
+            tick={AXIS_TICK}
+            tickLine={false}
+            axisLine={false}
+            allowDecimals={false}
+            width={32}
+          />
+          <Tooltip
+            cursor={{ stroke: "var(--muted-2)", strokeDasharray: "3 3" }}
+            content={
+              <ChartTooltip unit="views" formatLabel={formatDateHuman} />
+            }
+          />
+          <Area
+            type="monotone"
+            dataKey="total"
+            name="views"
+            stroke="var(--ok)"
+            strokeWidth={2}
+            fill="var(--ok)"
+            fillOpacity={0.12}
+            activeDot={{
+              r: 4,
+              fill: "var(--ok)",
               stroke: "var(--surface)",
             }}
           />

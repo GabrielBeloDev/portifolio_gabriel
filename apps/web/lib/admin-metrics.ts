@@ -8,6 +8,7 @@ import {
   like,
   max,
   postView,
+  postViewDaily,
   session,
   sql,
   user,
@@ -36,6 +37,11 @@ export type PostViews = {
   views: number;
 };
 
+export type ViewsByDay = {
+  day: string;
+  total: number;
+};
+
 export type AdminTotals = {
   comments: number;
   likes: number;
@@ -43,6 +49,7 @@ export type AdminTotals = {
 };
 
 const SIGNUP_WINDOW_DAYS = 30;
+const VIEWS_WINDOW_DAYS = 30;
 
 export async function listUsersWithLastSession(): Promise<AdminUser[]> {
   return db
@@ -76,6 +83,33 @@ export async function listSignupsByDay(): Promise<SignupsByDay[]> {
 
   // Zero-fill the window: a time axis with missing days would distort the chart
   return Array.from({ length: SIGNUP_WINDOW_DAYS }, (_, index) => {
+    const date = new Date(windowStart);
+    date.setUTCDate(windowStart.getUTCDate() + index);
+    const day = date.toISOString().slice(0, 10);
+    return { day, total: totalsByDay.get(day) ?? 0 };
+  });
+}
+
+export async function listViewsByDay(
+  days: number = VIEWS_WINDOW_DAYS,
+): Promise<ViewsByDay[]> {
+  const windowStart = new Date();
+  windowStart.setUTCDate(windowStart.getUTCDate() - (days - 1));
+  windowStart.setUTCHours(0, 0, 0, 0);
+
+  const rows = await db
+    .select({
+      day: postViewDaily.day,
+      total: sql<number>`sum(${postViewDaily.count})::int`,
+    })
+    .from(postViewDaily)
+    .where(gte(postViewDaily.day, windowStart.toISOString().slice(0, 10)))
+    .groupBy(postViewDaily.day);
+
+  const totalsByDay = new Map(rows.map((row) => [row.day, row.total]));
+
+  // Zero-fill the window: a time axis with missing days would distort the chart
+  return Array.from({ length: days }, (_, index) => {
     const date = new Date(windowStart);
     date.setUTCDate(windowStart.getUTCDate() + index);
     const day = date.toISOString().slice(0, 10);
