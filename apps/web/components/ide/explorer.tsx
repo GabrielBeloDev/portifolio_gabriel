@@ -4,7 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useState } from "react";
 import { cn } from "@gabriel/ui";
-import { ROUTE_FILES, type IdeFile, type IdeIcon } from "@/lib/ide-route";
+import {
+  ROUTE_FILES,
+  USES_DOTFILES,
+  type IdeFile,
+  type IdeIcon,
+} from "@/lib/ide-route";
 
 export interface ExplorerPost {
   slug: string;
@@ -140,6 +145,19 @@ export function Explorer({ posts, onNavigate, className }: ExplorerProps) {
               title={post.title}
             >
               {post.slug}.mdx
+            </ExplorerLink>
+          ))}
+        </ExplorerGroup>
+        <ExplorerGroup label=".dotfiles" indent>
+          {USES_DOTFILES.map((file) => (
+            <ExplorerLink
+              key={file.anchor}
+              href={`/uses#${file.anchor}`}
+              icon="⚙"
+              onNavigate={onNavigate}
+              indent
+            >
+              {file.filename}
             </ExplorerLink>
           ))}
         </ExplorerGroup>
