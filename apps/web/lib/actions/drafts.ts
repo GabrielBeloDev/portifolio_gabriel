@@ -3,9 +3,11 @@
 import { compile } from "@mdx-js/mdx";
 import { and, draft, desc, eq } from "@gabriel/db";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { findPost } from "@/lib/content";
 import { db } from "@/lib/db";
 import { rehypePlugins, remarkPlugins } from "@/lib/mdx-pipeline";
 import { saveDraftSchema } from "@/lib/validation/draft";
@@ -31,6 +33,34 @@ export async function createDraft(): Promise<ActionResult<{ id: string }>> {
   if (!created) return { ok: false, error: "não foi possível criar o draft" };
 
   return { ok: true, data: { id: created.id } };
+}
+
+export async function createDraftFromPost(
+  input: unknown,
+): Promise<ActionResult> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "sem permissão" };
+
+  const parsed = z.object({ slug: z.string() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "dados inválidos" };
+
+  const post = findPost(parsed.data.slug);
+  if (!post) return { ok: false, error: "post não encontrado" };
+
+  const [created] = await db
+    .insert(draft)
+    .values({
+      authorId: admin.id,
+      title: post.title,
+      slug: post.slug,
+      summary: post.summary,
+      tags: post.tags.join(", "),
+      body: post.raw,
+    })
+    .returning({ id: draft.id });
+  if (!created) return { ok: false, error: "não foi possível criar o draft" };
+
+  redirect(`/admin/editor/${created.id}`);
 }
 
 export async function saveDraft(input: unknown): Promise<ActionResult> {

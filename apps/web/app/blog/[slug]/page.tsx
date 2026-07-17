@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReadingProgress } from "@gabriel/ui";
+import { AdminEditLink } from "@/components/admin-edit-link";
 import { CommentSection } from "@/components/comments/comment-section";
 import { CtaLink } from "@/components/cta-link";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
@@ -94,6 +95,7 @@ export default async function PostPage({
               </time>{" "}
               · {post.metadata.readingTime} min de leitura
               <ViewTracker slug={post.slug} />
+              <AdminEditLink slug={post.slug} />
             </p>
             <h1 className="mt-4 font-display text-4xl leading-[1.08] font-bold tracking-[-0.02em] sm:text-[44px]">
               {post.title}
