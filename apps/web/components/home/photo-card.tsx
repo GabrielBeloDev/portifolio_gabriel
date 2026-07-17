@@ -1,15 +1,19 @@
+import Image from "next/image";
+
 import { GITHUB_PROFILE_URL } from "@/lib/site";
+
+import gabrielPhoto from "./gabriel.jpg";
 
 export function PhotoCard() {
   return (
     <div className="relative">
-      <div className="flex aspect-[4/5] items-center justify-center rounded-xl border border-line bg-linear-150 from-surface to-background-2 text-center font-mono text-xs leading-[1.7] text-faint">
-        <span>
-          sua foto
-          <br />
-          aqui
-        </span>
-      </div>
+      <Image
+        src={gabrielPhoto}
+        alt="Gabriel Belo"
+        placeholder="blur"
+        className="aspect-[4/5] rounded-xl border border-line object-cover"
+        sizes="(min-width:1024px) 320px, 100vw"
+      />
       <a
         href={GITHUB_PROFILE_URL}
         target="_blank"
