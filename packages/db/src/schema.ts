@@ -1,8 +1,10 @@
 import {
+  date,
   index,
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -72,6 +74,17 @@ export const postView = pgTable("post_view", {
   slug: text("slug").primaryKey(),
   count: integer("count").notNull().default(0),
 });
+
+// Same beacon as post_view, bucketed per day so the dashboard keeps history
+export const postViewDaily = pgTable(
+  "post_view_daily",
+  {
+    slug: text("slug").notNull(),
+    day: date("day").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.slug, table.day] })],
+);
 
 export const like = pgTable(
   "like",

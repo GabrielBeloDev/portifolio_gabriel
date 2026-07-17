@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
-import { eq, postView, sql } from "@gabriel/db";
+import { eq, postView, postViewDaily, sql } from "@gabriel/db";
 import { findPost } from "@/lib/content";
 import { db } from "@/lib/db";
 
@@ -49,6 +49,14 @@ export async function POST(_request: NextRequest, context: RouteContext) {
   if (!row) {
     throw new Error(`post_view upsert for "${slug}" returned no row`);
   }
+
+  await db
+    .insert(postViewDaily)
+    .values({ slug, day: sql`CURRENT_DATE`, count: 1 })
+    .onConflictDoUpdate({
+      target: [postViewDaily.slug, postViewDaily.day],
+      set: { count: sql`${postViewDaily.count} + 1` },
+    });
 
   return NextResponse.json({ count: row.count });
 }
