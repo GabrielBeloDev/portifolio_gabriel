@@ -1,5 +1,5 @@
-import { neon } from "@neondatabase/serverless";
 import { expect, test } from "@playwright/test";
+import { ADMIN_STATE, requireDb } from "./fixtures";
 
 // Needs the real database and an admin user — run locally with E2E_WITH_DB=1
 test.describe("ferramentas de escrita do editor", () => {
@@ -8,54 +8,28 @@ test.describe("ferramentas de escrita do editor", () => {
     "requer banco real (E2E_WITH_DB=1)",
   );
 
-  test.use({ permissions: ["clipboard-read", "clipboard-write"] });
+  test.use({
+    storageState: ADMIN_STATE,
+    permissions: ["clipboard-read", "clipboard-write"],
+  });
 
-  const email = `e2e-editor-tools-${process.pid}@example.com`;
+  let draftId: string | undefined;
 
+  // The test deletes its own draft; this sweep only covers a run that died
+  // mid-test, and never touches the fixture user or other specs' drafts
   test.afterAll(async () => {
-    const databaseUrl = process.env.DATABASE_URL;
-    if (!databaseUrl) return;
-    const sql = neon(databaseUrl);
-    await sql`DELETE FROM draft WHERE author_id IN (SELECT id FROM "user" WHERE email = ${email})`;
-    await sql`DELETE FROM "user" WHERE email = ${email}`;
+    if (!draftId) return;
+    const sql = requireDb();
+    await sql`DELETE FROM draft WHERE id = ${draftId}`;
   });
 
   test("contador de palavras, Cmd+S, copiar .mdx e apagar draft com confirmação", async ({
     page,
   }) => {
-    // The rate-limit wait below consumes half of the default 30s budget
-    test.setTimeout(60_000);
-
-    const databaseUrl = process.env.DATABASE_URL;
-    expect(databaseUrl, "DATABASE_URL precisa estar no ambiente").toBeTruthy();
-
-    // better-auth rate-limits /sign-up/email to 3 requests per 10s per IP and
-    // the parallel specs already consume that burst — wait out the window so
-    // this fourth signup does not 429 a neighbour spec (nor get 429'd itself)
-    await page.waitForTimeout(15_000);
-
-    await page.goto("/entrar");
-    await page.getByRole("tab", { name: "criar conta" }).click();
-    await page.getByLabel("nome").fill("Admin E2E");
-    await page.getByLabel("email").fill(email);
-    await page.getByLabel("senha").fill("senha-de-teste-123");
-    await page.getByRole("button", { name: "criar conta" }).click();
-    await page.waitForURL("/");
-
-    const sql = neon(databaseUrl as string);
-    await sql`UPDATE "user" SET role = 'admin' WHERE email = ${email}`;
-
-    // Re-login so the session reflects the promoted role
-    await page.getByRole("button", { name: "sair" }).click();
-    await page.goto("/entrar");
-    await page.getByLabel("email").fill(email);
-    await page.getByLabel("senha").fill("senha-de-teste-123");
-    await page.getByRole("button", { name: "entrar", exact: true }).click();
-    await page.waitForURL("/");
-
     await page.goto("/admin/editor");
     await page.getByRole("button", { name: "novo draft →" }).click();
     await page.waitForURL(/\/admin\/editor\/[0-9a-f-]+$/);
+    draftId = new URL(page.url()).pathname.split("/").pop();
 
     await page.getByLabel("título").fill("Post de ferramentas e2e");
     await page.getByLabel("slug").fill("post-de-ferramentas-e2e");

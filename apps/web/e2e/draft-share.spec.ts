@@ -1,5 +1,5 @@
-import { neon } from "@neondatabase/serverless";
 import { expect, test } from "@playwright/test";
+import { ADMIN_STATE, ANONYMOUS_STATE, requireDb } from "./fixtures";
 
 // Needs the real database and an admin user — run locally with E2E_WITH_DB=1
 test.describe("link de revisão de rascunho", () => {
@@ -8,45 +8,26 @@ test.describe("link de revisão de rascunho", () => {
     "requer banco real (E2E_WITH_DB=1)",
   );
 
-  const email = `e2e-draft-share-${process.pid}@example.com`;
+  test.use({ storageState: ADMIN_STATE });
 
+  let draftId: string | undefined;
+
+  // Drafts belong to the shared admin fixture, so the purge targets only the
+  // draft this spec created — never the fixture user or other specs' drafts
   test.afterAll(async () => {
-    const databaseUrl = process.env.DATABASE_URL;
-    if (!databaseUrl) return;
-    const sql = neon(databaseUrl);
-    await sql`DELETE FROM draft WHERE author_id IN (SELECT id FROM "user" WHERE email = ${email})`;
-    await sql`DELETE FROM "user" WHERE email = ${email}`;
+    if (!draftId) return;
+    const sql = requireDb();
+    await sql`DELETE FROM draft WHERE id = ${draftId}`;
   });
 
   test("admin gera link, revisor deslogado vê o draft e revogar derruba o acesso", async ({
     page,
     browser,
   }) => {
-    const databaseUrl = process.env.DATABASE_URL;
-    expect(databaseUrl, "DATABASE_URL precisa estar no ambiente").toBeTruthy();
-
-    await page.goto("/entrar");
-    await page.getByRole("tab", { name: "criar conta" }).click();
-    await page.getByLabel("nome").fill("Admin E2E");
-    await page.getByLabel("email").fill(email);
-    await page.getByLabel("senha").fill("senha-de-teste-123");
-    await page.getByRole("button", { name: "criar conta" }).click();
-    await page.waitForURL("/");
-
-    const sql = neon(databaseUrl as string);
-    await sql`UPDATE "user" SET role = 'admin' WHERE email = ${email}`;
-
-    // Re-login so the session reflects the promoted role
-    await page.getByRole("button", { name: "sair" }).click();
-    await page.goto("/entrar");
-    await page.getByLabel("email").fill(email);
-    await page.getByLabel("senha").fill("senha-de-teste-123");
-    await page.getByRole("button", { name: "entrar", exact: true }).click();
-    await page.waitForURL("/");
-
     await page.goto("/admin/editor");
     await page.getByRole("button", { name: "novo draft →" }).click();
     await page.waitForURL(/\/admin\/editor\/[0-9a-f-]+$/);
+    draftId = new URL(page.url()).pathname.split("/").pop();
 
     await page.getByLabel("título").fill("Post compartilhado e2e");
     await page
@@ -62,8 +43,11 @@ test.describe("link de revisão de rascunho", () => {
     const shareUrl = await shareUrlInput.inputValue();
     expect(shareUrl).toMatch(/\/rascunho\/[0-9a-f-]+$/);
 
-    // A fresh context carries no session — the reviewer is logged out by construction
-    const reviewerContext = await browser.newContext();
+    // Explicit empty storage: the reviewer must be logged out by construction,
+    // and a plain newContext() would inherit the admin storageState above
+    const reviewerContext = await browser.newContext({
+      storageState: ANONYMOUS_STATE,
+    });
     const reviewerPage = await reviewerContext.newPage();
     await reviewerPage.goto(shareUrl);
     await expect(

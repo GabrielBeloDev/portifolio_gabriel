@@ -15,7 +15,17 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
   },
-  projects: [{ name: "chromium", use: { browserName: "chromium" } }],
+  projects: [
+    // Shared auth fixtures: one reader + one admin signup per run, stored as
+    // storageState — specs reuse the sessions instead of burning the
+    // better-auth signup rate limit (3 per 10s per IP)
+    { name: "setup", testMatch: /auth\.setup\.ts$/ },
+    {
+      name: "chromium",
+      use: { browserName: "chromium" },
+      dependencies: ["setup"],
+    },
+  ],
   webServer: {
     command: `pnpm start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
