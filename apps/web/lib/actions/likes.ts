@@ -17,7 +17,7 @@ export async function toggleLike(input: unknown): Promise<ToggleResult> {
   if (!parsed.success) {
     return { ok: false, error: "dados inválidos" };
   }
-  const { targetType, targetId } = parsed.data;
+  const { targetType, targetId, kind } = parsed.data;
 
   if (targetType === "post" && !findPost(targetId)) {
     return { ok: false, error: "post não encontrado" };
@@ -38,6 +38,7 @@ export async function toggleLike(input: unknown): Promise<ToggleResult> {
         eq(like.readerId, session.user.id),
         eq(like.targetType, targetType),
         eq(like.targetId, targetId),
+        eq(like.kind, kind),
       ),
     )
     .returning({ id: like.id });
@@ -49,7 +50,7 @@ export async function toggleLike(input: unknown): Promise<ToggleResult> {
   // The unique constraint absorbs double-clicks racing past the delete check
   await db
     .insert(like)
-    .values({ readerId: session.user.id, targetType, targetId })
+    .values({ readerId: session.user.id, targetType, targetId, kind })
     .onConflictDoNothing();
 
   return { ok: true, liked: true };

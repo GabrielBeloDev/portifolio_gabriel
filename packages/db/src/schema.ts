@@ -82,17 +82,21 @@ export const like = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     targetType: likeTargetType("target_type").notNull(),
     targetId: text("target_id").notNull(),
+    // Reactions (util/curioso/discordo) reuse this table; plain likes keep
+    // the default so pre-existing rows stay valid
+    kind: text("kind").notNull().default("like"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (table) => [
-    // The "one like per reader per target" rule is enforced by the database,
-    // not just the UI
-    uniqueIndex("like_reader_target_uq").on(
+    // The "one reaction per reader per target per kind" rule is enforced by
+    // the database, not just the UI
+    uniqueIndex("like_reader_target_kind_uq").on(
       table.readerId,
       table.targetType,
       table.targetId,
+      table.kind,
     ),
     index("like_target_idx").on(table.targetType, table.targetId),
   ],
