@@ -138,6 +138,33 @@
   color: color-mix(in srgb, var(--accent) 28%, var(--muted));
 }
 
+/* Footnotes: refs in the text plus the "// notas" panel (the details wrapper
+   lives in components/mdx.tsx) */
+.prose [data-footnote-ref] {
+  font-family: var(--font-mono);
+  border-bottom: none;
+  padding-inline: 0.125rem;
+}
+
+.prose [data-footnotes] ol {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.prose [data-footnotes] li + li {
+  margin-top: 0.5rem;
+}
+
+.prose [data-footnotes] li::marker {
+  color: var(--faint);
+}
+
+.prose [data-footnote-backref] {
+  border-bottom: none;
+}
+
 /* Code blocks: bordered card with a title bar (amber dot + optional filename).
    Scoped to figure — rehype-pretty-code also puts this attribute on inline
    code spans, which must keep the plain inline treatment. */

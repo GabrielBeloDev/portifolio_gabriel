@@ -40,7 +40,9 @@ A parte que mais me orgulha não aparece na tela. Todo o comportamento do site e
 
 Três achados do caminho merecem registro.
 
-O primeiro parecia teste instável. Um spec de comentários falhava de vez em quando, sempre no cadastro. A causa real era um rate limit escondido na biblioteca de autenticação, que aceita três cadastros a cada dez segundos por IP. A suíte crescia, o quarto cadastro estourava o balde e derrubava um teste que não tinha nada a ver. Flakiness quase nunca é aleatória, ela só ainda não foi explicada.
+O primeiro parecia teste instável. Um spec de comentários falhava de vez em quando, sempre no cadastro. A causa real era um rate limit escondido na biblioteca de autenticação, que aceita três cadastros a cada dez segundos por IP.[^1] A suíte crescia, o quarto cadastro estourava o balde e derrubava um teste que não tinha nada a ver. Flakiness quase nunca é aleatória, ela só ainda não foi explicada.
+
+[^1]: O balde é por IP e vale pra suíte inteira, então o quarto cadastro dentro da janela leva 429 mesmo vindo de outro spec. A cura foi espaçar os cadastros nos testes novos.
 
 O segundo foi na navegação. Chamar `router.push` e `router.refresh` em sequência no Next 16 trava a transição, porque o refresh aborta o fetch da própria navegação que ele deveria completar. O botão ficava eternamente em estado de carregando.
 
