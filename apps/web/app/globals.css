@@ -384,3 +384,19 @@ figure[data-rehype-pretty-code-figure]:not(
     transition: none;
   }
 }
+
+/* Zen mode: the shell unmounts the IDE chrome, so CSS only needs to relax
+   the reading measure; the transition is gated so reduced-motion swaps
+   instantly */
+.zen .prose {
+  max-width: 76ch;
+  font-size: 1.1875rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .prose {
+    transition:
+      max-width 0.2s ease,
+      font-size 0.2s ease;
+  }
+}

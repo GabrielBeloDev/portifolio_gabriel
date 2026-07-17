@@ -51,6 +51,36 @@ export function ideCrumb(pathname: string): string {
   return pathname.replace(/^\//, "");
 }
 
+export type ContentSection = "blog" | "estudos";
+
+export interface BreadcrumbTrail {
+  readonly section: ContentSection | null;
+  readonly slug: string | null;
+  readonly leafLabel: string | null;
+}
+
+export function breadcrumbTrail(pathname: string): BreadcrumbTrail {
+  const [, sectionMatch, slugMatch] = pathname.match(CONTENT_ROUTE) ?? [];
+  if (sectionMatch !== undefined && slugMatch !== undefined) {
+    return {
+      section: sectionMatch as ContentSection,
+      slug: slugMatch,
+      leafLabel: `${slugMatch}.mdx`,
+    };
+  }
+  if (pathname === "/blog" || pathname === "/estudos") {
+    return {
+      section: pathname.slice(1) as ContentSection,
+      slug: null,
+      leafLabel: null,
+    };
+  }
+  const leafLabel = isKnownRoute(pathname)
+    ? ROUTE_FILES[pathname].label
+    : ideCrumb(pathname);
+  return { section: null, slug: null, leafLabel };
+}
+
 // The tab descriptor a pathname opens in the session tab strip
 export function routeTab(pathname: string): IdeTab | null {
   if (isKnownRoute(pathname)) {

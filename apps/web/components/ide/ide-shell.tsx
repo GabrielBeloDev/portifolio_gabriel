@@ -2,7 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@gabriel/ui";
 import { ActivityBar } from "./activity-bar";
+import { BreadcrumbBar, type BreadcrumbPost } from "./breadcrumb-bar";
 import { CommandPalette, type PaletteDoc } from "./command-palette";
 import { Explorer, type ExplorerPost } from "./explorer";
 import { MobileDrawer } from "./mobile-drawer";
@@ -16,16 +18,19 @@ export function IdeShell({
   posts,
   caseStudies,
   ciStatus,
+  tags,
   children,
 }: {
-  posts: (ExplorerPost & PaletteDoc)[];
+  posts: (ExplorerPost & PaletteDoc & BreadcrumbPost)[];
   caseStudies: PaletteDoc[];
   ciStatus: React.ReactNode;
+  tags: string[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const contentRef = useRef<HTMLElement>(null);
   const [explorerOpen, setExplorerOpen] = useState(true);
+  const [zen, setZen] = useState(false);
 
   // The editor pane is the scroll container, not the window — Next.js only
   // resets window scroll on navigation, so the pane must be reset by hand.
@@ -46,25 +51,68 @@ export function IdeShell({
     contentRef.current?.scrollTo(0, 0);
   }, [pathname]);
 
+  useEffect(() => {
+    const handleZenKeys = (event: KeyboardEvent) => {
+      const target = event.target;
+      const isZenShortcut =
+        (event.metaKey || event.ctrlKey) &&
+        event.shiftKey &&
+        event.key.toLowerCase() === "z";
+      if (isZenShortcut) {
+        // Cmd+Shift+Z is redo inside editable fields (draft editor); zen
+        // must not hijack it
+        const isEditableTarget =
+          target instanceof HTMLElement &&
+          (target instanceof HTMLInputElement ||
+            target instanceof HTMLTextAreaElement ||
+            target.isContentEditable);
+        if (isEditableTarget) return;
+        event.preventDefault();
+        setZen((wasZen) => !wasZen);
+        return;
+      }
+      // Esc pressed inside an open dialog (palette, drawer) belongs to the
+      // dialog, not to zen
+      const isEscapeOutsideDialog =
+        event.key === "Escape" &&
+        !(target instanceof Element && target.closest('[role="dialog"]'));
+      if (isEscapeOutsideDialog) setZen(false);
+    };
+    document.addEventListener("keydown", handleZenKeys);
+    return () => document.removeEventListener("keydown", handleZenKeys);
+  }, []);
+
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
+    <div className={cn("flex h-dvh flex-col overflow-hidden", zen && "zen")}>
       <WinBar
-        palette={<CommandPalette posts={posts} caseStudies={caseStudies} />}
+        palette={
+          <CommandPalette
+            posts={posts}
+            caseStudies={caseStudies}
+            tags={tags}
+            onToggleZen={() => setZen((wasZen) => !wasZen)}
+          />
+        }
         drawer={<MobileDrawer posts={posts} />}
+        zen={zen}
+        onExitZen={() => setZen(false)}
       />
       <div className="flex min-h-0 flex-1">
-        <ActivityBar
-          explorerOpen={explorerOpen}
-          onToggleExplorer={() => setExplorerOpen((open) => !open)}
-        />
-        {explorerOpen && (
+        {!zen && (
+          <ActivityBar
+            explorerOpen={explorerOpen}
+            onToggleExplorer={() => setExplorerOpen((open) => !open)}
+          />
+        )}
+        {!zen && explorerOpen && (
           <Explorer
             posts={posts}
             className="hidden w-[246px] shrink-0 border-r border-line md:block"
           />
         )}
         <div className="flex min-w-0 flex-1 flex-col bg-background">
-          <TabsBar />
+          {!zen && <TabsBar />}
+          {!zen && <BreadcrumbBar posts={posts} caseStudies={caseStudies} />}
           <main
             id={CONTENT_SCROLL_CONTAINER_ID}
             ref={contentRef}
@@ -77,7 +125,7 @@ export function IdeShell({
               {children}
             </div>
           </main>
-          <StatusBar ciStatus={ciStatus} />
+          {!zen && <StatusBar ciStatus={ciStatus} />}
         </div>
       </div>
     </div>
