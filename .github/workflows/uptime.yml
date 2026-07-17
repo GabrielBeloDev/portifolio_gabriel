@@ -1,0 +1,40 @@
+name: uptime
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+env:
+  BASE_URL: https://portifolio-gabriel-gabriels-projects-c9fd91a7.vercel.app
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe key routes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          routes=(/ /blog /blog/o-pipeline-deste-blog /feed.xml /sitemap.xml)
+          failed=0
+          for route in "${routes[@]}"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "${BASE_URL}${route}") || code="000"
+            if [ "$code" = "200" ]; then
+              continue
+            fi
+            failed=1
+            title="uptime: ${route} retornou ${code}"
+            # Dedup: skip if an identical open issue already exists
+            if gh issue list --state open --limit 100 --json title --jq '.[].title' | grep -Fxq "$title"; then
+              echo "Open issue already exists: $title"
+            else
+              gh issue create --title "$title" \
+                --body "Uptime check failed for ${BASE_URL}${route} (HTTP ${code}). Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            fi
+          done
+          exit "$failed"
