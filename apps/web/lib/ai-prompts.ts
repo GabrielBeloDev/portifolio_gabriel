@@ -41,3 +41,41 @@ export function buildImproveTextPrompt(text: string): ChatPrompt {
     user: text,
   };
 }
+
+export type PromotionDraft = {
+  title: string;
+  summary: string;
+  body: string;
+};
+
+export type PromotionBlock = {
+  label: string;
+  content: string;
+};
+
+const THREAD_MARKER = "THREAD:";
+const LINKEDIN_MARKER = "LINKEDIN:";
+
+export function buildPromotionPrompt(draft: PromotionDraft): ChatPrompt {
+  return {
+    system: `Você divulga posts de um blog pessoal de engenharia de software mantendo a voz do autor: português natural, primeira pessoa. Não use travessão, não use dois-pontos no meio de frase e não encha o texto de hashtags. Responda em texto puro, sem markdown, exatamente neste formato, sem nada antes ou depois:\n\n${THREAD_MARKER}\n1/ primeiro tweet\n2/ segundo tweet\n\n${LINKEDIN_MARKER}\ntexto do post`,
+    user: `Escreva a divulgação do post abaixo: uma thread curta para o X com 3 a 4 tweets numerados (1/, 2/, ...) e um post para o LinkedIn.\n\nTítulo: ${draft.title}\n\nResumo: ${draft.summary}\n\nConteúdo:\n\n${draft.body}`,
+  };
+}
+
+export function splitPromotionResult(text: string): PromotionBlock[] {
+  const linkedinIndex = text.indexOf(LINKEDIN_MARKER);
+  // Model ignored the format contract; better one raw block than losing content
+  if (linkedinIndex === -1) {
+    return [{ label: "divulgação", content: text.trim() }];
+  }
+  const thread = text
+    .slice(0, linkedinIndex)
+    .replace(THREAD_MARKER, "")
+    .trim();
+  const linkedin = text.slice(linkedinIndex + LINKEDIN_MARKER.length).trim();
+  return [
+    { label: "thread pro x", content: thread },
+    { label: "post pro linkedin", content: linkedin },
+  ];
+}
