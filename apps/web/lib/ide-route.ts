@@ -16,8 +16,21 @@ export const ROUTE_FILES = {
   "/projects": { href: "/projects", label: "projetos", icon: "📁" },
   "/estudos": { href: "/estudos", label: "estudos", icon: "📁" },
   "/sobre": { href: "/sobre", label: "sobre.md", icon: "📄" },
+  "/uses": { href: "/uses", label: ".dotfiles", icon: "⚙" },
   "/entrar": { href: "/entrar", label: "auth.config", icon: "⚙" },
 } as const satisfies Record<string, IdeFile>;
+
+export interface UsesDotfile {
+  readonly anchor: string;
+  readonly filename: string;
+}
+
+export const USES_DOTFILES = [
+  { anchor: "hardware-json", filename: "hardware.json" },
+  { anchor: "stack-json", filename: "stack.json" },
+  { anchor: "tools-txt", filename: "tools.txt" },
+  { anchor: "site-config", filename: "site.config" },
+] as const satisfies readonly UsesDotfile[];
 
 const CONTENT_ROUTE = /^\/(blog|estudos)\/([^/]+)$/;
 

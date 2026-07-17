@@ -6,6 +6,7 @@ describe("ideCrumb", () => {
     expect(ideCrumb("/")).toBe("~/home");
     expect(ideCrumb("/sobre")).toBe("sobre.md");
     expect(ideCrumb("/projects")).toBe("projetos");
+    expect(ideCrumb("/uses")).toBe(".dotfiles");
     expect(ideCrumb("/entrar")).toBe("auth.config");
   });
 
@@ -36,6 +37,14 @@ describe("routeTab", () => {
       href: "/blog/pipeline-do-blog",
       label: "pipeline-do-blog.mdx",
       modified: true,
+    });
+  });
+
+  it("abre .dotfiles em /uses sem marcador de modificado", () => {
+    expect(routeTab("/uses")).toMatchObject({
+      href: "/uses",
+      label: ".dotfiles",
+      modified: false,
     });
   });
 
