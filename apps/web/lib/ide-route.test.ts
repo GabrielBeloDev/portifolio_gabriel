@@ -8,6 +8,7 @@ describe("ideCrumb", () => {
     expect(ideCrumb("/projects")).toBe("projetos");
     expect(ideCrumb("/uses")).toBe(".dotfiles");
     expect(ideCrumb("/entrar")).toBe("auth.config");
+    expect(ideCrumb("/commits")).toBe(".git/log");
   });
 
   it("mapeia posts e estudos como arquivos .mdx dentro da pasta", () => {
@@ -51,6 +52,14 @@ describe("routeTab", () => {
   it("abre auth.config em /entrar sem marcador de modificado", () => {
     expect(routeTab("/entrar")).toMatchObject({
       label: "auth.config",
+      modified: false,
+    });
+  });
+
+  it("abre .git/log em /commits sem marcador de modificado", () => {
+    expect(routeTab("/commits")).toMatchObject({
+      href: "/commits",
+      label: ".git/log",
       modified: false,
     });
   });

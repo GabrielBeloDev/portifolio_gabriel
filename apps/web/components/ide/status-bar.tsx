@@ -72,7 +72,7 @@ function ReadingTimeLeft() {
   );
 }
 
-export function StatusBar() {
+export function StatusBar({ ciStatus }: { ciStatus: React.ReactNode }) {
   const pathname = usePathname();
   const isReadingRoute = READING_ROUTE.test(pathname);
 
@@ -90,12 +90,7 @@ export function StatusBar() {
         </span>{" "}
         main
       </a>
-      <span className="hidden sm:inline">
-        <span aria-hidden className="text-accent">
-          ✓
-        </span>{" "}
-        0 problemas
-      </span>
+      {ciStatus}
       {isReadingRoute && <ReadingTimeLeft key={pathname} />}
       <span className="ml-auto hidden truncate sm:inline">
         {ideCrumb(pathname)}
