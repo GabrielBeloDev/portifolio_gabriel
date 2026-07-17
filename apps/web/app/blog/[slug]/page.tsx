@@ -5,6 +5,7 @@ import { CommentSection } from "@/components/comments/comment-section";
 import { CtaLink } from "@/components/cta-link";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
+import { PostHistory } from "@/components/post-history";
 import { PostToc } from "@/components/post-toc";
 import { RelatedPosts } from "@/components/related-posts";
 import { SeriesNav } from "@/components/series-nav";
@@ -114,6 +115,7 @@ export default async function PostPage({
           <NextPostCta post={nextPost} />
         </footer>
         <RelatedPosts post={post} />
+        <PostHistory slug={post.slug} />
         <CommentSection postSlug={post.slug} />
       </div>
       <PostToc entries={post.toc} variant="aside" />
