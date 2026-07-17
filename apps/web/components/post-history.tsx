@@ -15,8 +15,14 @@ type GithubCommit = {
 const commitSubject = (message: string) => message.split("\n")[0] ?? message;
 const commitDate = (isoDate: string) => isoDate.slice(0, 10);
 
-async function fetchPostCommits(slug: string): Promise<GithubCommit[] | null> {
-  const filePath = `apps/web/content/posts/${slug}.mdx`;
+type HistorySource = { slug: string } | { path: string };
+
+const resolveFilePath = (source: HistorySource) =>
+  "path" in source ? source.path : `apps/web/content/posts/${source.slug}.mdx`;
+
+async function fetchFileCommits(
+  filePath: string,
+): Promise<GithubCommit[] | null> {
   const url = `${GITHUB_COMMITS_API}?path=${filePath}&per_page=${MAX_REVISIONS}`;
 
   // Build enhancement must not fail the build: the unauthenticated GitHub API
@@ -39,8 +45,8 @@ async function fetchPostCommits(slug: string): Promise<GithubCommit[] | null> {
   }
 }
 
-export async function PostHistory({ slug }: { slug: string }) {
-  const commits = await fetchPostCommits(slug);
+export async function PostHistory(props: HistorySource) {
+  const commits = await fetchFileCommits(resolveFilePath(props));
   if (commits === null || commits.length === 0) return null;
 
   return (
