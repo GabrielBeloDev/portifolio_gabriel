@@ -30,6 +30,12 @@ export default async function AdminPage() {
           workspace
         </p>
         <Link
+          href="/admin/dashboard"
+          className="flex items-center gap-2 border-b border-line px-4 py-2.5 text-muted transition-colors hover:bg-background-2 hover:text-accent"
+        >
+          <span aria-hidden>📊</span> dashboard →
+        </Link>
+        <Link
           href="/admin/editor"
           className="flex items-center gap-2 border-b border-line px-4 py-2.5 text-muted transition-colors hover:bg-background-2 hover:text-accent"
         >

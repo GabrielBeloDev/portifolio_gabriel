@@ -26,6 +26,7 @@ export {
   inArray,
   isNotNull,
   isNull,
+  max,
   or,
   sql,
 } from "drizzle-orm";
