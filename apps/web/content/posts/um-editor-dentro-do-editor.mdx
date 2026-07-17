@@ -1,0 +1,42 @@
+---
+title: "Um editor dentro do editor"
+date: 2026-07-17
+summary: "Este site parece um IDE, então o lugar onde eu escrevo os posts virou literalmente um editor. Autosave, atalhos, um assistente de IA e ditado por voz, tudo rodando dentro do próprio blog."
+tags: ["editor", "ia", "frontend"]
+---
+
+Tem uma ironia boa em construir um site que parece um editor de código. Em algum momento você precisa de um lugar pra escrever os posts, e a resposta óbvia vira a mais divertida. O painel de administração deste blog é um editor que roda dentro do editor.
+
+O básico existe desde o começo. Rascunhos ficam no banco, salvam sozinhos um segundo e meio depois que eu paro de digitar, e um preview ao lado compila o MDX de verdade, com o mesmo pipeline do site publicado. Se o código destacado aparece bonito no preview, vai aparecer bonito no post. Não existe surpresa entre escrever e publicar.
+
+## As pequenas coisas que mudam tudo
+
+A diferença entre um formulário e um editor está nos detalhes que ninguém anuncia. Contador de palavras com tempo estimado de leitura. Ctrl+S salvando na hora, porque dezoito anos de memória muscular não vão embora. Um aviso antes de fechar a aba com texto não salvo. Um botão de apagar que pergunta antes, porque rascunho também é trabalho.
+
+E quando o texto fica pronto, um botão monta o arquivo completo, com frontmatter validado, pronto pra colar no repositório. O caminho até a publicação automática já está desenhado, falta uma credencial e vira um clique.
+
+## A parte que parece ficção
+
+A novidade que me fez escrever este post é outra. O editor agora tem um assistente. Ele sugere pautas olhando o que eu já publiquei, monta um esqueleto de seções a partir do que eu rascunhei, e reescreve um parágrafo selecionado quando eu empaco. Roda em cima da Groq, que serve os modelos abertos com uma latência que engana.
+
+E tem o ditado. Um botão de gravar, eu falo, o Whisper transcreve em português e o texto cai direto no corpo do rascunho. A primeira frase que este fluxo transcreveu na validação foi "Testando o ditado por voz no editor", e ver isso aparecer na tela segundos depois de falar não perde a graça.
+
+```mermaid
+graph LR
+  V["voz no microfone"] --> W["Whisper na Groq"]
+  W --> T["texto em PT"]
+  T --> E["rascunho no editor"]
+  E --> P["preview compilado"]
+```
+
+## Editar o que já foi publicado
+
+Faltava fechar um ciclo. Post publicado era intocável pelo site, editar significava abrir o repositório. Agora todo post tem um botão de editar que só eu vejo. Ele pega o conteúdo original do arquivo, cria um rascunho preenchido e abre no editor. A volta completa, salvar a edição direto no repositório, chega junto com a publicação por clique.
+
+Enquanto isso, os leitores ganharam o outro lado da moeda. Comentários podem ser reportados, e uma fila de moderação no painel me mostra tudo que precisa de atenção, com o que foi reportado no topo.
+
+## Por que fazer isso em vez de usar um CMS
+
+Porque cada uma dessas peças me ensinou alguma coisa que um CMS pronto teria escondido. O autosave me ensinou sobre debounce e estados de corrida. O ditado me ensinou sobre MediaRecorder e limites de upload. O assistente me ensinou a desenhar prompts que respeitam a minha voz em vez de substituí-la. E o conjunto virou a melhor demonstração do que eu sei fazer, funcionando em produção, aberta pra qualquer pessoa ler o código.
+
+O site continua sendo meu caderno público. A diferença é que agora o caderno escreve junto.
