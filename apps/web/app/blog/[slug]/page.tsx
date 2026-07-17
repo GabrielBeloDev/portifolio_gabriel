@@ -9,6 +9,7 @@ import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
 import { PostHistory } from "@/components/post-history";
 import { PostToc } from "@/components/post-toc";
+import { ReadingPosition } from "@/components/reading-position";
 import { RelatedPosts } from "@/components/related-posts";
 import { SeriesNav } from "@/components/series-nav";
 import { ShareSelection } from "@/components/share-selection";
@@ -87,6 +88,7 @@ export default async function PostPage({
         className="left-0"
         scrollContainerId={CONTENT_SCROLL_CONTAINER_ID}
       />
+      <ReadingPosition slug={post.slug} />
       <div className="min-w-0">
         <article>
           <header>

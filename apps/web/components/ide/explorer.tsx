@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useId, useState } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { cn } from "@gabriel/ui";
 import {
   ROUTE_FILES,
@@ -10,6 +10,11 @@ import {
   type IdeFile,
   type IdeIcon,
 } from "@/lib/ide-route";
+import {
+  getServerStartedSlugsSnapshot,
+  getStartedSlugsSnapshot,
+  subscribeToReadingPositions,
+} from "@/lib/reading-progress-store";
 
 export interface ExplorerPost {
   slug: string;
@@ -34,6 +39,7 @@ interface ExplorerLinkProps {
   onNavigate?: () => void;
   indent?: boolean;
   title?: string;
+  marker?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -45,7 +51,11 @@ const BOTTOM_FILES: readonly IdeFile[] = [
   ROUTE_FILES["/commits"],
 ];
 
-function ExplorerGroup({ label, indent = false, children }: ExplorerGroupProps) {
+function ExplorerGroup({
+  label,
+  indent = false,
+  children,
+}: ExplorerGroupProps) {
   const [open, setOpen] = useState(true);
   const contentId = useId();
 
@@ -85,6 +95,7 @@ function ExplorerLink({
   onNavigate,
   indent = false,
   title,
+  marker,
   children,
 }: ExplorerLinkProps) {
   const pathname = usePathname();
@@ -97,19 +108,44 @@ function ExplorerLink({
       title={title}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "block truncate border-l-2 border-transparent py-1.5 pr-4 transition-colors",
+        "flex items-baseline border-l-2 border-transparent py-1.5 pr-4 transition-colors",
         indent ? "pl-10" : "pl-6",
         isActive
           ? "border-accent bg-accent-soft text-accent"
           : "text-faint hover:bg-surface hover:text-foreground",
       )}
     >
-      <span aria-hidden>{icon}</span> {children}
+      {/* Only the filename truncates — a trailing marker inside the same
+          truncating span would be clipped on long slugs */}
+      <span className="min-w-0 truncate">
+        <span aria-hidden>{icon}</span> {children}
+      </span>
+      {marker}
     </Link>
   );
 }
 
+function ReadingInProgressDot() {
+  return (
+    <span
+      aria-hidden
+      title="leitura em andamento"
+      className="ml-1.5 shrink-0 text-accent"
+    >
+      ●
+    </span>
+  );
+}
+
 export function Explorer({ posts, onNavigate, className }: ExplorerProps) {
+  // localStorage only exists after mount; the server snapshot renders no dots
+  // and the client snapshot takes over post-hydration without a mismatch
+  const startedSlugs = useSyncExternalStore(
+    subscribeToReadingPositions,
+    getStartedSlugsSnapshot,
+    getServerStartedSlugsSnapshot,
+  );
+
   return (
     <nav
       aria-label="principal"
@@ -144,6 +180,9 @@ export function Explorer({ posts, onNavigate, className }: ExplorerProps) {
               onNavigate={onNavigate}
               indent
               title={post.title}
+              marker={
+                startedSlugs.includes(post.slug) && <ReadingInProgressDot />
+              }
             >
               {post.slug}.mdx
             </ExplorerLink>
