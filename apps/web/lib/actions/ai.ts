@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   buildImproveTextPrompt,
   buildOutlinePrompt,
+  buildPromotionPrompt,
   buildSuggestTopicsPrompt,
   type ChatPrompt,
 } from "@/lib/ai-prompts";
@@ -78,4 +79,25 @@ export async function improveText(input: unknown): Promise<AiTextResult> {
   }
 
   return completeChat(buildImproveTextPrompt(parsed.data.text));
+}
+
+export async function generatePromotion(input: unknown): Promise<AiTextResult> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "sem permissão" };
+
+  const parsed = z
+    .object({
+      title: z.string().trim().min(1, "título vazio").max(300),
+      summary: z.string().trim().max(1000),
+      body: z.string().trim().min(1, "corpo vazio").max(100_000),
+    })
+    .safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "dados inválidos",
+    };
+  }
+
+  return completeChat(buildPromotionPrompt(parsed.data));
 }

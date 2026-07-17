@@ -18,8 +18,12 @@ import {
   revokeShareToken,
   saveDraft,
 } from "@/lib/actions/drafts";
+import { publishedPosts } from "@/lib/content";
 import { draftToMdx } from "@/lib/draft-mdx";
-import { publishReadinessIssues } from "@/lib/validation/draft";
+import {
+  publishDiagnostics,
+  type DiagnosticSeverity,
+} from "@/lib/validation/draft";
 
 type DraftFields = {
   id: string;
@@ -31,6 +35,10 @@ type DraftFields = {
 };
 
 type SaveState = "saved" | "saving" | "dirty" | "error";
+
+type PreviewViewport = "desktop" | "mobile";
+
+const publishedSlugs = publishedPosts.map((post) => post.slug);
 
 const AUTOSAVE_DELAY_MS = 1_500;
 const COPY_FEEDBACK_MS = 2_000;
@@ -66,6 +74,27 @@ const saveDotTone: Record<SaveState, string> = {
   error: "bg-danger",
 };
 
+const diagnosticIcon: Record<DiagnosticSeverity, string> = {
+  error: "✕",
+  warning: "▲",
+};
+
+const diagnosticIconTone: Record<DiagnosticSeverity, string> = {
+  error: "text-danger",
+  warning: "text-accent",
+};
+
+const viewportButtonClasses =
+  "rounded-sm border px-2 py-0.5 font-mono text-xs transition-colors";
+
+const activeViewportClasses = "border-accent text-accent";
+
+const inactiveViewportClasses =
+  "border-transparent text-faint hover:text-muted";
+
+const mobileFrameClasses =
+  "mx-auto w-full max-w-[390px] rounded-xl border border-line px-4 py-6";
+
 // window.location.origin never changes during a session, so subscribing is a no-op;
 // the empty server snapshot keeps SSR and the first client render identical
 const subscribeToNothing = () => () => {};
@@ -87,6 +116,8 @@ export function DraftEditor({
   const [shareUrlCopied, setShareUrlCopied] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [mdxCopied, setMdxCopied] = useState(false);
+  const [previewViewport, setPreviewViewport] =
+    useState<PreviewViewport>("desktop");
   const origin = useSyncExternalStore(
     subscribeToNothing,
     getOrigin,
@@ -212,7 +243,11 @@ export function DraftEditor({
     );
   }
 
-  const issues = publishReadinessIssues(fields);
+  const diagnostics = publishDiagnostics(fields, publishedSlugs);
+  const hasErrors = diagnostics.some(
+    (diagnostic) => diagnostic.severity === "error",
+  );
+  const isMobilePreview = previewViewport === "mobile";
   const draftFileName = `${fields.slug || "novo-post"}.mdx`;
   const wordCount = fields.body.split(/\s+/).filter(Boolean).length;
   const readingMinutes = Math.max(
@@ -308,7 +343,7 @@ export function DraftEditor({
               <p className="font-mono text-xs tracking-widest text-faint uppercase">
                 pronto para publicar?
               </p>
-              {issues.length === 0 ? (
+              {!hasErrors && (
                 <div className="mt-2 flex flex-col items-start gap-2">
                   <p className="font-mono text-xs text-ok">
                     ✓ frontmatter válido
@@ -325,15 +360,29 @@ export function DraftEditor({
                     publicar direto daqui chega na próxima fase
                   </p>
                 </div>
-              ) : (
+              )}
+              {diagnostics.length > 0 && (
                 <ul className="mt-2 flex flex-col gap-1 font-mono text-xs text-muted">
-                  {issues.map((issue) => (
-                    <li key={issue}>• {issue}</li>
+                  {diagnostics.map((diagnostic) => (
+                    <li
+                      key={diagnostic.message}
+                      className="flex items-start gap-2"
+                    >
+                      <span
+                        aria-hidden
+                        className={diagnosticIconTone[diagnostic.severity]}
+                      >
+                        {diagnosticIcon[diagnostic.severity]}
+                      </span>
+                      {diagnostic.message}
+                    </li>
                   ))}
                 </ul>
               )}
             </div>
             <AiAssistant
+              title={fields.title}
+              summary={fields.summary}
               body={fields.body}
               bodyRef={bodyTextareaRef}
               onInsert={appendToBody}
@@ -387,29 +436,60 @@ export function DraftEditor({
           <p className={panelTitleClasses}>
             <span aria-hidden className="size-2 rounded-full bg-ok" />
             preview
+            <span className="ml-auto flex items-center gap-1">
+              <button
+                type="button"
+                aria-pressed={!isMobilePreview}
+                onClick={() => setPreviewViewport("desktop")}
+                className={`${viewportButtonClasses} ${
+                  isMobilePreview
+                    ? inactiveViewportClasses
+                    : activeViewportClasses
+                }`}
+              >
+                desktop
+              </button>
+              <button
+                type="button"
+                aria-pressed={isMobilePreview}
+                onClick={() => setPreviewViewport("mobile")}
+                className={`${viewportButtonClasses} ${
+                  isMobilePreview
+                    ? activeViewportClasses
+                    : inactiveViewportClasses
+                }`}
+              >
+                mobile
+              </button>
+            </span>
           </p>
           <div className="p-4">
-            {previewError ? (
-              <pre className="overflow-x-auto rounded-sm border border-danger p-3 font-mono text-xs text-danger">
-                {previewError}
-              </pre>
-            ) : showEmptyPreviewHint ? (
-              <p className="font-mono text-sm text-faint">
-                // escreva MDX à esquerda — headings, código com highlight e
-                blocos mermaid viram diagrama aqui
-              </p>
-            ) : (
-              <article>
-                {fields.title && (
-                  <h1 className="text-2xl leading-tight font-semibold">
-                    {fields.title}
-                  </h1>
-                )}
-                <div className="prose mt-6">
-                  {previewCode !== null && <MDXContent code={previewCode} />}
-                </div>
-              </article>
-            )}
+            <div
+              data-testid="preview-viewport"
+              className={isMobilePreview ? mobileFrameClasses : undefined}
+            >
+              {previewError ? (
+                <pre className="overflow-x-auto rounded-sm border border-danger p-3 font-mono text-xs text-danger">
+                  {previewError}
+                </pre>
+              ) : showEmptyPreviewHint ? (
+                <p className="font-mono text-sm text-faint">
+                  // escreva MDX à esquerda — headings, código com highlight e
+                  blocos mermaid viram diagrama aqui
+                </p>
+              ) : (
+                <article>
+                  {fields.title && (
+                    <h1 className="text-2xl leading-tight font-semibold">
+                      {fields.title}
+                    </h1>
+                  )}
+                  <div className="prose mt-6">
+                    {previewCode !== null && <MDXContent code={previewCode} />}
+                  </div>
+                </article>
+              )}
+            </div>
           </div>
         </section>
       </div>
