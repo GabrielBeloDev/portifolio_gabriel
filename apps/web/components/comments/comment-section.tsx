@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { PostReactions } from "@/components/reactions";
 import { Reveal } from "@/components/reveal";
 import type { CommentNode, LikeState } from "@/lib/comment-tree";
+import {
+  postReactionKinds,
+  type PostReactionsState,
+} from "@/lib/validation/like";
 import { CommentForm } from "./comment-form";
 import { CommentItem } from "./comment-item";
 import { LikeButton } from "./like-button";
@@ -13,8 +18,15 @@ export type Viewer = { id: string; isAdmin: boolean } | null;
 type CommentsPayload = {
   comments: CommentNode[];
   postLikes: LikeState;
+  postReactions: PostReactionsState;
   viewer: Viewer;
 };
+
+// Same remount-on-fresh-payload trick as the LikeButton key below
+const reactionsKey = (reactions: PostReactionsState) =>
+  postReactionKinds
+    .map((kind) => `${kind}-${reactions[kind].count}-${reactions[kind].liked}`)
+    .join("_");
 
 async function fetchComments(postSlug: string): Promise<CommentsPayload> {
   const response = await fetch(
@@ -67,14 +79,22 @@ export function CommentSection({ postSlug }: { postSlug: string }) {
             {payload ? ` (${countComments(payload.comments)})` : ""}
           </h2>
           {payload && (
-            <LikeButton
-              key={`post-${payload.postLikes.count}-${payload.postLikes.liked}`}
-              targetType="post"
-              targetId={postSlug}
-              initialCount={payload.postLikes.count}
-              initialLiked={payload.postLikes.liked}
-              signedIn={payload.viewer !== null}
-            />
+            <span className="inline-flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
+              <PostReactions
+                key={reactionsKey(payload.postReactions)}
+                postSlug={postSlug}
+                initialReactions={payload.postReactions}
+                signedIn={payload.viewer !== null}
+              />
+              <LikeButton
+                key={`post-${payload.postLikes.count}-${payload.postLikes.liked}`}
+                targetType="post"
+                targetId={postSlug}
+                initialCount={payload.postLikes.count}
+                initialLiked={payload.postLikes.liked}
+                signedIn={payload.viewer !== null}
+              />
+            </span>
           )}
         </div>
       </Reveal>

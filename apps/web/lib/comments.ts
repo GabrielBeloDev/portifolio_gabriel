@@ -19,13 +19,23 @@ import {
   type LikeState,
 } from "./comment-tree";
 import { db } from "./db";
+import {
+  postReactionKinds,
+  type PostReactionKind,
+  type PostReactionsState,
+} from "./validation/like";
 
 export type { CommentNode } from "./comment-tree";
 
 export type CommentsPayload = {
   comments: CommentNode[];
   postLikes: LikeState;
+  postReactions: PostReactionsState;
 };
+
+function isPostReactionKind(kind: string): kind is PostReactionKind {
+  return (postReactionKinds as readonly string[]).includes(kind);
+}
 
 export type ModerationComment = {
   id: string;
@@ -96,25 +106,40 @@ export async function getCommentsPayload(
       .select({
         targetType: like.targetType,
         targetId: like.targetId,
+        kind: like.kind,
         total: count(),
       })
       .from(like)
       .where(likeScope)
-      .groupBy(like.targetType, like.targetId),
+      .groupBy(like.targetType, like.targetId, like.kind),
     viewerId
       ? db
-          .select({ targetType: like.targetType, targetId: like.targetId })
+          .select({
+            targetType: like.targetType,
+            targetId: like.targetId,
+            kind: like.kind,
+          })
           .from(like)
           .where(and(eq(like.readerId, viewerId), likeScope))
       : Promise.resolve([]),
   ]);
 
+  const postReactions: PostReactionsState = {
+    util: { count: 0, liked: false },
+    curioso: { count: 0, liked: false },
+    discordo: { count: 0, liked: false },
+  };
+
   const commentCounts = new Map<string, number>();
   let postCount = 0;
   for (const row of countRows) {
     if (row.targetType === "post") {
-      postCount = row.total;
-    } else {
+      if (row.kind === "like") {
+        postCount = row.total;
+      } else if (isPostReactionKind(row.kind)) {
+        postReactions[row.kind].count = row.total;
+      }
+    } else if (row.kind === "like") {
       commentCounts.set(row.targetId, row.total);
     }
   }
@@ -123,8 +148,12 @@ export async function getCommentsPayload(
   let postLiked = false;
   for (const row of likedRows) {
     if (row.targetType === "post") {
-      postLiked = true;
-    } else {
+      if (row.kind === "like") {
+        postLiked = true;
+      } else if (isPostReactionKind(row.kind)) {
+        postReactions[row.kind].liked = true;
+      }
+    } else if (row.kind === "like") {
       likedComments.add(row.targetId);
     }
   }
@@ -135,5 +164,6 @@ export async function getCommentsPayload(
       liked: likedComments,
     }),
     postLikes: { count: postCount, liked: postLiked },
+    postReactions,
   };
 }
