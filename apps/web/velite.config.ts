@@ -18,6 +18,8 @@ const posts = defineCollection({
     // The outline renders h2/h3 only; cap the extraction to match
     toc: s.toc({ maxDepth: 3 }),
     code: s.mdx(),
+    // Frontmatter-less MDX source, so the editor can start a draft from a published post
+    raw: s.raw(),
   }),
 });
 
