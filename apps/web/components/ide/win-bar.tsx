@@ -10,9 +10,13 @@ const WINDOW_DOTS = ["#ff5f57", "#febc2e", "#28c840"] as const;
 export function WinBar({
   palette,
   drawer,
+  zen,
+  onExitZen,
 }: {
   palette: React.ReactNode;
   drawer: React.ReactNode;
+  zen: boolean;
+  onExitZen: () => void;
 }) {
   const pathname = usePathname();
 
@@ -32,6 +36,16 @@ export function WinBar({
         <span className="text-muted-2">{ideCrumb(pathname)}</span>
       </span>
       <span className="ml-auto flex shrink-0 items-center gap-3">
+        {zen && (
+          <button
+            type="button"
+            aria-pressed={true}
+            onClick={onExitZen}
+            className="rounded-sm border border-line bg-surface px-2 py-1 font-mono text-[11px] text-faint transition-colors hover:text-foreground"
+          >
+            sair do zen
+          </button>
+        )}
         {palette}
         <UserMenu />
         <ThemeToggle />

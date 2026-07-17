@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ideCrumb, routeTab } from "./ide-route";
+import { breadcrumbTrail, ideCrumb, routeTab } from "./ide-route";
 
 describe("ideCrumb", () => {
   it("mapeia rotas estáticas para nomes de arquivo", () => {
@@ -81,5 +81,54 @@ describe("routeTab", () => {
 
   it("retorna null para rota desconhecida", () => {
     expect(routeTab("/rota-inexistente")).toBeNull();
+  });
+});
+
+describe("breadcrumbTrail", () => {
+  it("separa seção e arquivo em rotas de conteúdo", () => {
+    expect(breadcrumbTrail("/blog/pipeline-do-blog")).toEqual({
+      section: "blog",
+      slug: "pipeline-do-blog",
+      leafLabel: "pipeline-do-blog.mdx",
+    });
+    expect(breadcrumbTrail("/estudos/como-construi-este-site")).toEqual({
+      section: "estudos",
+      slug: "como-construi-este-site",
+      leafLabel: "como-construi-este-site.mdx",
+    });
+  });
+
+  it("marca os índices de blog e estudos como seção sem arquivo", () => {
+    expect(breadcrumbTrail("/blog")).toEqual({
+      section: "blog",
+      slug: null,
+      leafLabel: null,
+    });
+    expect(breadcrumbTrail("/estudos")).toEqual({
+      section: "estudos",
+      slug: null,
+      leafLabel: null,
+    });
+  });
+
+  it("usa o label de arquivo das rotas conhecidas", () => {
+    expect(breadcrumbTrail("/")).toEqual({
+      section: null,
+      slug: null,
+      leafLabel: "home.tsx",
+    });
+    expect(breadcrumbTrail("/sobre")).toEqual({
+      section: null,
+      slug: null,
+      leafLabel: "sobre.md",
+    });
+  });
+
+  it("cai no crumb genérico para rotas fora do mapa", () => {
+    expect(breadcrumbTrail("/admin")).toEqual({
+      section: null,
+      slug: null,
+      leafLabel: "admin",
+    });
   });
 });

@@ -11,7 +11,7 @@ import {
   CONTENT_SCROLL_CONTAINER_ID,
   IdeShell,
 } from "@/components/ide/ide-shell";
-import { publishedCaseStudies, publishedPosts } from "@/lib/content";
+import { allTags, publishedCaseStudies, publishedPosts } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -79,9 +79,10 @@ function toSearchText(raw: string): string {
     .slice(0, SEARCH_TEXT_MAX_LENGTH);
 }
 
-const explorerPosts = publishedPosts.map(({ slug, title, raw }) => ({
+const explorerPosts = publishedPosts.map(({ slug, title, raw, toc }) => ({
   slug,
   title,
+  toc,
   searchText: toSearchText(raw),
 }));
 
@@ -118,6 +119,7 @@ export default function RootLayout({
             posts={explorerPosts}
             caseStudies={paletteCaseStudies}
             ciStatus={<CiStatus />}
+            tags={allTags()}
           >
             {children}
           </IdeShell>
