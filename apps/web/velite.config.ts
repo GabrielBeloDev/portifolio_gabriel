@@ -50,6 +50,8 @@ const caseStudies = defineCollection({
     slug: s.path().transform((path) => path.replace(/^case-studies\//, "")),
     metadata: s.metadata(),
     code: s.mdx(),
+    // Frontmatter-less MDX source, so the palette can index the body text
+    raw: s.raw(),
   }),
 });
 

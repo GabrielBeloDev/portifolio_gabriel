@@ -77,3 +77,22 @@ test("filtro sem resultado mostra estado vazio", async ({ page }) => {
   await expect(palette.getByText("nenhum resultado")).toBeVisible();
   await expect(palette.getByRole("option")).toHaveCount(0);
 });
+
+test("palavra que só existe no corpo acha o post, mostra trecho e navega", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.keyboard.press("Control+k");
+
+  const palette = page.getByRole("dialog", { name: "buscar" });
+  // "cenário" only appears in the body of this post, never in a title
+  await palette.getByRole("combobox").fill("cenário");
+
+  const option = palette.getByRole("option", { name: /transformei meu site/i });
+  await expect(option).toBeVisible();
+  await expect(option.getByText(/cenário/)).toBeVisible();
+
+  await option.click();
+  await expect(page).toHaveURL(/\/blog\/transformei-meu-site-num-ide$/);
+  await expect(palette).toBeHidden();
+});

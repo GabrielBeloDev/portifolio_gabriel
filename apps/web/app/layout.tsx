@@ -59,14 +59,35 @@ export const metadata: Metadata = {
   },
 };
 
-const explorerPosts = publishedPosts.map(({ slug, title }) => ({
+// The palette searches post bodies without shipping the whole MDX source to
+// the client: strip code fences and markdown syntax, then truncate.
+const SEARCH_TEXT_MAX_LENGTH = 4000;
+
+function toSearchText(raw: string): string {
+  return raw
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[*_>~]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, SEARCH_TEXT_MAX_LENGTH);
+}
+
+const explorerPosts = publishedPosts.map(({ slug, title, raw }) => ({
   slug,
   title,
+  searchText: toSearchText(raw),
 }));
 
-const paletteCaseStudies = publishedCaseStudies.map(({ slug, title }) => ({
+const paletteCaseStudies = publishedCaseStudies.map(({ slug, title, raw }) => ({
   slug,
   title,
+  searchText: toSearchText(raw),
 }));
 
 export default function RootLayout({
