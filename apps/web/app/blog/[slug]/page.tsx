@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReadingProgress } from "@gabriel/ui";
 import { AdminEditLink } from "@/components/admin-edit-link";
@@ -89,7 +90,17 @@ export default async function PostPage({
         <article>
           <header>
             <p className="text-sm text-muted-2">
-              {primaryTag !== undefined && <>{primaryTag} · </>}
+              {primaryTag !== undefined && (
+                <>
+                  <Link
+                    href={`/blog/tag/${primaryTag}`}
+                    className="transition-colors hover:text-accent"
+                  >
+                    {primaryTag}
+                  </Link>
+                  {" · "}
+                </>
+              )}
               <time dateTime={post.date.slice(0, 10)}>
                 {formatDateHuman(post.date)}
               </time>{" "}
