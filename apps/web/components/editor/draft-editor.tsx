@@ -8,7 +8,9 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { AiAssistant } from "@/components/editor/ai-assistant";
 import { DeleteDraftButton } from "@/components/editor/delete-draft-button";
+import { RecordButton } from "@/components/editor/record-button";
 import { MDXContent } from "@/components/mdx";
 import {
   generateShareToken,
@@ -92,6 +94,7 @@ export function DraftEditor({
   );
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const copyFeedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bodyTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Latest-value refs so the mount-only Cmd+S listener never reads stale state
   const fieldsRef = useRef(fields);
@@ -194,6 +197,11 @@ export function DraftEditor({
     setShareUrlCopied(true);
   }
 
+  function appendToBody(text: string) {
+    const hasBody = fields.body.trim() !== "";
+    update({ body: hasBody ? `${fields.body}\n\n${text}` : text });
+  }
+
   async function handleCopyMdx() {
     await navigator.clipboard.writeText(draftToMdx(fields));
     setMdxCopied(true);
@@ -245,9 +253,12 @@ export function DraftEditor({
                 ●
               </span>
             )}
-            <span className="ml-auto">
-              {wordCount} palavras
-              {wordCount > 0 && ` · ~${readingMinutes} min de leitura`}
+            <span className="ml-auto flex items-center gap-3">
+              <RecordButton onTranscribed={appendToBody} />
+              <span>
+                {wordCount} palavras
+                {wordCount > 0 && ` · ~${readingMinutes} min de leitura`}
+              </span>
             </span>
           </p>
           <div className="flex flex-col gap-4 p-4">
@@ -283,6 +294,7 @@ export function DraftEditor({
               className={fieldClasses}
             />
             <textarea
+              ref={bodyTextareaRef}
               aria-label="corpo em MDX"
               value={fields.body}
               onChange={(event) => update({ body: event.target.value })}
@@ -321,6 +333,11 @@ export function DraftEditor({
                 </ul>
               )}
             </div>
+            <AiAssistant
+              body={fields.body}
+              bodyRef={bodyTextareaRef}
+              onInsert={appendToBody}
+            />
             <div className="rounded-sm border border-line bg-background-2 p-3">
               <p className="font-mono text-xs tracking-widest text-faint uppercase">
                 link de revisão
