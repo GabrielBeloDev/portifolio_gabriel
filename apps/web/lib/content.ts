@@ -28,3 +28,11 @@ export function findProject(slug: string) {
 export function findCaseStudyForProject(projectSlug: string) {
   return publishedCaseStudies.find((study) => study.projectSlug === projectSlug);
 }
+
+export function postsByTag(tag: string) {
+  return publishedPosts.filter((post) => post.tags.includes(tag));
+}
+
+export function allTags() {
+  return [...new Set(publishedPosts.flatMap((post) => post.tags))].sort();
+}
