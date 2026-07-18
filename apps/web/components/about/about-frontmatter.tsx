@@ -1,6 +1,7 @@
 import { SOCIAL_LINKS } from "@/lib/site";
 
 import { fetchExtraSocialAccounts, fetchGithubProfile } from "./github-data";
+import { OWNER_FACTS } from "./owner-content";
 
 const CURRENT_FOCUS = "infra moderna: Kubernetes · Terraform";
 
@@ -50,11 +51,13 @@ export async function AboutFrontmatter() {
         ---
       </p>
       <FrontmatterLine name="nome">Gabriel Belo</FrontmatterLine>
+      {OWNER_FACTS.map((fact) => (
+        <FrontmatterLine key={fact.name} name={fact.name}>
+          {fact.value}
+        </FrontmatterLine>
+      ))}
       {profile?.bio && (
         <FrontmatterLine name="bio">{profile.bio}</FrontmatterLine>
-      )}
-      {profile?.location && (
-        <FrontmatterLine name="local">{profile.location}</FrontmatterLine>
       )}
       <FrontmatterLine name="foco">&quot;{CURRENT_FOCUS}&quot;</FrontmatterLine>
       {profile?.blog && (

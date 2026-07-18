@@ -3,7 +3,11 @@ import Image from "next/image";
 
 import { AboutFrontmatter } from "@/components/about/about-frontmatter";
 import { JourneyLog } from "@/components/about/journey-log";
-import { CONTACT_CTA, LESSONS_LEARNED } from "@/components/about/owner-content";
+import {
+  CONTACT_CTA,
+  LESSONS_LEARNED,
+  OWNER_INTRO,
+} from "@/components/about/owner-content";
 import { SiteStats } from "@/components/about/site-stats";
 import { SkillsPanel } from "@/components/about/skills-panel";
 import gabrielPhoto from "@/components/home/gabriel.jpg";
@@ -50,11 +54,8 @@ export default function AboutPage() {
             Oi, eu sou o Gabriel.
           </h1>
           <p className="mt-3 max-w-prose leading-relaxed text-muted">
-            Dev. Construo coisas na web e escrevo sobre o processo, porque
-            escrever é o jeito mais honesto que encontrei de{" "}
-            <span className="text-accent">entender o que estou estudando</span>.
-            Se você chegou aqui por um post, esta página é o contexto de quem
-            escreve.
+            {OWNER_INTRO} Se você chegou aqui por um post, esta página é o
+            contexto de quem escreve.
           </p>
         </div>
       </div>
