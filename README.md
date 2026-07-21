@@ -30,7 +30,7 @@ packages/
 
 ## Getting started
 
-Requirements: Node >= 24 (see `.nvmrc`) and pnpm 10 (pinned via `packageManager`).
+Requirements: Node >= 24 (see `.nvmrc`) and pnpm 11 (pinned via `packageManager`).
 
 ```sh
 pnpm install
