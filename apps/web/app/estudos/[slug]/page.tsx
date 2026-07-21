@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReadingProgress } from "@gabriel/ui";
+import { AdminEditLink } from "@/components/admin-edit-link";
 import { CtaLink } from "@/components/cta-link";
 import { CONTENT_SCROLL_CONTAINER_ID } from "@/components/ide/ide-shell";
 import { MDXContent } from "@/components/mdx";
@@ -64,6 +65,7 @@ export default async function CaseStudyPage({
               {formatDateHuman(study.date)}
             </time>{" "}
             · {study.metadata.readingTime} min de leitura
+            <AdminEditLink slug={study.slug} kind="study" />
           </p>
           <h1 className="mt-4 font-display text-4xl leading-[1.08] font-bold tracking-tight sm:text-[44px]">
             {study.title}

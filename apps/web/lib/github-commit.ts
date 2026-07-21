@@ -1,11 +1,23 @@
+import type { DraftType } from "./draft-type";
 import { REPO_URL } from "./site";
 
 const REPO_SLUG = new URL(REPO_URL).pathname.slice(1);
 const COMMIT_BRANCH = "main";
 const CONTENTS_API_ROOT = `https://api.github.com/repos/${REPO_SLUG}/contents`;
 
+export function contentPath(type: DraftType, slug: string): string {
+  switch (type) {
+    case "post":
+      return `apps/web/content/posts/${slug}.mdx`;
+    case "study":
+      return `apps/web/content/case-studies/${slug}.mdx`;
+    case "project":
+      return `apps/web/content/projects/${slug}.yml`;
+  }
+}
+
 export function postContentPath(slug: string): string {
-  return `apps/web/content/posts/${slug}.mdx`;
+  return contentPath("post", slug);
 }
 
 export function contentsApiUrl(path: string): string {

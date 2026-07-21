@@ -23,7 +23,9 @@ import {
   revokeShareToken,
   saveDraft,
 } from "@/lib/actions/drafts";
-import { publishedPosts } from "@/lib/content";
+import { caseStudyToMdx } from "@/lib/case-study-mdx";
+import { allProjects, publishedPosts } from "@/lib/content";
+import type { DraftType } from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
 import {
   imageUploadPlaceholder,
@@ -33,18 +35,29 @@ import {
   type TextEdit,
 } from "@/lib/editor-text";
 import {
-  publishDiagnostics,
+  diagnosticsFor,
   type DiagnosticSeverity,
 } from "@/lib/validation/draft";
 
 type DraftFields = {
   id: string;
+  type: DraftType;
   title: string;
   slug: string;
   summary: string;
   tags: string;
   body: string;
+  projectSlug: string;
 };
+
+const CONTENT_TYPE_OPTIONS: { value: DraftType; label: string }[] = [
+  { value: "post", label: "post" },
+  { value: "study", label: "estudo" },
+];
+
+function serializeDraft(fields: DraftFields): string {
+  return fields.type === "study" ? caseStudyToMdx(fields) : draftToMdx(fields);
+}
 
 type SaveState = "saved" | "saving" | "dirty" | "error";
 
@@ -55,6 +68,7 @@ type PublishResult =
   | { ok: false; error: string };
 
 const publishedSlugs = publishedPosts.map((post) => post.slug);
+const projectSlugs = allProjects.map((project) => project.slug);
 
 const AUTOSAVE_DELAY_MS = 1_500;
 const COPY_FEEDBACK_MS = 2_000;
@@ -343,7 +357,7 @@ export function DraftEditor({
   }
 
   async function handleCopyMdx() {
-    await navigator.clipboard.writeText(draftToMdx(fields));
+    await navigator.clipboard.writeText(serializeDraft(fields));
     setMdxCopied(true);
     if (copyFeedbackTimer.current) clearTimeout(copyFeedbackTimer.current);
     copyFeedbackTimer.current = setTimeout(
@@ -364,12 +378,20 @@ export function DraftEditor({
     });
   }
 
-  const diagnostics = publishDiagnostics(fields, publishedSlugs);
+  const { type } = fields;
+  const showsTags = type === "post";
+  const showsProjectLink = type === "study";
+  const diagnostics = diagnosticsFor(type, fields, {
+    publishedPostSlugs: publishedSlugs,
+    projectSlugs,
+  });
   const hasErrors = diagnostics.some(
     (diagnostic) => diagnostic.severity === "error",
   );
   const isMobilePreview = previewViewport === "mobile";
-  const draftFileName = `${fields.slug || "novo-post"}.mdx`;
+  const fallbackSlug = type === "study" ? "novo-estudo" : "novo-post";
+  const draftFileName = `${fields.slug || fallbackSlug}.mdx`;
+  const contentDir = type === "study" ? "content/case-studies" : "content/posts";
   const wordCount = fields.body.split(/\s+/).filter(Boolean).length;
   const readingMinutes = Math.max(
     1,
@@ -418,6 +440,28 @@ export function DraftEditor({
             </span>
           </p>
           <div className="flex flex-col gap-4 p-4">
+            <div
+              role="group"
+              aria-label="tipo de conteúdo"
+              className="flex items-center gap-1"
+            >
+              {CONTENT_TYPE_OPTIONS.map((option) => {
+                const active = type === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => update({ type: option.value })}
+                    className={`${viewportButtonClasses} ${
+                      active ? activeViewportClasses : inactiveViewportClasses
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
             <input
               aria-label="título"
               value={fields.title}
@@ -430,16 +474,29 @@ export function DraftEditor({
                 aria-label="slug"
                 value={fields.slug}
                 onChange={(event) => update({ slug: event.target.value })}
-                placeholder="slug-do-post"
+                placeholder={type === "study" ? "slug-do-estudo" : "slug-do-post"}
                 className={`${fieldClasses} font-mono text-xs`}
               />
-              <input
-                aria-label="tags"
-                value={fields.tags}
-                onChange={(event) => update({ tags: event.target.value })}
-                placeholder="tags, separadas, por vírgula"
-                className={`${fieldClasses} font-mono text-xs`}
-              />
+              {showsTags && (
+                <input
+                  aria-label="tags"
+                  value={fields.tags}
+                  onChange={(event) => update({ tags: event.target.value })}
+                  placeholder="tags, separadas, por vírgula"
+                  className={`${fieldClasses} font-mono text-xs`}
+                />
+              )}
+              {showsProjectLink && (
+                <input
+                  aria-label="projeto vinculado"
+                  value={fields.projectSlug}
+                  onChange={(event) =>
+                    update({ projectSlug: event.target.value })
+                  }
+                  placeholder="slug do projeto (opcional)"
+                  className={`${fieldClasses} font-mono text-xs`}
+                />
+              )}
             </div>
             <textarea
               aria-label="resumo"
@@ -514,7 +571,7 @@ export function DraftEditor({
                     </p>
                   )}
                   <p className="font-mono text-xs text-faint">
-                    ou copie o .mdx e commite em content/posts/{fields.slug}.mdx
+                    ou copie o .mdx e commite em {contentDir}/{fields.slug}.mdx
                     à mão
                   </p>
                 </div>

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { publishDiagnostics, publishReadinessIssues } from "./draft";
+import {
+  publishDiagnostics,
+  publishReadinessIssues,
+  studyDiagnostics,
+} from "./draft";
 
 const readyDraft = {
   title: "Meu post",
@@ -155,5 +159,62 @@ describe("publishDiagnostics", () => {
     expect(severities.indexOf("warning")).toBeGreaterThan(
       severities.lastIndexOf("error"),
     );
+  });
+});
+
+const readyStudy = {
+  title: "Meu estudo",
+  slug: "meu-estudo",
+  summary: "Um resumo válido.",
+  body: "## Seção\n\ntexto",
+};
+
+const emptyStudyContext = { publishedPostSlugs: [], projectSlugs: [] };
+
+describe("studyDiagnostics", () => {
+  it("returns no diagnostics for a clean study without a project link", () => {
+    expect(studyDiagnostics(readyStudy, emptyStudyContext)).toEqual([]);
+  });
+
+  it("never warns about missing tags", () => {
+    const diagnostics = studyDiagnostics(readyStudy, emptyStudyContext);
+    expect(diagnostics).not.toContainEqual({
+      severity: "warning",
+      message: "post sem tags",
+    });
+  });
+
+  it("accepts a project link that exists", () => {
+    const diagnostics = studyDiagnostics(
+      { ...readyStudy, projectSlug: "este-site" },
+      { publishedPostSlugs: [], projectSlugs: ["este-site"] },
+    );
+    expect(diagnostics).toEqual([]);
+  });
+
+  it("flags a project link that does not exist as error", () => {
+    const diagnostics = studyDiagnostics(
+      { ...readyStudy, projectSlug: "fantasma" },
+      { publishedPostSlugs: [], projectSlugs: ["este-site"] },
+    );
+    expect(diagnostics).toContainEqual({
+      severity: "error",
+      message: "projeto vinculado inexistente fantasma",
+    });
+  });
+
+  it("still checks readiness and broken internal links", () => {
+    const diagnostics = studyDiagnostics(
+      { ...readyStudy, title: "  ", body: "[x](/blog/sumiu)" },
+      emptyStudyContext,
+    );
+    expect(diagnostics).toContainEqual({
+      severity: "error",
+      message: "título vazio",
+    });
+    expect(diagnostics).toContainEqual({
+      severity: "error",
+      message: "link interno quebrado: /blog/sumiu",
+    });
   });
 });

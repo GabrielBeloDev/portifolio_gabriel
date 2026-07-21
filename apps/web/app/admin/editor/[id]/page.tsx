@@ -31,11 +31,13 @@ export default async function DraftEditorPage({
       <DraftEditor
         draft={{
           id: current.id,
+          type: current.type,
           title: current.title,
           slug: current.slug,
           summary: current.summary,
           tags: current.tags,
           body: current.body,
+          projectSlug: current.projectSlug ?? "",
         }}
         shareToken={current.shareToken}
       />

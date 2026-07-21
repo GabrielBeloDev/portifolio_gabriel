@@ -50,6 +50,13 @@
       "when": 1784302546599,
       "tag": "0006_late_thaddeus_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784671392700,
+      "tag": "0007_silky_pretty_boy",
+      "breakpoints": true
     }
   ]
 }
