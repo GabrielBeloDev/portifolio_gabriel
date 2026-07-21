@@ -13,8 +13,8 @@ import {
   listViewsByDay,
   listViewsByPost,
 } from "@/lib/admin-metrics";
+import { UsersTable } from "@/components/admin/users-table";
 import { auth } from "@/lib/auth";
-import { formatDateHuman } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "dashboard",
@@ -67,52 +67,18 @@ export default async function AdminDashboardPage() {
           <span aria-hidden>⌄</span>
           pessoas/
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full font-mono text-xs">
-            <thead>
-              <tr className="border-b border-line text-left text-faint">
-                <th className="px-4 py-2 font-normal">nome</th>
-                <th className="px-4 py-2 font-normal">email</th>
-                <th className="px-4 py-2 font-normal">role</th>
-                <th className="px-4 py-2 font-normal">entrou em</th>
-                <th className="px-4 py-2 font-normal">visto por último</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {users.map((person) => {
-                const isAdmin = person.role === "admin";
-                const roleBadgeClass = isAdmin
-                  ? "border-accent text-accent"
-                  : "border-line text-muted";
-                const lastSeenLabel = person.lastSeenAt
-                  ? formatDateHuman(person.lastSeenAt.toISOString())
-                  : "—";
-                return (
-                  <tr key={person.id}>
-                    <td className="px-4 py-2.5 font-medium">{person.name}</td>
-                    <td
-                      className="max-w-[180px] truncate px-4 py-2.5 text-muted"
-                      title={person.email}
-                    >
-                      {person.email}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span
-                        className={`rounded-full border px-2 py-0.5 text-[11px] ${roleBadgeClass}`}
-                      >
-                        {person.role ?? "user"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 text-muted">
-                      {formatDateHuman(person.createdAt.toISOString())}
-                    </td>
-                    <td className="px-4 py-2.5 text-muted">{lastSeenLabel}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <UsersTable
+          users={users.map((person) => ({
+            id: person.id,
+            name: person.name,
+            email: person.email,
+            role: person.role,
+            createdAt: person.createdAt.toISOString(),
+            lastSeenAt: person.lastSeenAt
+              ? person.lastSeenAt.toISOString()
+              : null,
+          }))}
+        />
       </section>
 
       <section className="mt-8 overflow-hidden rounded-md border border-line bg-surface">
