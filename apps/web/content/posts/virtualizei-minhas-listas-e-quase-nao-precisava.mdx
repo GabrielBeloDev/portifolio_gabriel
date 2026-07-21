@@ -1,0 +1,26 @@
+---
+title: "Virtualizei minhas listas e a lição foi que eu quase não precisava"
+date: 2026-07-21
+summary: "Aprendi a virtualizar listas pra elas aguentarem crescer sem travar. No caminho descobri que só uma das minhas listas justificava, e deixei outra de fora de propósito."
+tags: ["frontend", "performance", "arquitetura"]
+---
+
+Virtualizar uma lista é só desenhar o que cabe na tela e fingir que o resto está lá. Em vez de colocar mil linhas no HTML, você coloca as vinte visíveis e um espaço em branco do tamanho do que sobrou. Quis aprender isso direito, então virtualizei as listas do site. A parte mais útil foi perceber onde não valia a pena.
+
+## Onde valeu
+
+A tabela de pessoas do painel administrativo é a única lista do site que cresce sem teto. Cada pessoa que cria conta vira uma linha, e um dia podem ser milhares. Essa mereceu. Usei o `@tanstack/react-virtual` e a versão com muitas linhas prova o ponto. Com oitenta pessoas na lista, o navegador só tem vinte e seis na página, e o resto aparece conforme você rola.
+
+Fiz isso mantendo a tabela ainda uma tabela de verdade, com as marcações certas de linha e célula, usando linhas de espaçamento no topo e no fim em vez de posicionar tudo na mão. Como o painel fica atrás de login, não perco nada de busca do Google ao renderizar no navegador.
+
+## Onde valeu pela metade
+
+O blog é diferente. São páginas públicas que o Google precisa ler, e hoje tem cinco posts. Virtualizar cinco posts seria complexidade sem ganho nenhum, e ainda por cima esconderia o conteúdo do buscador.
+
+A solução foi um limite. Abaixo de trinta posts o blog é renderizado inteiro no servidor, do jeito que sempre foi, ótimo pra busca. Só quando passar disso ele vira uma lista virtualizada. Ou seja, a capacidade está lá, dormindo, e só acorda no dia em que eu escrever muito. Hoje ela nem liga.
+
+## Onde não valeu
+
+O explorer, aquela árvore de arquivos na lateral, eu deixei de fora. Ele não é uma lista simples, é uma nav inteira que rola de uma vez, com grupos que abrem e fecham. Virtualizar só a parte dos posts ali dentro me obrigaria a criar uma rolagem dentro da rolagem, o que piora a experiência. E com cinco posts o ganho seria zero.
+
+Escrever isso é a lição toda. É tentador aplicar a técnica nova em tudo que se vê. Mas a régua honesta é o tamanho do problema. Uma tabela que cresce pra sempre ganhou virtualização de verdade. Uma lista pequena ganhou um interruptor que fica desligado. E uma que não encaixava eu tive a disciplina de não forçar.
