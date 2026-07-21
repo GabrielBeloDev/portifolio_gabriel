@@ -7,10 +7,12 @@ import { redirect } from "next/navigation";
 import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { findPost } from "@/lib/content";
+import { findPost, publishedPosts } from "@/lib/content";
 import { db } from "@/lib/db";
+import { draftToMdx } from "@/lib/draft-mdx";
+import { commitContentFile, postContentPath } from "@/lib/github-commit";
 import { rehypePlugins, remarkPlugins } from "@/lib/mdx-pipeline";
-import { saveDraftSchema } from "@/lib/validation/draft";
+import { publishDiagnostics, saveDraftSchema } from "@/lib/validation/draft";
 
 type ActionResult<T = undefined> =
   | { ok: true; data: T }
@@ -86,6 +88,47 @@ export async function saveDraft(input: unknown): Promise<ActionResult> {
   }
 
   return { ok: true, data: undefined };
+}
+
+export async function publishDraft(
+  input: unknown,
+): Promise<ActionResult<{ commitUrl: string }>> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "sem permissão" };
+
+  const parsed = z.object({ id: z.uuid() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "dados inválidos" };
+
+  const [current] = await db
+    .select()
+    .from(draft)
+    .where(and(eq(draft.id, parsed.data.id), eq(draft.authorId, admin.id)))
+    .limit(1);
+  if (!current) return { ok: false, error: "draft não encontrado" };
+
+  const fields = {
+    title: current.title,
+    slug: current.slug,
+    summary: current.summary,
+    tags: current.tags,
+    body: current.body,
+  };
+
+  const publishedSlugs = publishedPosts.map((post) => post.slug);
+  const blockingErrors = publishDiagnostics(fields, publishedSlugs)
+    .filter((diagnostic) => diagnostic.severity === "error")
+    .map((diagnostic) => diagnostic.message);
+  if (blockingErrors.length > 0) {
+    return { ok: false, error: blockingErrors.join("; ") };
+  }
+
+  const { commitUrl } = await commitContentFile({
+    path: postContentPath(fields.slug),
+    content: draftToMdx(fields),
+    message: `content: publish ${fields.slug}`,
+  });
+
+  return { ok: true, data: { commitUrl } };
 }
 
 export async function deleteDraft(input: unknown): Promise<ActionResult> {

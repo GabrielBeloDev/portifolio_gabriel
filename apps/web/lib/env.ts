@@ -9,6 +9,7 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
+  GITHUB_COMMIT_TOKEN: z.string().optional(),
 });
 
 export const env = envSchema.parse({
@@ -20,4 +21,5 @@ export const env = envSchema.parse({
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GROQ_API_KEY: process.env.GROQ_API_KEY,
+  GITHUB_COMMIT_TOKEN: process.env.GITHUB_COMMIT_TOKEN,
 });

@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  useTransition,
 } from "react";
 import { AiAssistant } from "@/components/editor/ai-assistant";
 import { DeleteDraftButton } from "@/components/editor/delete-draft-button";
@@ -15,6 +16,7 @@ import { MDXContent } from "@/components/mdx";
 import {
   generateShareToken,
   previewDraft,
+  publishDraft,
   revokeShareToken,
   saveDraft,
 } from "@/lib/actions/drafts";
@@ -37,6 +39,10 @@ type DraftFields = {
 type SaveState = "saved" | "saving" | "dirty" | "error";
 
 type PreviewViewport = "desktop" | "mobile";
+
+type PublishResult =
+  | { ok: true; commitUrl: string }
+  | { ok: false; error: string };
 
 const publishedSlugs = publishedPosts.map((post) => post.slug);
 
@@ -116,6 +122,10 @@ export function DraftEditor({
   const [shareUrlCopied, setShareUrlCopied] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [mdxCopied, setMdxCopied] = useState(false);
+  const [publishResult, setPublishResult] = useState<PublishResult | null>(
+    null,
+  );
+  const [isPublishing, startPublishing] = useTransition();
   const [previewViewport, setPreviewViewport] =
     useState<PreviewViewport>("desktop");
   const origin = useSyncExternalStore(
@@ -243,6 +253,18 @@ export function DraftEditor({
     );
   }
 
+  function handlePublish() {
+    setPublishResult(null);
+    startPublishing(async () => {
+      const result = await publishDraft({ id: fields.id });
+      setPublishResult(
+        result.ok
+          ? { ok: true, commitUrl: result.data.commitUrl }
+          : { ok: false, error: result.error },
+      );
+    });
+  }
+
   const diagnostics = publishDiagnostics(fields, publishedSlugs);
   const hasErrors = diagnostics.some(
     (diagnostic) => diagnostic.severity === "error",
@@ -348,16 +370,46 @@ export function DraftEditor({
                   <p className="font-mono text-xs text-ok">
                     ✓ frontmatter válido
                   </p>
-                  <button
-                    type="button"
-                    onClick={handleCopyMdx}
-                    className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-link transition-colors hover:border-accent"
-                  >
-                    {mdxCopied ? "copiado ✓" : "copiar .mdx"}
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handlePublish}
+                      disabled={isPublishing}
+                      className="rounded-full bg-accent-fill px-3 py-1.5 font-sans text-xs font-medium text-on-accent transition-opacity hover:opacity-90 disabled:opacity-60"
+                    >
+                      {isPublishing ? "publicando…" : "publicar"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCopyMdx}
+                      className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-link transition-colors hover:border-accent"
+                    >
+                      {mdxCopied ? "copiado ✓" : "copiar .mdx"}
+                    </button>
+                  </div>
+                  {publishResult?.ok === true && (
+                    <div className="flex flex-col gap-1">
+                      <a
+                        href={publishResult.commitUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-mono text-xs text-link hover:underline"
+                      >
+                        ver commit ↗
+                      </a>
+                      <p className="font-mono text-xs text-faint">
+                        deploy rodando, vai ao ar em ~1 min
+                      </p>
+                    </div>
+                  )}
+                  {publishResult?.ok === false && (
+                    <p role="alert" className="font-mono text-xs text-danger">
+                      {publishResult.error}
+                    </p>
+                  )}
                   <p className="font-mono text-xs text-faint">
-                    cole em content/posts/{fields.slug}.mdx e commite —
-                    publicar direto daqui chega na próxima fase
+                    ou copie o .mdx e commite em content/posts/{fields.slug}.mdx
+                    à mão
                   </p>
                 </div>
               )}
