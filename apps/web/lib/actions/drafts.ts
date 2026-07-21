@@ -15,7 +15,7 @@ import {
   publishedPosts,
 } from "@/lib/content";
 import { db } from "@/lib/db";
-import type { DraftType, ProjectCategory } from "@/lib/draft-type";
+import { type DraftType, toProjectCategory } from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
 import { projectToYaml } from "@/lib/project-yaml";
 import { commitContentFile, contentPath } from "@/lib/github-commit";
@@ -45,8 +45,8 @@ function publishFileFor(
         message: `content: publish case study ${fields.slug}`,
       };
     case "project": {
-      // New projects append after the last one; category is already validated
-      // by projectDiagnostics before we reach the commit, so the cast is safe
+      // New projects append after the last one. An untouched category is empty,
+      // which the narrow turns into the same default velite would apply
       const order =
         allProjects.reduce((max, project) => Math.max(max, project.order), 0) +
         1;
@@ -58,7 +58,7 @@ function publishFileFor(
             .split(",")
             .map((tech) => tech.trim())
             .filter(Boolean),
-          category: (fields.category ?? "producao") as ProjectCategory,
+          category: toProjectCategory(fields.category) ?? "producao",
           repo: fields.repo,
           live: fields.live,
           order,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DRAFT_TYPES, PROJECT_CATEGORIES, type DraftType } from "../draft-type";
+import { DRAFT_TYPES, type DraftType, toProjectCategory } from "../draft-type";
 
 export const saveDraftSchema = z.object({
   id: z.uuid(),
@@ -255,9 +255,8 @@ function invalidCategoryErrors(
   category: string | undefined,
 ): PublishDiagnostic[] {
   const value = category?.trim() ?? "";
-  // Empty falls back to the velite default, so only a wrong value is an error
-  const categories: readonly string[] = PROJECT_CATEGORIES;
-  if (value === "" || categories.includes(value)) return [];
+  // Empty is allowed because the serializer resolves it to the velite default
+  if (value === "" || toProjectCategory(value)) return [];
   return [{ severity: "error", message: `categoria inválida ${value}` }];
 }
 

@@ -29,7 +29,7 @@ import {
   PROJECT_CATEGORIES,
   PROJECT_CATEGORY_LABELS,
   type DraftType,
-  type ProjectCategory,
+  toProjectCategory,
 } from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
 import { projectToYaml } from "@/lib/project-yaml";
@@ -81,7 +81,7 @@ function serializeDraft(fields: DraftFields, projectOrder: number): string {
         title: fields.title,
         summary: fields.summary,
         stack: stackFromCsv(fields.tags),
-        category: (fields.category || "producao") as ProjectCategory,
+        category: toProjectCategory(fields.category) ?? "producao",
         repo: fields.repo,
         live: fields.live,
         order: projectOrder,

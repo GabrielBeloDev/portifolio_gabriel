@@ -19,3 +19,14 @@ export const PROJECT_CATEGORY_LABELS: Record<ProjectCategory, string> = {
   "legado-de-estudo": "legado de estudo",
   producao: "produção",
 };
+
+// Narrow an untrusted string (DB column, form field) to a category, or null.
+// The only cast lives here, right after a membership check, so callers never
+// assert a raw string is a ProjectCategory.
+export function toProjectCategory(
+  value: string | null | undefined,
+): ProjectCategory | null {
+  const trimmed = value?.trim() ?? "";
+  const categories: readonly string[] = PROJECT_CATEGORIES;
+  return categories.includes(trimmed) ? (trimmed as ProjectCategory) : null;
+}
