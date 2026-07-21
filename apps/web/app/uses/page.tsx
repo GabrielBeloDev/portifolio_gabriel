@@ -32,7 +32,7 @@ const DOTFILE_SOURCES: Record<DotfileAnchor, DotfileSource> = {
     code: `// gerado do que este repositório realmente usa
 {
   "linguagem": "TypeScript 5.9 (strict)",
-  "runtime": "Node 22",
+  "runtime": "Node 24",
   "framework": "Next.js 16 + React 19",
   "estilos": "Tailwind CSS 4",
   "conteudo": "MDX + Velite",
