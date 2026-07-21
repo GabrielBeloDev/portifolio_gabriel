@@ -1,0 +1,34 @@
+---
+title: "O site agora se publica sozinho"
+date: 2026-07-21
+summary: "Fechei o ciclo do editor. Agora escrevo, colo imagem e publico sem sair do site, e a parte mais interessante foi um erro 403 que me ensinou o que uma chave de acesso realmente faz."
+tags: ["editor", "devops", "nextjs"]
+---
+
+Por um bom tempo o editor deste site fazia quase tudo, menos a última coisa. Eu escrevia o rascunho, salvava sozinho, via o preview, pedia ajuda pra IA, até ditava por voz. Mas na hora de publicar o botão só me dava o arquivo pronto pra eu colar no repositório na mão. O ciclo terminava a um passo do fim.
+
+O detalhe que faltava é onde os posts realmente moram. Rascunho fica no banco, privado, só eu vejo. Post publicado é um arquivo no repositório, e é ele que o site lê pra montar a página. Publicar, no fundo, é mover uma coisa do banco pro repositório. Enquanto eu fazia esse passo copiando e colando, o editor não era um editor de verdade, era um bloco de notas caprichado.
+
+## O 403 que explicou tudo
+
+Pra fechar isso, o site precisa de permissão pra escrever no meu repositório, e essa permissão vem de uma chave de acesso. Eu gerei uma, coloquei no lugar certo e mandei o site tentar publicar. A resposta do GitHub foi honesta e seca.
+
+```txt
+GET  /user     200 OK
+GET  /repos/…  200 OK
+PUT  /repos/…  403 Resource not accessible by personal access token
+```
+
+Ler passou, escrever levou 403. Eu tinha gerado a chave só com permissão de leitura. Foi o momento em que a ideia de chave de acesso deixou de ser abstrata pra mim. Ela não é uma senha genérica, é um crachá com escopo. O meu abria a porta pra olhar, não pra mexer. Troquei a permissão pra escrita, o site escreveu, e o ciclo fechou.
+
+## O que mudou no editor
+
+Agora o fluxo é o que eu queria desde o começo. Escrevo, o botão publicar faz o commit no repositório e em cerca de um minuto o post está no ar. O mesmo caminho atualiza um arquivo que já existe, então editar um post publicado é abrir ele no editor, mudar e publicar por cima.
+
+Também consigo colar um screenshot direto no corpo do texto. A imagem sobe pra um storage e vira markdown sozinha, sem eu sair da tela. São detalhes pequenos, mas juntos eles transformam a sensação de usar a ferramenta.
+
+## O que ficou pra trás de propósito
+
+Publicar direto no repositório vai contra a regra que eu sigo no resto do projeto, onde tudo passa por pull request e revisão antes de entrar. Aqui eu abri a exceção de caso pensado. Escrever no blog é diferente de mudar código, o dono do texto sou eu, e o atrito de abrir um PR pra cada post ia me fazer escrever menos. A regra continua valendo pro código, e o conteúdo ganhou o caminho curto.
+
+No fim, a lição que fica é a mesma do 403. Quase todo problema de acesso é uma pergunta simples disfarçada de erro. Quem é você e o que você pode fazer aqui. Depois que eu entendi isso, o resto foi um clique.
