@@ -10,7 +10,9 @@ import { Explorer, type ExplorerPost } from "./explorer";
 import { MobileDrawer } from "./mobile-drawer";
 import { StatusBar } from "./status-bar";
 import { TabsBar } from "./tabs-bar";
+import { TerminalPanel } from "./terminal-panel";
 import { WinBar } from "./win-bar";
+import type { FsNode } from "@/lib/terminal/types";
 
 export const CONTENT_SCROLL_CONTAINER_ID = "conteudo";
 
@@ -19,18 +21,21 @@ export function IdeShell({
   caseStudies,
   ciStatus,
   tags,
+  terminalFs,
   children,
 }: {
   posts: (ExplorerPost & PaletteDoc & BreadcrumbPost)[];
   caseStudies: PaletteDoc[];
   ciStatus: React.ReactNode;
   tags: string[];
+  terminalFs: FsNode;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const contentRef = useRef<HTMLElement>(null);
   const [explorerOpen, setExplorerOpen] = useState(true);
   const [zen, setZen] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
 
   // The editor pane is the scroll container, not the window — Next.js only
   // resets window scroll on navigation, so the pane must be reset by hand.
@@ -82,6 +87,20 @@ export function IdeShell({
     return () => document.removeEventListener("keydown", handleZenKeys);
   }, []);
 
+  // Ctrl+` toggles the terminal, the same binding VS Code uses. Backtick with a
+  // modifier is not an editing shortcut, so it fires regardless of focus.
+  useEffect(() => {
+    const toggleTerminal = (event: KeyboardEvent) => {
+      const isTerminalShortcut =
+        (event.metaKey || event.ctrlKey) && event.key === "`";
+      if (!isTerminalShortcut) return;
+      event.preventDefault();
+      setTerminalOpen((open) => !open);
+    };
+    document.addEventListener("keydown", toggleTerminal);
+    return () => document.removeEventListener("keydown", toggleTerminal);
+  }, []);
+
   return (
     <div className={cn("flex h-dvh flex-col overflow-hidden", zen && "zen")}>
       <WinBar
@@ -91,6 +110,7 @@ export function IdeShell({
             caseStudies={caseStudies}
             tags={tags}
             onToggleZen={() => setZen((wasZen) => !wasZen)}
+            onToggleTerminal={() => setTerminalOpen((open) => !open)}
           />
         }
         drawer={<MobileDrawer posts={posts} />}
@@ -102,6 +122,8 @@ export function IdeShell({
           <ActivityBar
             explorerOpen={explorerOpen}
             onToggleExplorer={() => setExplorerOpen((open) => !open)}
+            terminalOpen={terminalOpen}
+            onToggleTerminal={() => setTerminalOpen((open) => !open)}
           />
         )}
         {!zen && explorerOpen && (
@@ -125,6 +147,12 @@ export function IdeShell({
               {children}
             </div>
           </main>
+          {!zen && terminalOpen && (
+            <TerminalPanel
+              fs={terminalFs}
+              onClose={() => setTerminalOpen(false)}
+            />
+          )}
           {!zen && <StatusBar ciStatus={ciStatus} />}
         </div>
       </div>

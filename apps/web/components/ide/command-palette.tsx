@@ -17,6 +17,7 @@ interface CommandPaletteProps {
   caseStudies: PaletteDoc[];
   tags: string[];
   onToggleZen: () => void;
+  onToggleTerminal: () => void;
 }
 
 interface PaletteItemProps {
@@ -124,6 +125,7 @@ export function CommandPalette({
   caseStudies,
   tags,
   onToggleZen,
+  onToggleTerminal,
 }: CommandPaletteProps) {
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
@@ -171,6 +173,7 @@ export function CommandPalette({
       run: () => setTheme(resolvedTheme === "dark" ? "light" : "dark"),
     },
     { label: "zen mode", icon: "▣", run: onToggleZen },
+    { label: "alternar terminal", icon: "›_", run: onToggleTerminal },
     {
       label: "copiar link desta página",
       icon: "⧉",
