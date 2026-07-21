@@ -1,0 +1,35 @@
+---
+title: "Atualizei tudo pro mais novo e o trabalho foi saber o que não atualizar"
+date: 2026-07-21
+summary: "Subi Node, pnpm, vitest, velite e mais um punhado de dependências pro que tinha de mais recente. Três resistiram, e foram elas que ensinaram o que importa numa atualização."
+tags: ["devops", "monorepo", "typescript"]
+---
+
+Decidi subir tudo neste projeto pro mais recente que existisse, mesmo o que ainda estava em beta ou release candidate. A ideia era honesta. Um site pessoal é o lugar certo pra pagar o custo de ser pioneiro, e quando algo quebra vira história pra contar. O que eu não esperava é que a parte difícil não fosse subir, e sim decidir o que segurar.
+
+## O que subiu sem drama
+
+Node foi de 22 pra 24, a LTS atual. O pnpm foi de 10 pra 11. O jest-dom foi pro 7, o vitest pro 5, o velite pro 1.0 e o zod pro 4.5. Cada um virou um pull request pequeno e separado, com o CI inteiro rodando por cima. Separar assim tem um motivo. Se algo quebra três dias depois, eu sei exatamente qual atualização foi a culpada, e reverto só ela.
+
+## O pnpm 11 me barrou de propósito
+
+A primeira surpresa veio do próprio pnpm 11. Ele passou a recusar qualquer pacote publicado nas últimas 24 horas, uma proteção nova contra ataques de cadeia de suprimentos. A lógica é boa. Código malicioso injetado num pacote costuma ser detectado nas primeiras horas, então esperar um dia te protege. O problema é que era exatamente isso que eu queria, o pacote que saiu hoje.
+
+```txt
+ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION
+next@16.2.11 was published within the minimumReleaseAge cutoff
+```
+
+Como a postura deste projeto é assumir o risco de ser bleeding edge, desliguei a espera de forma consciente e deixei isso escrito no arquivo de configuração pra o meu eu do futuro entender por quê.
+
+## Os três que eu recuei
+
+O TypeScript 7 é o novo compilador escrito em Go, e o typecheck ficou mais de duas vezes mais rápido. Mesmo assim eu voltei pro 5.9. O `next build` quebra com ele e o typescript-eslint ainda não roda em cima do 7. Não é problema meu pra resolver, é o ecossistema que precisa alcançar.
+
+O Drizzle 1.0 reescreveu o construtor de queries, e os tipos do meu pacote de banco pararam de compilar. Migrar daria pra fazer, mas é uma release candidate no caminho mais crítico do site, o banco de dados. Não vale.
+
+O better-auth 1.7 quebrou o build por uma dependência interna dele apontando pra uma versão errada de outra biblioteca. Bug de release candidate, nada que eu fosse consertar por fora.
+
+## A régua que ficou
+
+No fim os três que resistiram têm a mesma forma. Ou o conserto não cabia em uma linha, ou era uma peça em pré-lançamento num lugar onde eu não posso me dar ao luxo de errar. Essa virou minha régua pra atualização. Subir por padrão, segurar quando o conserto vira um projeto ou quando o risco mora no que não pode cair. Atualizar tudo é fácil. Saber o que não atualizar é o trabalho.
