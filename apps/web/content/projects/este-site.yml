@@ -7,3 +7,4 @@ stack:
   - Turborepo
 repo: https://github.com/GabrielBeloDev/portifolio_gabriel
 order: 1
+category: producao

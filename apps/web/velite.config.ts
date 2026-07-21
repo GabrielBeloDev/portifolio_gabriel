@@ -1,4 +1,5 @@
 import { defineCollection, defineConfig, s } from "velite";
+import { PROJECT_CATEGORIES } from "./lib/draft-type";
 import { rehypePlugins, remarkPlugins } from "./lib/mdx-pipeline";
 
 const posts = defineCollection({
@@ -33,6 +34,8 @@ const projects = defineCollection({
     repo: s.string().url().optional(),
     live: s.string().url().optional(),
     order: s.number().default(0),
+    // Default keeps legacy YAML valid; the grouping on /projects reads this
+    category: s.enum(PROJECT_CATEGORIES).default("producao"),
     slug: s.path().transform((path) => path.replace(/^projects\//, "")),
   }),
 });

@@ -46,6 +46,14 @@ export default async function EditorListPage() {
               novo estudo →
             </button>
           </form>
+          <form action={createAndOpenDraft.bind(null, "project")}>
+            <button
+              type="submit"
+              className="rounded-full border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+            >
+              novo projeto →
+            </button>
+          </form>
         </div>
       </div>
       <div className="home-fade-up mt-8 overflow-hidden rounded-md border border-line bg-surface">

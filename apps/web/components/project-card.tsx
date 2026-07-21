@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Project } from "#velite";
+import { PROJECT_CATEGORY_LABELS } from "@/lib/draft-type";
 
 const cardLinkClasses =
   "font-mono text-[13px] text-link transition-colors hover:text-accent";
@@ -16,6 +17,9 @@ export function ProjectCard({
   return (
     <article className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5 transition-colors hover:border-line-2 hover:bg-background-2">
       <div>
+        <span className="mb-2 inline-block rounded-md border border-line bg-background-2 px-2 py-0.5 font-mono text-[11px] text-muted-2">
+          {PROJECT_CATEGORY_LABELS[project.category]}
+        </span>
         <Heading className="font-display text-xl font-semibold">
           {project.title}
         </Heading>

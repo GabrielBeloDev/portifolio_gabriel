@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   diagnosticsFor,
+  projectDiagnostics,
   publishDiagnostics,
   publishReadinessIssues,
   studyDiagnostics,
@@ -239,5 +240,72 @@ describe("diagnosticsFor", () => {
       emptyStudyContext,
     );
     expect(diagnostics).not.toContainEqual(noTagsWarning);
+  });
+
+  it("routes a project to the project diagnostics", () => {
+    const diagnostics = diagnosticsFor(
+      "project",
+      { ...cleanDraft, tags: "", category: "faculdade" },
+      emptyStudyContext,
+    );
+    expect(diagnostics).toContainEqual({
+      severity: "warning",
+      message: "projeto sem stack",
+    });
+  });
+});
+
+const readyProject = {
+  title: "Cosmo",
+  slug: "cosmo",
+  summary: "Plataforma de estudo.",
+  tags: "React, Node",
+  category: "faculdade",
+};
+
+describe("projectDiagnostics", () => {
+  it("returns no diagnostics for a ready project", () => {
+    expect(projectDiagnostics(readyProject)).toEqual([]);
+  });
+
+  it("flags a title over 80 and a summary over 200", () => {
+    const diagnostics = projectDiagnostics({
+      ...readyProject,
+      title: "t".repeat(81),
+      summary: "s".repeat(201),
+    });
+    expect(diagnostics).toContainEqual({
+      severity: "error",
+      message: "título > 80 caracteres",
+    });
+    expect(diagnostics).toContainEqual({
+      severity: "error",
+      message: "resumo > 200 caracteres",
+    });
+  });
+
+  it("rejects a malformed repo url but accepts a valid live url", () => {
+    expect(projectDiagnostics({ ...readyProject, repo: "nao-e-url" })).toContainEqual(
+      { severity: "error", message: "repo não é uma URL válida" },
+    );
+    expect(
+      projectDiagnostics({ ...readyProject, live: "https://x.dev" }),
+    ).toEqual([]);
+  });
+
+  it("rejects an invalid category", () => {
+    expect(
+      projectDiagnostics({ ...readyProject, category: "inventada" }),
+    ).toContainEqual({
+      severity: "error",
+      message: "categoria inválida inventada",
+    });
+  });
+
+  it("warns when the project has no stack", () => {
+    expect(projectDiagnostics({ ...readyProject, tags: "" })).toContainEqual({
+      severity: "warning",
+      message: "projeto sem stack",
+    });
   });
 });
