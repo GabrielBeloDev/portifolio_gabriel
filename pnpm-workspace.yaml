@@ -5,3 +5,9 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+
+# pnpm 11 defaults minimumReleaseAge to 1440 (1 day), refusing any version
+# published in the last 24h. This project is deliberately bleeding-edge
+# (ADR-0008), so it opts out and adopts fresh releases immediately, accepting
+# the supply-chain trade-off of not waiting out the detection window.
+minimumReleaseAge: 0
