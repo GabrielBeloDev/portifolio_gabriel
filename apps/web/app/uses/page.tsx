@@ -45,7 +45,7 @@ const DOTFILE_SOURCES: Record<DotfileAnchor, DotfileSource> = {
     lang: "txt",
     code: `# gerado do que este repositório realmente usa
 
-pnpm 10       workspaces do monorepo
+pnpm 11       workspaces do monorepo
 turbo 2       build, lint e testes com cache
 velite        conteúdo tipado (quebra o build se eu errar)
 drizzle-kit   migrations versionadas em apps/web/drizzle
