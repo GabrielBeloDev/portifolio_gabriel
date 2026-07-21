@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 import { AboutFrontmatter } from "@/components/about/about-frontmatter";
-import { JourneyLog } from "@/components/about/journey-log";
+import { CareerTimeline } from "@/components/about/career-timeline";
 import {
+  ARCHITECTURE_TAKE,
   CONTACT_CTA,
-  LESSONS_LEARNED,
+  FAILURE_TAKE,
+  FORMATIVE_PROJECTS,
+  OFF_CODE,
   OWNER_INTRO,
+  SKILLS_LEAD,
+  WORK_NOW,
 } from "@/components/about/owner-content";
 import { SiteStats } from "@/components/about/site-stats";
 import { SkillsPanel } from "@/components/about/skills-panel";
@@ -35,6 +40,18 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
+function Prose({ paragraphs }: { paragraphs: readonly string[] }) {
+  return (
+    <div className="space-y-4">
+      {paragraphs.map((paragraph, index) => (
+        <p key={index} className="max-w-prose leading-relaxed text-muted">
+          {paragraph}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-[720px] px-6 py-10 sm:py-14">
@@ -54,39 +71,44 @@ export default function AboutPage() {
             Oi, eu sou o Gabriel.
           </h1>
           <p className="mt-3 max-w-prose leading-relaxed text-muted">
-            {OWNER_INTRO} Se você chegou aqui por um post, esta página é o
-            contexto de quem escreve.
+            {OWNER_INTRO}
           </p>
         </div>
       </div>
 
-      <SectionHeading>jornada</SectionHeading>
-      <JourneyLog />
+      <SectionHeading>trajetória</SectionHeading>
+      <CareerTimeline />
+
+      <SectionHeading>no que trabalho hoje</SectionHeading>
+      <Prose paragraphs={WORK_NOW} />
+
+      <SectionHeading>projetos que me formaram</SectionHeading>
+      <ul className="space-y-5">
+        {FORMATIVE_PROJECTS.map((project) => (
+          <li key={project.name}>
+            <p className="font-display text-lg font-semibold">{project.name}</p>
+            <p className="mt-1 max-w-prose leading-relaxed text-muted">
+              {project.text}
+            </p>
+          </li>
+        ))}
+      </ul>
 
       <SectionHeading>domino / aprendendo</SectionHeading>
+      <p className="mb-6 max-w-prose leading-relaxed text-muted">{SKILLS_LEAD}</p>
       <SkillsPanel />
 
-      {LESSONS_LEARNED.length > 0 && (
-        <>
-          <SectionHeading>o que mais me ensinou</SectionHeading>
-          <ul className="space-y-4">
-            {LESSONS_LEARNED.map((entry) => (
-              <li key={entry.project}>
-                <p className="font-medium">{entry.project}</p>
-                <p className="mt-1 max-w-prose leading-relaxed text-muted">
-                  {entry.lesson}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <SectionHeading>como penso sobre software</SectionHeading>
+      <p className="max-w-prose leading-relaxed text-muted">{ARCHITECTURE_TAKE}</p>
+
+      <SectionHeading>errar e ouvir</SectionHeading>
+      <p className="max-w-prose leading-relaxed text-muted">{FAILURE_TAKE}</p>
 
       <SectionHeading>este site</SectionHeading>
       <p className="max-w-prose leading-relaxed text-muted">
-        Este site também é um trabalho — talvez o mais honesto deles, porque dá
-        pra auditar. É um monorepo com design system próprio, conteúdo tipado
-        que quebra o build se eu errar, e CI que publica sozinho a cada merge. O
+        Este site também é um trabalho, talvez o mais honesto deles, porque dá
+        pra auditar. É um monorepo com design system próprio, conteúdo tipado que
+        quebra o build se eu errar e um CI que publica sozinho a cada merge. O
         código é aberto e está no{" "}
         <a
           href={REPO_URL}
@@ -102,22 +124,21 @@ export default function AboutPage() {
 
       <SectionHeading>agora</SectionHeading>
       <p className="max-w-prose leading-relaxed text-muted">
-        Estou aprofundando em infraestrutura moderna — Kubernetes, Terraform,
-        observabilidade. Não é estudo de véspera de prova: a meta é que cada
-        aprendizado vire um estudo publicado aqui, com as decisões e os erros no
-        meio do caminho, não só o resultado.
+        Estou aprofundando em infraestrutura moderna, Kubernetes, Terraform e
+        observabilidade. Não é estudo de véspera de prova, a meta é que cada
+        aprendizado vire um estudo publicado aqui, com as decisões e os erros do
+        caminho, não só o resultado.
       </p>
       <div className="mt-5">
         <NowPanel />
       </div>
 
+      <SectionHeading>fora do código</SectionHeading>
+      <Prose paragraphs={OFF_CODE} />
+
       <SectionHeading>me acha em</SectionHeading>
       <SocialLinks />
-      {CONTACT_CTA !== null && (
-        <p className="mt-4 max-w-prose leading-relaxed text-muted">
-          {CONTACT_CTA}
-        </p>
-      )}
+      <p className="mt-4 max-w-prose leading-relaxed text-muted">{CONTACT_CTA}</p>
 
       <PostHistory path="apps/web/app/sobre/page.tsx" />
     </div>
