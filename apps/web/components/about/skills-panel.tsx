@@ -1,3 +1,4 @@
+import { LEARNING_NOW } from "./owner-content";
 import { fetchPublicRepoLanguages, type LanguageShare } from "./github-data";
 
 const PRODUCTION_STACK = [
@@ -9,8 +10,6 @@ const PRODUCTION_STACK = [
   "Turborepo",
   "pnpm",
 ] as const;
-
-const LEARNING_NOW = ["Kubernetes", "Terraform", "observabilidade"] as const;
 
 const MAX_LANGUAGES_SHOWN = 8;
 

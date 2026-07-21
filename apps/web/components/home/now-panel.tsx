@@ -1,12 +1,11 @@
 const NOW_ENTRIES = [
   {
     label: "construindo",
-    value: "este site — cada feature nova vira um post no blog",
+    value: "este site, cada feature nova vira um post no blog",
   },
   {
     label: "aprendendo",
-    value:
-      "Kubernetes e Terraform — a meta é migrar este site pra um cluster meu",
+    value: "Kubernetes e Terraform, quero migrar este site pra um cluster meu",
   },
   {
     label: "escrevendo",
