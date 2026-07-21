@@ -1,4 +1,5 @@
 import { caseStudies, posts, projects } from "#velite";
+import type { ProjectCategory } from "./draft-type";
 
 const byDateDesc = <T extends { date: string }>(a: T, b: T) =>
   b.date.localeCompare(a.date);
@@ -27,6 +28,10 @@ export function findProject(slug: string) {
 
 export function findCaseStudyForProject(projectSlug: string) {
   return publishedCaseStudies.find((study) => study.projectSlug === projectSlug);
+}
+
+export function projectsByCategory(category: ProjectCategory) {
+  return allProjects.filter((project) => project.category === category);
 }
 
 export function postsByTag(tag: string) {

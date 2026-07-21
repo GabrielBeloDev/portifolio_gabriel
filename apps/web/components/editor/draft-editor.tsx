@@ -25,8 +25,14 @@ import {
 } from "@/lib/actions/drafts";
 import { caseStudyToMdx } from "@/lib/case-study-mdx";
 import { allProjects, publishedPosts } from "@/lib/content";
-import type { DraftType } from "@/lib/draft-type";
+import {
+  PROJECT_CATEGORIES,
+  PROJECT_CATEGORY_LABELS,
+  type DraftType,
+  type ProjectCategory,
+} from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
+import { projectToYaml } from "@/lib/project-yaml";
 import {
   imageUploadPlaceholder,
   insertText,
@@ -48,15 +54,41 @@ type DraftFields = {
   tags: string;
   body: string;
   projectSlug: string;
+  repo: string;
+  live: string;
+  category: string;
 };
 
 const CONTENT_TYPE_OPTIONS: { value: DraftType; label: string }[] = [
   { value: "post", label: "post" },
   { value: "study", label: "estudo" },
+  { value: "project", label: "projeto" },
 ];
 
-function serializeDraft(fields: DraftFields): string {
-  return fields.type === "study" ? caseStudyToMdx(fields) : draftToMdx(fields);
+function stackFromCsv(csv: string): string[] {
+  return csv
+    .split(",")
+    .map((tech) => tech.trim())
+    .filter(Boolean);
+}
+
+function serializeDraft(fields: DraftFields, projectOrder: number): string {
+  switch (fields.type) {
+    case "study":
+      return caseStudyToMdx(fields);
+    case "project":
+      return projectToYaml({
+        title: fields.title,
+        summary: fields.summary,
+        stack: stackFromCsv(fields.tags),
+        category: (fields.category || "producao") as ProjectCategory,
+        repo: fields.repo,
+        live: fields.live,
+        order: projectOrder,
+      });
+    case "post":
+      return draftToMdx(fields);
+  }
 }
 
 type SaveState = "saved" | "saving" | "dirty" | "error";
@@ -64,11 +96,30 @@ type SaveState = "saved" | "saving" | "dirty" | "error";
 type PreviewViewport = "desktop" | "mobile";
 
 type PublishResult =
-  | { ok: true; commitUrl: string }
-  | { ok: false; error: string };
+  { ok: true; commitUrl: string } | { ok: false; error: string };
 
 const publishedSlugs = publishedPosts.map((post) => post.slug);
 const projectSlugs = allProjects.map((project) => project.slug);
+const nextProjectOrder =
+  allProjects.reduce((max, project) => Math.max(max, project.order), 0) + 1;
+
+const FALLBACK_SLUG: Record<DraftType, string> = {
+  post: "novo-post",
+  study: "novo-estudo",
+  project: "novo-projeto",
+};
+
+const CONTENT_DIR: Record<DraftType, string> = {
+  post: "content/posts",
+  study: "content/case-studies",
+  project: "content/projects",
+};
+
+const SLUG_PLACEHOLDER: Record<DraftType, string> = {
+  post: "slug-do-post",
+  study: "slug-do-estudo",
+  project: "slug-do-projeto",
+};
 
 const AUTOSAVE_DELAY_MS = 1_500;
 const COPY_FEEDBACK_MS = 2_000;
@@ -357,7 +408,9 @@ export function DraftEditor({
   }
 
   async function handleCopyMdx() {
-    await navigator.clipboard.writeText(serializeDraft(fields));
+    await navigator.clipboard.writeText(
+      serializeDraft(fields, nextProjectOrder),
+    );
     setMdxCopied(true);
     if (copyFeedbackTimer.current) clearTimeout(copyFeedbackTimer.current);
     copyFeedbackTimer.current = setTimeout(
@@ -379,6 +432,8 @@ export function DraftEditor({
   }
 
   const { type } = fields;
+  const isProject = type === "project";
+  const isBodyType = type === "post" || type === "study";
   const showsTags = type === "post";
   const showsProjectLink = type === "study";
   const diagnostics = diagnosticsFor(type, fields, {
@@ -389,10 +444,11 @@ export function DraftEditor({
     (diagnostic) => diagnostic.severity === "error",
   );
   const isMobilePreview = previewViewport === "mobile";
-  const fallbackSlug = type === "study" ? "novo-estudo" : "novo-post";
-  const draftFileName = `${fields.slug || fallbackSlug}.mdx`;
-  const contentDir = type === "study" ? "content/case-studies" : "content/posts";
-  const slugPlaceholder = type === "study" ? "slug-do-estudo" : "slug-do-post";
+  const fileExtension = isProject ? "yml" : "mdx";
+  const draftFileName = `${fields.slug || FALLBACK_SLUG[type]}.${fileExtension}`;
+  const contentDir = CONTENT_DIR[type];
+  const slugPlaceholder = SLUG_PLACEHOLDER[type];
+  const copyLabel = isProject ? "copiar .yml" : "copiar .mdx";
   const wordCount = fields.body.split(/\s+/).filter(Boolean).length;
   const readingMinutes = Math.max(
     1,
@@ -422,7 +478,7 @@ export function DraftEditor({
         </span>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className={`mt-6 grid gap-6 ${isBodyType ? "lg:grid-cols-2" : ""}`}>
         <section aria-label="draft" className={panelClasses}>
           <p className={panelTitleClasses}>
             <span aria-hidden className="size-2 rounded-full bg-accent-fill" />
@@ -432,13 +488,15 @@ export function DraftEditor({
                 ●
               </span>
             )}
-            <span className="ml-auto flex items-center gap-3">
-              <RecordButton onTranscribed={appendToBody} />
-              <span>
-                {wordCount} palavras
-                {wordCount > 0 && ` · ~${readingMinutes} min de leitura`}
+            {isBodyType && (
+              <span className="ml-auto flex items-center gap-3">
+                <RecordButton onTranscribed={appendToBody} />
+                <span>
+                  {wordCount} palavras
+                  {wordCount > 0 && ` · ~${readingMinutes} min de leitura`}
+                </span>
               </span>
-            </span>
+            )}
           </p>
           <div className="flex flex-col gap-4 p-4">
             <div
@@ -498,6 +556,15 @@ export function DraftEditor({
                   className={`${fieldClasses} font-mono text-xs`}
                 />
               )}
+              {isProject && (
+                <input
+                  aria-label="stack"
+                  value={fields.tags}
+                  onChange={(event) => update({ tags: event.target.value })}
+                  placeholder="stack, separada, por vírgula"
+                  className={`${fieldClasses} font-mono text-xs`}
+                />
+              )}
             </div>
             <textarea
               aria-label="resumo"
@@ -507,23 +574,57 @@ export function DraftEditor({
               rows={2}
               className={fieldClasses}
             />
-            <textarea
-              ref={bodyTextareaRef}
-              aria-label="corpo em MDX"
-              value={fields.body}
-              onChange={(event) => update({ body: event.target.value })}
-              onPaste={handleBodyPaste}
-              onDrop={handleBodyDrop}
-              placeholder={
-                "## Escreva em MDX\n\n```ts\nconst codigo = true;\n```\n\n```mermaid\ngraph LR; A-->B\n```"
-              }
-              rows={24}
-              className={`${fieldClasses} min-h-[50vh] resize-y font-mono text-sm leading-relaxed`}
-            />
-            {imageUploadError !== null && (
-              <p role="alert" className="font-mono text-xs text-danger">
-                {imageUploadError}
-              </p>
+            {isProject && (
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  aria-label="repo"
+                  value={fields.repo}
+                  onChange={(event) => update({ repo: event.target.value })}
+                  placeholder="url do repositório (opcional)"
+                  className={`${fieldClasses} font-mono text-xs`}
+                />
+                <input
+                  aria-label="live"
+                  value={fields.live}
+                  onChange={(event) => update({ live: event.target.value })}
+                  placeholder="url ao vivo (opcional)"
+                  className={`${fieldClasses} font-mono text-xs`}
+                />
+                <select
+                  aria-label="categoria"
+                  value={fields.category || "producao"}
+                  onChange={(event) => update({ category: event.target.value })}
+                  className={`${fieldClasses} font-mono text-xs`}
+                >
+                  {PROJECT_CATEGORIES.map((option) => (
+                    <option key={option} value={option}>
+                      {PROJECT_CATEGORY_LABELS[option]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {isBodyType && (
+              <>
+                <textarea
+                  ref={bodyTextareaRef}
+                  aria-label="corpo em MDX"
+                  value={fields.body}
+                  onChange={(event) => update({ body: event.target.value })}
+                  onPaste={handleBodyPaste}
+                  onDrop={handleBodyDrop}
+                  placeholder={
+                    "## Escreva em MDX\n\n```ts\nconst codigo = true;\n```\n\n```mermaid\ngraph LR; A-->B\n```"
+                  }
+                  rows={24}
+                  className={`${fieldClasses} min-h-[50vh] resize-y font-mono text-sm leading-relaxed`}
+                />
+                {imageUploadError !== null && (
+                  <p role="alert" className="font-mono text-xs text-danger">
+                    {imageUploadError}
+                  </p>
+                )}
+              </>
             )}
             <div className="rounded-sm border border-line bg-background-2 p-3">
               <p className="font-mono text-xs tracking-widest text-faint uppercase">
@@ -548,7 +649,7 @@ export function DraftEditor({
                       onClick={handleCopyMdx}
                       className="rounded-sm border border-line bg-surface px-3 py-1.5 font-sans text-xs font-medium text-link transition-colors hover:border-accent"
                     >
-                      {mdxCopied ? "copiado ✓" : "copiar .mdx"}
+                      {mdxCopied ? "copiado ✓" : copyLabel}
                     </button>
                   </div>
                   {publishResult?.ok === true && (
@@ -572,8 +673,8 @@ export function DraftEditor({
                     </p>
                   )}
                   <p className="font-mono text-xs text-faint">
-                    ou copie o .mdx e commite em {contentDir}/{fields.slug}.mdx
-                    à mão
+                    ou copie o .{fileExtension} e commite em {contentDir}/
+                    {fields.slug}.{fileExtension} à mão
                   </p>
                 </div>
               )}
@@ -596,13 +697,15 @@ export function DraftEditor({
                 </ul>
               )}
             </div>
-            <AiAssistant
-              title={fields.title}
-              summary={fields.summary}
-              body={fields.body}
-              bodyRef={bodyTextareaRef}
-              onInsert={appendToBody}
-            />
+            {isBodyType && (
+              <AiAssistant
+                title={fields.title}
+                summary={fields.summary}
+                body={fields.body}
+                bodyRef={bodyTextareaRef}
+                onInsert={appendToBody}
+              />
+            )}
             <div className="rounded-sm border border-line bg-background-2 p-3">
               <p className="font-mono text-xs tracking-widest text-faint uppercase">
                 link de revisão
@@ -648,66 +751,70 @@ export function DraftEditor({
           </div>
         </section>
 
-        <section aria-label="preview" className={panelClasses}>
-          <p className={panelTitleClasses}>
-            <span aria-hidden className="size-2 rounded-full bg-ok" />
-            preview
-            <span className="ml-auto flex items-center gap-1">
-              <button
-                type="button"
-                aria-pressed={!isMobilePreview}
-                onClick={() => setPreviewViewport("desktop")}
-                className={`${viewportButtonClasses} ${
-                  isMobilePreview
-                    ? inactiveViewportClasses
-                    : activeViewportClasses
-                }`}
+        {isBodyType && (
+          <section aria-label="preview" className={panelClasses}>
+            <p className={panelTitleClasses}>
+              <span aria-hidden className="size-2 rounded-full bg-ok" />
+              preview
+              <span className="ml-auto flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-pressed={!isMobilePreview}
+                  onClick={() => setPreviewViewport("desktop")}
+                  className={`${viewportButtonClasses} ${
+                    isMobilePreview
+                      ? inactiveViewportClasses
+                      : activeViewportClasses
+                  }`}
+                >
+                  desktop
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={isMobilePreview}
+                  onClick={() => setPreviewViewport("mobile")}
+                  className={`${viewportButtonClasses} ${
+                    isMobilePreview
+                      ? activeViewportClasses
+                      : inactiveViewportClasses
+                  }`}
+                >
+                  mobile
+                </button>
+              </span>
+            </p>
+            <div className="p-4">
+              <div
+                data-testid="preview-viewport"
+                className={isMobilePreview ? mobileFrameClasses : undefined}
               >
-                desktop
-              </button>
-              <button
-                type="button"
-                aria-pressed={isMobilePreview}
-                onClick={() => setPreviewViewport("mobile")}
-                className={`${viewportButtonClasses} ${
-                  isMobilePreview
-                    ? activeViewportClasses
-                    : inactiveViewportClasses
-                }`}
-              >
-                mobile
-              </button>
-            </span>
-          </p>
-          <div className="p-4">
-            <div
-              data-testid="preview-viewport"
-              className={isMobilePreview ? mobileFrameClasses : undefined}
-            >
-              {previewError ? (
-                <pre className="overflow-x-auto rounded-sm border border-danger p-3 font-mono text-xs text-danger">
-                  {previewError}
-                </pre>
-              ) : showEmptyPreviewHint ? (
-                <p className="font-mono text-sm text-faint">
-                  // escreva MDX à esquerda — headings, código com highlight e
-                  blocos mermaid viram diagrama aqui
-                </p>
-              ) : (
-                <article>
-                  {fields.title && (
-                    <h1 className="text-2xl leading-tight font-semibold">
-                      {fields.title}
-                    </h1>
-                  )}
-                  <div className="prose mt-6">
-                    {previewCode !== null && <MDXContent code={previewCode} />}
-                  </div>
-                </article>
-              )}
+                {previewError ? (
+                  <pre className="overflow-x-auto rounded-sm border border-danger p-3 font-mono text-xs text-danger">
+                    {previewError}
+                  </pre>
+                ) : showEmptyPreviewHint ? (
+                  <p className="font-mono text-sm text-faint">
+                    // escreva MDX à esquerda — headings, código com highlight e
+                    blocos mermaid viram diagrama aqui
+                  </p>
+                ) : (
+                  <article>
+                    {fields.title && (
+                      <h1 className="text-2xl leading-tight font-semibold">
+                        {fields.title}
+                      </h1>
+                    )}
+                    <div className="prose mt-6">
+                      {previewCode !== null && (
+                        <MDXContent code={previewCode} />
+                      )}
+                    </div>
+                  </article>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
     </div>
   );

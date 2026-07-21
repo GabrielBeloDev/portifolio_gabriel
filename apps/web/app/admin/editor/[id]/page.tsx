@@ -38,6 +38,9 @@ export default async function DraftEditorPage({
           tags: current.tags,
           body: current.body,
           projectSlug: current.projectSlug ?? "",
+          repo: current.repo ?? "",
+          live: current.live ?? "",
+          category: current.category ?? "",
         }}
         shareToken={current.shareToken}
       />

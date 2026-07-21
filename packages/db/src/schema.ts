@@ -66,6 +66,10 @@ export const draft = pgTable(
     body: text("body").notNull().default(""),
     // Study-only: optional pointer to a Project, mirrors caseStudies.projectSlug
     projectSlug: text("project_slug"),
+    // Project-only: repo/live URLs and the catalog category (stack reuses tags)
+    repo: text("repo"),
+    live: text("live"),
+    category: text("category"),
     // Secret review link: the token itself is the credential — anyone holding
     // it can read the draft without login; null means not shared
     shareToken: uuid("share_token"),

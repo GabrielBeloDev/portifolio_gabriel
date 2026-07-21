@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DRAFT_TYPES, type DraftType } from "../draft-type";
+import { DRAFT_TYPES, PROJECT_CATEGORIES, type DraftType } from "../draft-type";
 
 export const saveDraftSchema = z.object({
   id: z.uuid(),
@@ -10,13 +10,20 @@ export const saveDraftSchema = z.object({
   tags: z.string().max(300),
   body: z.string().max(100_000),
   projectSlug: z.string().max(200).optional(),
+  repo: z.string().max(500).optional(),
+  live: z.string().max(500).optional(),
+  category: z.string().max(50).optional(),
 });
 
 const KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 // Mirrors the velite Post schema: what a Draft must satisfy to become a Post
 export const publishReadinessSchema = z.object({
-  title: z.string().trim().min(1, "título vazio").max(120, "título > 120 caracteres"),
+  title: z
+    .string()
+    .trim()
+    .min(1, "título vazio")
+    .max(120, "título > 120 caracteres"),
   slug: z
     .string()
     .regex(KEBAB_SLUG, "slug deve ser kebab-case (ex.: meu-post-novo)"),
@@ -134,7 +141,9 @@ function brokenInternalLinkErrors(
 }
 
 // The same problem repeated in the body should render as a single entry
-function dedupeByMessage(diagnostics: PublishDiagnostic[]): PublishDiagnostic[] {
+function dedupeByMessage(
+  diagnostics: PublishDiagnostic[],
+): PublishDiagnostic[] {
   const seen = new Set<string>();
   return diagnostics.filter((diagnostic) => {
     if (seen.has(diagnostic.message)) return false;
@@ -203,7 +212,89 @@ export function studyDiagnostics(
   ]);
 }
 
-type DiagnosticsFields = DraftDiagnosticsFields & { projectSlug?: string };
+const PROJECT_TITLE_MAX = 80;
+const PROJECT_SUMMARY_MAX = 200;
+
+// Mirrors the velite Project schema limits, which are stricter than a post's
+const projectReadinessSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "título vazio")
+    .max(PROJECT_TITLE_MAX, `título > ${PROJECT_TITLE_MAX} caracteres`),
+  slug: z
+    .string()
+    .regex(KEBAB_SLUG, "slug deve ser kebab-case (ex.: meu-projeto)"),
+  summary: z
+    .string()
+    .trim()
+    .min(1, "resumo vazio")
+    .max(PROJECT_SUMMARY_MAX, `resumo > ${PROJECT_SUMMARY_MAX} caracteres`),
+});
+
+type ProjectDiagnosticsFields = {
+  title: string;
+  slug: string;
+  summary: string;
+  tags: string;
+  repo?: string;
+  live?: string;
+  category?: string;
+};
+
+function projectUrlErrors(
+  label: string,
+  value: string | undefined,
+): PublishDiagnostic[] {
+  const trimmed = value?.trim() ?? "";
+  if (trimmed === "" || z.url().safeParse(trimmed).success) return [];
+  return [{ severity: "error", message: `${label} não é uma URL válida` }];
+}
+
+function invalidCategoryErrors(
+  category: string | undefined,
+): PublishDiagnostic[] {
+  const value = category?.trim() ?? "";
+  // Empty falls back to the velite default, so only a wrong value is an error
+  const categories: readonly string[] = PROJECT_CATEGORIES;
+  if (value === "" || categories.includes(value)) return [];
+  return [{ severity: "error", message: `categoria inválida ${value}` }];
+}
+
+function missingStackWarnings(stackCsv: string): PublishDiagnostic[] {
+  const stack = stackCsv
+    .split(",")
+    .map((tech) => tech.trim())
+    .filter(Boolean);
+  if (stack.length > 0) return [];
+  return [{ severity: "warning", message: "projeto sem stack" }];
+}
+
+export function projectDiagnostics(
+  fields: ProjectDiagnosticsFields,
+): PublishDiagnostic[] {
+  const readiness = projectReadinessSchema.safeParse(fields);
+  const readinessErrors: PublishDiagnostic[] = readiness.success
+    ? []
+    : readiness.error.issues.map((issue) => ({
+        severity: "error",
+        message: issue.message,
+      }));
+  return dedupeByMessage([
+    ...readinessErrors,
+    ...projectUrlErrors("repo", fields.repo),
+    ...projectUrlErrors("live", fields.live),
+    ...invalidCategoryErrors(fields.category),
+    ...missingStackWarnings(fields.tags),
+  ]);
+}
+
+type DiagnosticsFields = DraftDiagnosticsFields & {
+  projectSlug?: string;
+  repo?: string;
+  live?: string;
+  category?: string;
+};
 
 export function diagnosticsFor(
   type: DraftType,
@@ -213,10 +304,9 @@ export function diagnosticsFor(
   switch (type) {
     case "study":
       return studyDiagnostics(fields, ctx);
-    // Project authoring lands its own checks in a follow-up (A2); until then it
-    // shares the post diagnostics. The exhaustive switch flags this when it does
-    case "post":
     case "project":
+      return projectDiagnostics(fields);
+    case "post":
       return publishDiagnostics(fields, ctx.publishedPostSlugs);
   }
 }

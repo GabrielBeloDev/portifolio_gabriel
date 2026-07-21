@@ -15,15 +15,67 @@ import {
   publishedPosts,
 } from "@/lib/content";
 import { db } from "@/lib/db";
-import type { DraftType } from "@/lib/draft-type";
+import type { DraftType, ProjectCategory } from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
+import { projectToYaml } from "@/lib/project-yaml";
 import { commitContentFile, contentPath } from "@/lib/github-commit";
 import { rehypePlugins, remarkPlugins } from "@/lib/mdx-pipeline";
 import { diagnosticsFor, saveDraftSchema } from "@/lib/validation/draft";
 
+type PublishFields = {
+  title: string;
+  slug: string;
+  summary: string;
+  tags: string;
+  body: string;
+  projectSlug?: string;
+  repo?: string;
+  live?: string;
+  category?: string;
+};
+
+function publishFileFor(
+  type: DraftType,
+  fields: PublishFields,
+): { content: string; message: string } {
+  switch (type) {
+    case "study":
+      return {
+        content: caseStudyToMdx(fields),
+        message: `content: publish case study ${fields.slug}`,
+      };
+    case "project": {
+      // New projects append after the last one; category is already validated
+      // by projectDiagnostics before we reach the commit, so the cast is safe
+      const order =
+        allProjects.reduce((max, project) => Math.max(max, project.order), 0) +
+        1;
+      return {
+        content: projectToYaml({
+          title: fields.title,
+          summary: fields.summary,
+          stack: fields.tags
+            .split(",")
+            .map((tech) => tech.trim())
+            .filter(Boolean),
+          category: (fields.category ?? "producao") as ProjectCategory,
+          repo: fields.repo,
+          live: fields.live,
+          order,
+        }),
+        message: `content: publish project ${fields.slug}`,
+      };
+    }
+    case "post":
+      return {
+        content: draftToMdx(fields),
+        message: `content: publish ${fields.slug}`,
+      };
+  }
+}
+
 type ActionResult<T = undefined> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 async function getAdmin() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -152,6 +204,9 @@ export async function publishDraft(
     tags: current.tags,
     body: current.body,
     projectSlug: current.projectSlug ?? undefined,
+    repo: current.repo ?? undefined,
+    live: current.live ?? undefined,
+    category: current.category ?? undefined,
   };
 
   const blockingErrors = diagnosticsFor(current.type, fields, {
@@ -164,13 +219,11 @@ export async function publishDraft(
     return { ok: false, error: blockingErrors.join("; ") };
   }
 
-  const isStudy = current.type === "study";
+  const file = publishFileFor(current.type, fields);
   const { commitUrl } = await commitContentFile({
-    path: contentPath(isStudy ? "study" : "post", fields.slug),
-    content: isStudy ? caseStudyToMdx(fields) : draftToMdx(fields),
-    message: isStudy
-      ? `content: publish case study ${fields.slug}`
-      : `content: publish ${fields.slug}`,
+    path: contentPath(current.type, fields.slug),
+    content: file.content,
+    message: file.message,
   });
 
   return { ok: true, data: { commitUrl } };
