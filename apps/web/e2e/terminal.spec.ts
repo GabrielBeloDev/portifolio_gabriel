@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
-async function openTerminal(page: import("@playwright/test").Page) {
+async function openTerminal(page: Page) {
   await page.goto("/");
   await page.keyboard.press("Control+Backquote");
   const terminal = page.getByRole("region", { name: "terminal" });
@@ -11,7 +11,7 @@ async function openTerminal(page: import("@playwright/test").Page) {
   return terminal;
 }
 
-async function type(page: import("@playwright/test").Page, command: string) {
+async function type(page: Page, command: string) {
   await page.keyboard.type(command);
   await page.keyboard.press("Enter");
 }
@@ -49,7 +49,7 @@ test("terminal fecha pelo atalho e pelo botão", async ({ page }) => {
 });
 
 test("open navega o site a partir do terminal", async ({ page }) => {
-  const terminal = await openTerminal(page);
+  await openTerminal(page);
   await type(page, "open sobre.md");
   await expect(page).toHaveURL(/\/sobre$/);
 });
