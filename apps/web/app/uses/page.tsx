@@ -23,7 +23,6 @@ const DOTFILE_SOURCES: Record<DotfileAnchor, DotfileSource> = {
   "notebook": "MacBook Pro (M5 Pro, 24 GB)",
   "monitor": "AOC Hero 144 Hz",
   "mouse": "Logitech G Pro X Superlight",
-  "fone": "Logitech (modelo a confirmar)",
   "pc_gamer": "só pra jogar, principalmente Valorant"
 }`,
   },

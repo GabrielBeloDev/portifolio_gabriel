@@ -1,4 +1,4 @@
-import { LEARNING_NOW } from "./owner-content";
+import { LEARNING_NOW, TOOLBOX } from "./owner-content";
 import { fetchPublicRepoLanguages, type LanguageShare } from "./github-data";
 
 const PRODUCTION_STACK = [
@@ -90,6 +90,14 @@ export async function SkillsPanel() {
               </Chip>
             ))}
           </div>
+        </div>
+      </div>
+      <div className="mt-7">
+        <CommentLabel>a caixa de ferramentas que já usei</CommentLabel>
+        <div className="flex flex-wrap gap-2.5">
+          {TOOLBOX.map((tool) => (
+            <Chip key={tool}>{tool}</Chip>
+          ))}
         </div>
       </div>
       {languages && (
