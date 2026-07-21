@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  diagnosticsFor,
   publishDiagnostics,
   publishReadinessIssues,
   studyDiagnostics,
@@ -216,5 +217,27 @@ describe("studyDiagnostics", () => {
       severity: "error",
       message: "link interno quebrado: /blog/sumiu",
     });
+  });
+});
+
+describe("diagnosticsFor", () => {
+  const noTagsWarning = { severity: "warning" as const, message: "post sem tags" };
+
+  it("routes a post to the post diagnostics, keeping the no-tags warning", () => {
+    const diagnostics = diagnosticsFor(
+      "post",
+      { ...cleanDraft, tags: "" },
+      emptyStudyContext,
+    );
+    expect(diagnostics).toContainEqual(noTagsWarning);
+  });
+
+  it("routes a study to the study diagnostics, dropping the no-tags warning", () => {
+    const diagnostics = diagnosticsFor(
+      "study",
+      { ...cleanDraft, tags: "" },
+      emptyStudyContext,
+    );
+    expect(diagnostics).not.toContainEqual(noTagsWarning);
   });
 });

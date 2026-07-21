@@ -392,6 +392,7 @@ export function DraftEditor({
   const fallbackSlug = type === "study" ? "novo-estudo" : "novo-post";
   const draftFileName = `${fields.slug || fallbackSlug}.mdx`;
   const contentDir = type === "study" ? "content/case-studies" : "content/posts";
+  const slugPlaceholder = type === "study" ? "slug-do-estudo" : "slug-do-post";
   const wordCount = fields.body.split(/\s+/).filter(Boolean).length;
   const readingMinutes = Math.max(
     1,
@@ -474,7 +475,7 @@ export function DraftEditor({
                 aria-label="slug"
                 value={fields.slug}
                 onChange={(event) => update({ slug: event.target.value })}
-                placeholder={type === "study" ? "slug-do-estudo" : "slug-do-post"}
+                placeholder={slugPlaceholder}
                 className={`${fieldClasses} font-mono text-xs`}
               />
               {showsTags && (

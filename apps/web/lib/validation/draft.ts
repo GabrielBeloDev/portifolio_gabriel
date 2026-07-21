@@ -181,9 +181,14 @@ function orphanProjectSlugErrors(
   ];
 }
 
+export type DiagnosticsContext = {
+  publishedPostSlugs: string[];
+  projectSlugs: string[];
+};
+
 export function studyDiagnostics(
   fields: StudyDiagnosticsFields,
-  ctx: { publishedPostSlugs: string[]; projectSlugs: string[] },
+  ctx: DiagnosticsContext,
 ): PublishDiagnostic[] {
   const readinessErrors = publishReadinessIssues(fields).map(
     (message): PublishDiagnostic => ({ severity: "error", message }),
@@ -198,11 +203,6 @@ export function studyDiagnostics(
   ]);
 }
 
-export type DiagnosticsContext = {
-  publishedPostSlugs: string[];
-  projectSlugs: string[];
-};
-
 type DiagnosticsFields = DraftDiagnosticsFields & { projectSlug?: string };
 
 export function diagnosticsFor(
@@ -210,8 +210,13 @@ export function diagnosticsFor(
   fields: DiagnosticsFields,
   ctx: DiagnosticsContext,
 ): PublishDiagnostic[] {
-  if (type === "study") return studyDiagnostics(fields, ctx);
-  // Project authoring brings its own checks in a follow-up; posts (and the
-  // not-yet-authorable project type) use the original post diagnostics
-  return publishDiagnostics(fields, ctx.publishedPostSlugs);
+  switch (type) {
+    case "study":
+      return studyDiagnostics(fields, ctx);
+    // Project authoring lands its own checks in a follow-up (A2); until then it
+    // shares the post diagnostics. The exhaustive switch flags this when it does
+    case "post":
+    case "project":
+      return publishDiagnostics(fields, ctx.publishedPostSlugs);
+  }
 }

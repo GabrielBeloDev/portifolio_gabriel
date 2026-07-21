@@ -17,13 +17,9 @@ import {
 import { db } from "@/lib/db";
 import type { DraftType } from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
-import { commitContentFile, contentPath, postContentPath } from "@/lib/github-commit";
+import { commitContentFile, contentPath } from "@/lib/github-commit";
 import { rehypePlugins, remarkPlugins } from "@/lib/mdx-pipeline";
-import {
-  publishDiagnostics,
-  saveDraftSchema,
-  studyDiagnostics,
-} from "@/lib/validation/draft";
+import { diagnosticsFor, saveDraftSchema } from "@/lib/validation/draft";
 
 type ActionResult<T = undefined> =
   | { ok: true; data: T }
@@ -158,38 +154,23 @@ export async function publishDraft(
     projectSlug: current.projectSlug ?? undefined,
   };
 
-  if (current.type === "study") {
-    const blockingErrors = studyDiagnostics(fields, {
-      publishedPostSlugs: publishedPosts.map((post) => post.slug),
-      projectSlugs: allProjects.map((project) => project.slug),
-    })
-      .filter((diagnostic) => diagnostic.severity === "error")
-      .map((diagnostic) => diagnostic.message);
-    if (blockingErrors.length > 0) {
-      return { ok: false, error: blockingErrors.join("; ") };
-    }
-
-    const { commitUrl } = await commitContentFile({
-      path: contentPath("study", fields.slug),
-      content: caseStudyToMdx(fields),
-      message: `content: publish case study ${fields.slug}`,
-    });
-
-    return { ok: true, data: { commitUrl } };
-  }
-
-  const publishedSlugs = publishedPosts.map((post) => post.slug);
-  const blockingErrors = publishDiagnostics(fields, publishedSlugs)
+  const blockingErrors = diagnosticsFor(current.type, fields, {
+    publishedPostSlugs: publishedPosts.map((post) => post.slug),
+    projectSlugs: allProjects.map((project) => project.slug),
+  })
     .filter((diagnostic) => diagnostic.severity === "error")
     .map((diagnostic) => diagnostic.message);
   if (blockingErrors.length > 0) {
     return { ok: false, error: blockingErrors.join("; ") };
   }
 
+  const isStudy = current.type === "study";
   const { commitUrl } = await commitContentFile({
-    path: postContentPath(fields.slug),
-    content: draftToMdx(fields),
-    message: `content: publish ${fields.slug}`,
+    path: contentPath(isStudy ? "study" : "post", fields.slug),
+    content: isStudy ? caseStudyToMdx(fields) : draftToMdx(fields),
+    message: isStudy
+      ? `content: publish case study ${fields.slug}`
+      : `content: publish ${fields.slug}`,
   });
 
   return { ok: true, data: { commitUrl } };
