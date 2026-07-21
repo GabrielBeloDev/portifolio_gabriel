@@ -1,10 +1,19 @@
 "use client";
 
 import { useTransition } from "react";
-import { createDraftFromPost } from "@/lib/actions/drafts";
+import {
+  createDraftFromCaseStudy,
+  createDraftFromPost,
+} from "@/lib/actions/drafts";
 import { authClient } from "@/lib/auth-client";
 
-export function AdminEditLink({ slug }: { slug: string }) {
+export function AdminEditLink({
+  slug,
+  kind = "post",
+}: {
+  slug: string;
+  kind?: "post" | "study";
+}) {
   const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
 
@@ -14,9 +23,11 @@ export function AdminEditLink({ slug }: { slug: string }) {
   function handleEdit() {
     startTransition(async () => {
       // On success the action redirects and never resolves with a value
-      const result = await createDraftFromPost({ slug });
+      const createDraftFrom =
+        kind === "study" ? createDraftFromCaseStudy : createDraftFromPost;
+      const result = await createDraftFrom({ slug });
       if (result?.ok === false) {
-        console.error("createDraftFromPost failed", result.error);
+        console.error("createDraftFrom failed", result.error);
       }
     });
   }

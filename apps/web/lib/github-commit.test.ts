@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCommitPayload,
+  contentPath,
   contentsApiUrl,
   encodeFileContent,
   postContentPath,
@@ -10,6 +11,18 @@ describe("postContentPath", () => {
   it("maps a slug to its post file under the web content dir", () => {
     expect(postContentPath("meu-post")).toBe(
       "apps/web/content/posts/meu-post.mdx",
+    );
+  });
+});
+
+describe("contentPath", () => {
+  it("routes each type to its collection directory and extension", () => {
+    expect(contentPath("post", "x")).toBe("apps/web/content/posts/x.mdx");
+    expect(contentPath("study", "x")).toBe(
+      "apps/web/content/case-studies/x.mdx",
+    );
+    expect(contentPath("project", "x")).toBe(
+      "apps/web/content/projects/x.yml",
     );
   });
 });

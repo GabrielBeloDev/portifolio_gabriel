@@ -7,12 +7,19 @@ import { redirect } from "next/navigation";
 import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
-import { findPost, publishedPosts } from "@/lib/content";
+import { caseStudyToMdx } from "@/lib/case-study-mdx";
+import {
+  allProjects,
+  findCaseStudy,
+  findPost,
+  publishedPosts,
+} from "@/lib/content";
 import { db } from "@/lib/db";
+import type { DraftType } from "@/lib/draft-type";
 import { draftToMdx } from "@/lib/draft-mdx";
-import { commitContentFile, postContentPath } from "@/lib/github-commit";
+import { commitContentFile, contentPath } from "@/lib/github-commit";
 import { rehypePlugins, remarkPlugins } from "@/lib/mdx-pipeline";
-import { publishDiagnostics, saveDraftSchema } from "@/lib/validation/draft";
+import { diagnosticsFor, saveDraftSchema } from "@/lib/validation/draft";
 
 type ActionResult<T = undefined> =
   | { ok: true; data: T }
@@ -24,13 +31,15 @@ async function getAdmin() {
   return session.user;
 }
 
-export async function createDraft(): Promise<ActionResult<{ id: string }>> {
+export async function createDraft(
+  type: DraftType = "post",
+): Promise<ActionResult<{ id: string }>> {
   const admin = await getAdmin();
   if (!admin) return { ok: false, error: "sem permissão" };
 
   const [created] = await db
     .insert(draft)
-    .values({ authorId: admin.id })
+    .values({ authorId: admin.id, type })
     .returning({ id: draft.id });
   if (!created) return { ok: false, error: "não foi possível criar o draft" };
 
@@ -53,11 +62,41 @@ export async function createDraftFromPost(
     .insert(draft)
     .values({
       authorId: admin.id,
+      type: "post",
       title: post.title,
       slug: post.slug,
       summary: post.summary,
       tags: post.tags.join(", "),
       body: post.raw,
+    })
+    .returning({ id: draft.id });
+  if (!created) return { ok: false, error: "não foi possível criar o draft" };
+
+  redirect(`/admin/editor/${created.id}`);
+}
+
+export async function createDraftFromCaseStudy(
+  input: unknown,
+): Promise<ActionResult> {
+  const admin = await getAdmin();
+  if (!admin) return { ok: false, error: "sem permissão" };
+
+  const parsed = z.object({ slug: z.string() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "dados inválidos" };
+
+  const study = findCaseStudy(parsed.data.slug);
+  if (!study) return { ok: false, error: "estudo não encontrado" };
+
+  const [created] = await db
+    .insert(draft)
+    .values({
+      authorId: admin.id,
+      type: "study",
+      title: study.title,
+      slug: study.slug,
+      summary: study.summary,
+      body: study.raw,
+      projectSlug: study.projectSlug ?? null,
     })
     .returning({ id: draft.id });
   if (!created) return { ok: false, error: "não foi possível criar o draft" };
@@ -112,20 +151,26 @@ export async function publishDraft(
     summary: current.summary,
     tags: current.tags,
     body: current.body,
+    projectSlug: current.projectSlug ?? undefined,
   };
 
-  const publishedSlugs = publishedPosts.map((post) => post.slug);
-  const blockingErrors = publishDiagnostics(fields, publishedSlugs)
+  const blockingErrors = diagnosticsFor(current.type, fields, {
+    publishedPostSlugs: publishedPosts.map((post) => post.slug),
+    projectSlugs: allProjects.map((project) => project.slug),
+  })
     .filter((diagnostic) => diagnostic.severity === "error")
     .map((diagnostic) => diagnostic.message);
   if (blockingErrors.length > 0) {
     return { ok: false, error: blockingErrors.join("; ") };
   }
 
+  const isStudy = current.type === "study";
   const { commitUrl } = await commitContentFile({
-    path: postContentPath(fields.slug),
-    content: draftToMdx(fields),
-    message: `content: publish ${fields.slug}`,
+    path: contentPath(isStudy ? "study" : "post", fields.slug),
+    content: isStudy ? caseStudyToMdx(fields) : draftToMdx(fields),
+    message: isStudy
+      ? `content: publish case study ${fields.slug}`
+      : `content: publish ${fields.slug}`,
   });
 
   return { ok: true, data: { commitUrl } };

@@ -42,6 +42,11 @@ export const comment = pgTable(
   ],
 );
 
+// Which collection a draft publishes to; drives serializer, path and validation.
+// All three values ship together so adding "project" later needs no ALTER TYPE
+// (Postgres can't add an enum value inside the migration transaction)
+export const draftType = pgEnum("draft_type", ["post", "study", "project"]);
+
 export const draft = pgTable(
   "draft",
   {
@@ -49,13 +54,18 @@ export const draft = pgTable(
     authorId: text("author_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    // Default keeps every existing draft a post, so the column backfills safely
+    type: draftType("type").notNull().default("post"),
     // Permissive on purpose: autosave must never lose text, so validation
     // only gates publishing (ADR-0007), not saving
     title: text("title").notNull().default(""),
     slug: text("slug").notNull().default(""),
     summary: text("summary").notNull().default(""),
+    // Reused per type: tags for a post, stack for a project, unused for a study
     tags: text("tags").notNull().default(""),
     body: text("body").notNull().default(""),
+    // Study-only: optional pointer to a Project, mirrors caseStudies.projectSlug
+    projectSlug: text("project_slug"),
     // Secret review link: the token itself is the credential — anyone holding
     // it can read the draft without login; null means not shared
     shareToken: uuid("share_token"),

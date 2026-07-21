@@ -1,12 +1,15 @@
 import { z } from "zod";
+import { DRAFT_TYPES, type DraftType } from "../draft-type";
 
 export const saveDraftSchema = z.object({
   id: z.uuid(),
+  type: z.enum(DRAFT_TYPES).default("post"),
   title: z.string().max(300),
   slug: z.string().max(200),
   summary: z.string().max(1000),
   tags: z.string().max(300),
   body: z.string().max(100_000),
+  projectSlug: z.string().max(200).optional(),
 });
 
 const KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -155,4 +158,65 @@ export function publishDiagnostics(
     ...headingSkipWarnings(lines),
     ...imageWithoutAltWarnings(lines),
   ]);
+}
+
+type StudyDiagnosticsFields = {
+  title: string;
+  slug: string;
+  summary: string;
+  body: string;
+  projectSlug?: string;
+};
+
+// A case study links to a project by slug; the velite prepare() step fails the
+// build if that project does not exist, so we catch the orphan before the commit
+function orphanProjectSlugErrors(
+  projectSlug: string | undefined,
+  projectSlugs: ReadonlySet<string>,
+): PublishDiagnostic[] {
+  const trimmed = projectSlug?.trim() ?? "";
+  if (trimmed === "" || projectSlugs.has(trimmed)) return [];
+  return [
+    { severity: "error", message: `projeto vinculado inexistente ${trimmed}` },
+  ];
+}
+
+export type DiagnosticsContext = {
+  publishedPostSlugs: string[];
+  projectSlugs: string[];
+};
+
+export function studyDiagnostics(
+  fields: StudyDiagnosticsFields,
+  ctx: DiagnosticsContext,
+): PublishDiagnostic[] {
+  const readinessErrors = publishReadinessIssues(fields).map(
+    (message): PublishDiagnostic => ({ severity: "error", message }),
+  );
+  const lines = linesOutsideCodeFences(fields.body);
+  return dedupeByMessage([
+    ...readinessErrors,
+    ...brokenInternalLinkErrors(lines, new Set(ctx.publishedPostSlugs)),
+    ...orphanProjectSlugErrors(fields.projectSlug, new Set(ctx.projectSlugs)),
+    ...headingSkipWarnings(lines),
+    ...imageWithoutAltWarnings(lines),
+  ]);
+}
+
+type DiagnosticsFields = DraftDiagnosticsFields & { projectSlug?: string };
+
+export function diagnosticsFor(
+  type: DraftType,
+  fields: DiagnosticsFields,
+  ctx: DiagnosticsContext,
+): PublishDiagnostic[] {
+  switch (type) {
+    case "study":
+      return studyDiagnostics(fields, ctx);
+    // Project authoring lands its own checks in a follow-up (A2); until then it
+    // shares the post diagnostics. The exhaustive switch flags this when it does
+    case "post":
+    case "project":
+      return publishDiagnostics(fields, ctx.publishedPostSlugs);
+  }
 }

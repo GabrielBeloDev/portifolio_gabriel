@@ -4,15 +4,16 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { createDraft, listDrafts } from "@/lib/actions/drafts";
+import type { DraftType } from "@/lib/draft-type";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "editor",
 };
 
-async function createAndOpenDraft() {
+async function createAndOpenDraft(type: DraftType) {
   "use server";
-  const result = await createDraft();
+  const result = await createDraft(type);
   if (!result.ok) redirect("/admin/editor");
   redirect(`/admin/editor/${result.data.id}`);
 }
@@ -28,14 +29,24 @@ export default async function EditorListPage() {
       <p className="font-mono text-sm tracking-wide text-faint"># drafts</p>
       <div className="mt-2 flex items-center justify-between gap-4">
         <h1 className="text-3xl font-semibold">drafts</h1>
-        <form action={createAndOpenDraft}>
-          <button
-            type="submit"
-            className="rounded-full border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
-          >
-            novo draft →
-          </button>
-        </form>
+        <div className="flex items-center gap-2">
+          <form action={createAndOpenDraft.bind(null, "post")}>
+            <button
+              type="submit"
+              className="rounded-full border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+            >
+              novo draft →
+            </button>
+          </form>
+          <form action={createAndOpenDraft.bind(null, "study")}>
+            <button
+              type="submit"
+              className="rounded-full border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+            >
+              novo estudo →
+            </button>
+          </form>
+        </div>
       </div>
       <div className="home-fade-up mt-8 overflow-hidden rounded-md border border-line bg-surface">
         <p className="flex items-center gap-1.5 border-b border-line bg-background-2 px-4 py-2 font-mono text-xs text-faint">
