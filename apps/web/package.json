@@ -57,7 +57,7 @@
     "typescript": "5.9.3",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
-    "velite": "^0.4.0",
+    "velite": "1.0.0-alpha.3",
     "vitest": "^5.0.0-beta.6"
   }
 }
