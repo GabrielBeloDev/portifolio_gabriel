@@ -13,9 +13,13 @@ const iconClasses = (active: boolean) =>
 export function ActivityBar({
   explorerOpen,
   onToggleExplorer,
+  terminalOpen,
+  onToggleTerminal,
 }: {
   explorerOpen: boolean;
   onToggleExplorer: () => void;
+  terminalOpen: boolean;
+  onToggleTerminal: () => void;
 }) {
   return (
     <aside className="hidden w-[52px] shrink-0 flex-col items-center gap-1.5 border-r border-line bg-background-2 py-3.5 md:flex">
@@ -27,6 +31,15 @@ export function ActivityBar({
         className={iconClasses(explorerOpen)}
       >
         <span aria-hidden>🗂</span>
+      </button>
+      <button
+        type="button"
+        aria-label={terminalOpen ? "fechar terminal" : "abrir terminal"}
+        title={terminalOpen ? "fechar terminal" : "abrir terminal"}
+        onClick={onToggleTerminal}
+        className={iconClasses(terminalOpen)}
+      >
+        <span aria-hidden>❯</span>
       </button>
       <a
         href={REPO_URL}

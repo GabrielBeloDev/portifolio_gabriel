@@ -13,6 +13,7 @@ import {
 } from "@/components/ide/ide-shell";
 import { allTags, publishedCaseStudies, publishedPosts } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
+import { buildVirtualFs } from "@/lib/terminal/virtual-fs";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -92,6 +93,23 @@ const paletteCaseStudies = publishedCaseStudies.map(({ slug, title, raw }) => ({
   searchText: toSearchText(raw),
 }));
 
+const terminalFs = buildVirtualFs({
+  posts: publishedPosts.map(({ slug, title, summary, date, tags }) => ({
+    slug,
+    title,
+    summary,
+    date,
+    tags,
+  })),
+  caseStudies: publishedCaseStudies.map(({ slug, title, summary, date }) => ({
+    slug,
+    title,
+    summary,
+    date,
+    tags: [],
+  })),
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -120,6 +138,7 @@ export default function RootLayout({
             caseStudies={paletteCaseStudies}
             ciStatus={<CiStatus />}
             tags={allTags()}
+            terminalFs={terminalFs}
           >
             {children}
           </IdeShell>
