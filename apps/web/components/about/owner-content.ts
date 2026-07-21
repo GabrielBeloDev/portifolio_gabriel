@@ -13,60 +13,111 @@ export interface FormativeProject {
   readonly text: string;
 }
 
-// All of this is content the owner wrote about himself (2026-07-21), edited for
-// length in his voice — no invented facts. Site copy rule: no em dash, no colon
-// mid-sentence.
+export interface Recognition {
+  readonly name: string;
+  readonly text: string;
+}
+
+// All of this is content the owner wrote about himself, edited for length in
+// his voice and grounded in his CV. No invented facts. Site copy rule: no em
+// dash, no colon mid-sentence.
 export const OWNER_FACTS: readonly OwnerFact[] = [
-  { name: "papel", value: "desenvolvimento e arquitetura de software na SplitC" },
-  { name: "formação", value: "Ciência da Computação, UFMA (2026)" },
-  { name: "local", value: "São Luís, MA" },
+  { name: "papel", value: "dev full stack na SplitC, fintech com mais de 20 mil usuários" },
+  { name: "formação", value: "Ciência da Computação, UFMA (2022 a 2026)" },
+  { name: "pesquisa", value: "TeleMídia Lab desde 2022" },
+  { name: "local", value: "São Luís, Maranhão" },
+  { name: "idiomas", value: "português nativo, inglês avançado" },
   { name: "próximo passo", value: "mestrado em inteligência artificial" },
 ];
 
 export const OWNER_INTRO =
-  "Sou um dev que gosta de entender como as coisas funcionam. Trabalho com desenvolvimento e arquitetura de software na SplitC e me formei em Ciência da Computação na UFMA. Gosto de entender o sistema inteiro, participar das decisões e pesar trade-offs, não só escrever o código que resolve hoje. Acho que software nunca é construído sozinho, então me importo tanto com time e comunicação quanto com o que aparece na tela.";
+  "Sou um dev que gosta de entender como as coisas funcionam. Hoje trabalho como desenvolvedor full stack na SplitC, uma fintech com mais de 20 mil usuários, e me formei em Ciência da Computação na UFMA. Entrei na empresa perto de Customer Success e dados no fim de 2024 e fui migrando pro desenvolvimento, então conheço o produto de vários ângulos. Gosto de entender o sistema inteiro, participar das decisões e pesar trade-offs, não só escrever o código que resolve hoje. Acho que software nunca é construído sozinho, então me importo tanto com time e comunicação quanto com o que aparece na tela.";
 
 export const CAREER_TIMELINE: readonly CareerYear[] = [
   {
     year: "2022",
-    text: "Entrei em Ciência da Computação na UFMA e no TeleMídia Lab. Foi em Algoritmos I que a computação fez sentido pra mim, quando vi um programa funcionando e entendi que dava pra construir coisas a partir da lógica.",
+    text: "Entrei em Ciência da Computação na UFMA e no TeleMídia Lab. Foi em Algoritmos I que a computação fez sentido pra mim, quando vi um programa rodando e entendi que dava pra construir coisas a partir da lógica. No laboratório tive meu primeiro contato com código feito em equipe.",
   },
   {
     year: "2023",
-    text: "Competições de programação, a Olimpíada Brasileira de Informática e as primeiras iniciativas de empreendedorismo e tecnologia.",
+    text: "Competições de programação, a Olimpíada Brasileira de Informática, uma menção honrosa no ICPC e um quarto lugar no Techstars Startup Weekend de educação. Foi o ano de descobrir que eu gostava de resolver problema com gente junto.",
   },
   {
     year: "2024",
-    text: "Monitor de Programação em C e de Estrutura de Dados II, primeiro lugar em São Luís na Maratona SBC e menção honrosa na etapa brasileira do ICPC. No fim do ano entrei na SplitC, começando perto de Customer Success e dados.",
+    text: "Fui monitor de Programação em C e de Estrutura de Dados II, fiquei em primeiro lugar em São Luís na Maratona SBC e recebi menção honrosa na etapa brasileira do ICPC. Também construí um site institucional na Bel Sul. No fim do ano entrei na SplitC, começando perto de Customer Success e dados.",
   },
   {
     year: "2025",
-    text: "Migrei pro desenvolvimento de software na SplitC, fiquei em segundo lugar em São Luís na Maratona SBC e apresentei o Reapp no WebMedia.",
+    text: "Virei estagiário de desenvolvimento e depois migrei de vez pro time de software na SplitC. Fiquei em segundo lugar em São Luís na Maratona SBC e apresentei o Reapp no WebMedia.",
   },
   {
     year: "2026",
-    text: "Concluí a graduação e sigo evoluindo na SplitC entre produto, arquitetura, infraestrutura e inteligência artificial.",
+    text: "Concluí a graduação e virei desenvolvedor full stack na SplitC, trabalhando entre produto, arquitetura, infraestrutura e inteligência artificial.",
   },
 ];
 
 export const WORK_NOW: readonly string[] = [
-  "Quando um card chega, começo tentando entender o que está realmente acontecendo. Investigo o problema, converso com quem está envolvido e penso no impacto da mudança no resto do sistema antes de partir pra implementação. Gosto que a SplitC dá espaço pra participar das decisões de frontend, backend, banco e infraestrutura, e de acompanhar o que acontece depois que a funcionalidade vai pra produção, seja olhando métricas no Grafana, investigando logs ou ouvindo o time de produto.",
-  "Hoje cuido do Firefighterzinho, um bot interno que ajuda a investigar problemas na plataforma. Ele consulta logs, entende parte do contexto do sistema, apoia os times de Customer Success e Produto e organiza os reports de bug com o que encontra. É um projeto que junta IA, arquitetura, observabilidade e contato direto com problema real, com a responsabilidade de decidir o que o agente faz sozinho e o que precisa confirmar antes.",
+  "Quando um card chega, começo tentando entender o que está realmente acontecendo. Investigo o problema, converso com quem está envolvido e penso no impacto da mudança no resto do sistema antes de partir pra implementação. No dia a dia mexo em React, TypeScript e NestJS na plataforma, otimizo consultas no PostgreSQL de produção, escrevo scripts em Golang pra processar dados em lote e cuido de CI/CD e de logs estruturados com correlation ID no Google Cloud. Gosto que a SplitC dá espaço pra participar das decisões de frontend, backend, banco e infraestrutura, e de acompanhar o que acontece depois que a funcionalidade vai pra produção, seja olhando métricas no Grafana, investigando logs ou ouvindo o time de produto.",
+  "Hoje também cuido do Firefighterzinho, um bot interno que ajuda a investigar problemas na plataforma. Ele nasceu de um hackathon da empresa e consulta logs, entende parte do contexto do sistema, apoia os times de Customer Success e Produto e organiza os reports de bug com o que encontra. É um projeto que junta IA, arquitetura, observabilidade e contato direto com problema real, com a responsabilidade de decidir o que o agente faz sozinho e o que precisa confirmar antes.",
 ];
 
 export const FORMATIVE_PROJECTS: readonly FormativeProject[] = [
   {
     name: "Cosmo",
-    text: "Meu primeiro projeto sério, uma plataforma pra ajudar alunos a aprender programação, tipo um LeetCode da disciplina com gamificação. Entrei bem no começo e mexia em partes pequenas da interface, mas foi ali, no TeleMídia Lab, que tive contato com código feito em equipe e projeto real. Me ensinou a não ter medo de não entender de primeira.",
+    text: "Meu primeiro projeto sério, uma plataforma pra ajudar alunos a aprender programação, tipo um LeetCode da disciplina de Algoritmos I com gamificação, que chegou a atender mais de 200 estudantes. Feito com React, Node e MySQL, com uma arquitetura em serviços rodando atrás de Docker e Nginx. Entrei bem no começo e mexia em partes pequenas da interface, mas foi ali, no TeleMídia Lab, que tive contato com código feito em equipe e projeto de verdade. Me ensinou a não ter medo de não entender de primeira.",
   },
   {
     name: "Reapp",
-    text: "Meu trabalho de conclusão de curso, uma plataforma pra aproximar instituições sociais de quem quer contribuir. Foi a primeira vez que construí um produto do zero pensando em frontend, backend, banco, arquitetura e integrações ao mesmo tempo. Virou publicação no WebMedia e me mostrou uma pesquisa saindo do papel e virando algo aplicado, com uma causa que fazia sentido.",
+    text: "Meu trabalho de conclusão de curso e o projeto de que mais me orgulho. Um aplicativo em React Native com backend em NestJS pra aproximar ONGs do Maranhão de quem quer doar, feito numa parceria da UFMA com a Lancaster University. Foram mais de vinte reuniões em inglês com pesquisadores da Inglaterra e da África do Sul, integração de doações pelo Mercado Pago e a primeira vez que pensei um produto do zero, do banco à arquitetura. Virou publicação no WebMedia 2025 e me mostrou uma pesquisa saindo do papel e virando algo aplicado.",
+  },
+];
+
+export const RECOGNITION: readonly Recognition[] = [
+  {
+    name: "WebMedia 2025",
+    text: "Artigo sobre o Reapp aceito e apresentado no Workshop de Ferramentas e Aplicações da Sociedade Brasileira de Computação.",
+  },
+  {
+    name: "Maratona SBC de Programação",
+    text: "Primeiro lugar em São Luís em 2024 e segundo lugar em 2025 na fase inicial, resolvendo problemas em equipe sob tempo.",
+  },
+  {
+    name: "ICPC Brasil",
+    text: "Menção honrosa na etapa brasileira do maior campeonato de programação universitário do mundo.",
+  },
+  {
+    name: "Olimpíada Brasileira de Informática 2023",
+    text: "Classificado pra segunda fase, 128º entre mais de 2600 competidores no nível nacional.",
   },
 ];
 
 export const SKILLS_LEAD =
   "Hoje me sinto pronto pra pegar um problema e ir até o fim, seja uma tarefa full stack, uma investigação de bug ou algo que ninguém sabe de onde vem. Mesmo quando ainda não conheço a tecnologia, vou atrás, investigo e entendo de verdade antes de empurrar uma solução que funciona mais ou menos.";
+
+export const TOOLBOX: readonly string[] = [
+  "TypeScript",
+  "JavaScript",
+  "Python",
+  "Golang",
+  "Java",
+  "C",
+  "React",
+  "React Native",
+  "Next.js",
+  "Node",
+  "NestJS",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "BigQuery",
+  "Redis",
+  "Docker",
+  "Google Cloud",
+  "AWS",
+  "Nginx",
+  "Playwright",
+  "Vitest",
+];
 
 export const LEARNING_NOW: readonly string[] = [
   "Terraform",

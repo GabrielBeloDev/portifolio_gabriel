@@ -10,6 +10,7 @@ import {
   FORMATIVE_PROJECTS,
   OFF_CODE,
   OWNER_INTRO,
+  RECOGNITION,
   SKILLS_LEAD,
   WORK_NOW,
 } from "@/components/about/owner-content";
@@ -90,6 +91,18 @@ export default function AboutPage() {
             <p className="mt-1 max-w-prose leading-relaxed text-muted">
               {project.text}
             </p>
+          </li>
+        ))}
+      </ul>
+
+      <SectionHeading>reconhecimentos</SectionHeading>
+      <ul className="space-y-4">
+        {RECOGNITION.map((item) => (
+          <li key={item.name} className="flex flex-col gap-1 sm:flex-row sm:gap-4">
+            <p className="shrink-0 font-mono text-sm text-accent sm:w-56">
+              {item.name}
+            </p>
+            <p className="max-w-prose leading-relaxed text-muted">{item.text}</p>
           </li>
         ))}
       </ul>
