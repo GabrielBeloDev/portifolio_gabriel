@@ -31,7 +31,7 @@
     "react-dom": "19.2.8",
     "recharts": "^3.10.0",
     "remark-gfm": "^4.0.1",
-    "zod": "^4.4.3"
+    "zod": "4.5.0-canary.20260504T180558"
   },
   "devDependencies": {
     "@gabriel/config": "workspace:*",

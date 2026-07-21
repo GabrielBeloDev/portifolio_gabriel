@@ -69,8 +69,8 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1(supports-color@10.2.2)
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: 4.5.0-canary.20260504T180558
+        version: 4.5.0-canary.20260504T180558
     devDependencies:
       '@gabriel/config':
         specifier: workspace:*
@@ -4314,6 +4314,9 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
+  zod@4.5.0-canary.20260504T180558:
+    resolution: {integrity: sha512-b9tjD6EyT4BkivfxM7YhmGu/wTGVWCBXY8xRe6JGcNjaJBir+Ymeh651gvtblWRgbWV3P25T0XquFwWPhbUpaQ==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -8308,5 +8311,7 @@ snapshots:
   zod@4.1.11: {}
 
   zod@4.4.3: {}
+
+  zod@4.5.0-canary.20260504T180558: {}
 
   zwitch@2.0.4: {}
