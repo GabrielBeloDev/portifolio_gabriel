@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PostRow } from "@/components/post-row";
+import { VirtualPostList } from "@/components/virtual-post-list";
 import { publishedPosts } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -7,9 +8,15 @@ export const metadata: Metadata = {
   description: "Posts sobre o que estou construindo e estudando.",
 };
 
+// Below this the whole archive is server-rendered (best for SEO at small
+// sizes); above it the list virtualizes on the client so a large archive stays
+// cheap to render.
+const VIRTUALIZE_THRESHOLD = 30;
+
 export default function BlogPage() {
   const postCount = publishedPosts.length;
   const postCountLabel = postCount === 1 ? "1 post" : `${postCount} posts`;
+  const shouldVirtualize = postCount > VIRTUALIZE_THRESHOLD;
 
   return (
     <div className="max-w-[900px] px-6 py-10 sm:px-[60px] sm:py-14">
@@ -26,6 +33,16 @@ export default function BlogPage() {
       </p>
       {postCount === 0 ? (
         <p className="font-mono text-sm text-muted">{"// nenhum post ainda"}</p>
+      ) : shouldVirtualize ? (
+        <VirtualPostList
+          posts={publishedPosts.map((post) => ({
+            slug: post.slug,
+            title: post.title,
+            date: post.date,
+            summary: post.summary,
+            tag: post.tags[0],
+          }))}
+        />
       ) : (
         <ul className="divide-y divide-line border-y border-line">
           {publishedPosts.map((post, position) => (
