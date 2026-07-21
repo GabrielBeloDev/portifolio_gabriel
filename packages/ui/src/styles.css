@@ -266,3 +266,10 @@
 .dark [data-rehype-pretty-code-figure] code span[style] {
   color: var(--shiki-dark) !important;
 }
+
+/* Plain text has no span[style] (near-tokenless files like the .txt/.ini on
+   /uses), so it inherits the pre's inline light color and goes unreadable on
+   dark. Flip the pre foreground to the dark var; tokens keep their own rule. */
+.dark [data-rehype-pretty-code-figure] pre {
+  color: var(--shiki-dark, var(--foreground));
+}
