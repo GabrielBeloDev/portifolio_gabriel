@@ -7,7 +7,10 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type ClipboardEvent,
+  type DragEvent,
 } from "react";
+import { z } from "zod";
 import { AiAssistant } from "@/components/editor/ai-assistant";
 import { DeleteDraftButton } from "@/components/editor/delete-draft-button";
 import { RecordButton } from "@/components/editor/record-button";
@@ -20,6 +23,13 @@ import {
 } from "@/lib/actions/drafts";
 import { publishedPosts } from "@/lib/content";
 import { draftToMdx } from "@/lib/draft-mdx";
+import {
+  imageUploadPlaceholder,
+  insertText,
+  removeImagePlaceholder,
+  resolveImagePlaceholder,
+  type TextEdit,
+} from "@/lib/editor-text";
 import {
   publishDiagnostics,
   type DiagnosticSeverity,
@@ -101,6 +111,25 @@ const subscribeToNothing = () => () => {};
 const getOrigin = () => window.location.origin;
 const getServerOrigin = () => "";
 
+const uploadResponseSchema = z.object({ url: z.string() });
+const uploadErrorSchema = z.object({ error: z.string() });
+
+function firstImageFromTransfer(transfer: DataTransfer): File | null {
+  const { items, files } = transfer;
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
+    if (item && item.kind === "file" && item.type.startsWith("image/")) {
+      const file = item.getAsFile();
+      if (file !== null) return file;
+    }
+  }
+  for (let index = 0; index < files.length; index++) {
+    const file = files[index];
+    if (file && file.type.startsWith("image/")) return file;
+  }
+  return null;
+}
+
 export function DraftEditor({
   draft: initial,
   shareToken: initialShareToken,
@@ -116,6 +145,7 @@ export function DraftEditor({
   const [shareUrlCopied, setShareUrlCopied] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [mdxCopied, setMdxCopied] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [previewViewport, setPreviewViewport] =
     useState<PreviewViewport>("desktop");
   const origin = useSyncExternalStore(
@@ -233,6 +263,75 @@ export function DraftEditor({
     update({ body: hasBody ? `${fields.body}\n\n${text}` : text });
   }
 
+  function applyBodyEdit(edit: TextEdit) {
+    update({ body: edit.value });
+    // The controlled textarea repaints on the next frame — restore the caret after it
+    requestAnimationFrame(() => {
+      const textarea = bodyTextareaRef.current;
+      if (textarea === null) return;
+      textarea.focus();
+      textarea.setSelectionRange(edit.selectionStart, edit.selectionEnd);
+    });
+  }
+
+  function failImageUpload(placeholder: string, payload: unknown) {
+    const cleared = removeImagePlaceholder(fieldsRef.current.body, placeholder);
+    if (cleared !== null) applyBodyEdit(cleared);
+    const parsedError = uploadErrorSchema.safeParse(payload);
+    setImageUploadError(
+      parsedError.success ? parsedError.data.error : "falha ao enviar imagem",
+    );
+  }
+
+  async function uploadImage(file: File) {
+    const placeholder = imageUploadPlaceholder(crypto.randomUUID());
+    const textarea = bodyTextareaRef.current;
+    const value = textarea?.value ?? fields.body;
+    const selectionStart = textarea?.selectionStart ?? value.length;
+    const selectionEnd = textarea?.selectionEnd ?? value.length;
+
+    setImageUploadError(null);
+    applyBodyEdit(insertText(value, selectionStart, selectionEnd, placeholder));
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const payload: unknown = await response.json();
+      const parsed = uploadResponseSchema.safeParse(payload);
+      if (!response.ok || !parsed.success) {
+        failImageUpload(placeholder, payload);
+        return;
+      }
+      const resolved = resolveImagePlaceholder(
+        fieldsRef.current.body,
+        placeholder,
+        parsed.data.url,
+      );
+      if (resolved !== null) applyBodyEdit(resolved);
+    } catch {
+      failImageUpload(placeholder, null);
+    }
+  }
+
+  function handleBodyPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const image = firstImageFromTransfer(event.clipboardData);
+    if (image === null) return;
+    event.preventDefault();
+    void uploadImage(image);
+  }
+
+  function handleBodyDrop(event: DragEvent<HTMLTextAreaElement>) {
+    const image = firstImageFromTransfer(event.dataTransfer);
+    if (image === null) return;
+    event.preventDefault();
+    void uploadImage(image);
+  }
+
   async function handleCopyMdx() {
     await navigator.clipboard.writeText(draftToMdx(fields));
     setMdxCopied(true);
@@ -333,12 +432,19 @@ export function DraftEditor({
               aria-label="corpo em MDX"
               value={fields.body}
               onChange={(event) => update({ body: event.target.value })}
+              onPaste={handleBodyPaste}
+              onDrop={handleBodyDrop}
               placeholder={
                 "## Escreva em MDX\n\n```ts\nconst codigo = true;\n```\n\n```mermaid\ngraph LR; A-->B\n```"
               }
               rows={24}
               className={`${fieldClasses} min-h-[50vh] resize-y font-mono text-sm leading-relaxed`}
             />
+            {imageUploadError !== null && (
+              <p role="alert" className="font-mono text-xs text-danger">
+                {imageUploadError}
+              </p>
+            )}
             <div className="rounded-sm border border-line bg-background-2 p-3">
               <p className="font-mono text-xs tracking-widest text-faint uppercase">
                 pronto para publicar?
