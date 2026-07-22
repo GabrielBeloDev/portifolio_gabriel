@@ -3,7 +3,7 @@ import { SOCIAL_LINKS } from "@/lib/site";
 import { fetchExtraSocialAccounts, fetchGithubProfile } from "./github-data";
 import { OWNER_FACTS } from "./owner-content";
 
-const CURRENT_FOCUS = "infra moderna: Kubernetes · Terraform";
+const CURRENT_FOCUS = "IA aplicada, arquitetura e infra moderna";
 
 interface FrontmatterLink {
   readonly label: string;
