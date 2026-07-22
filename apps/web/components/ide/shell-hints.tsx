@@ -15,7 +15,17 @@ export function ShellHints() {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    if (localStorage.getItem(HINT_SEEN_KEY)) return;
+    // Storage throws when blocked (private mode, cookies off, sandboxed iframe).
+    // This hint is optional, so it degrades to nothing instead of taking the
+    // whole shell down with it
+    let alreadySeen: string | null;
+    try {
+      alreadySeen = localStorage.getItem(HINT_SEEN_KEY);
+    } catch {
+      return;
+    }
+    if (alreadySeen) return;
+
     // The palette shortcut and the terminal only exist on desktop, so a mobile
     // visitor gets no hint about keys they cannot press
     if (!window.matchMedia(DESKTOP_QUERY).matches) return;
@@ -25,7 +35,12 @@ export function ShellHints() {
         description: "⌘K abre a busca e os comandos. Ctrl+` abre o terminal.",
         duration: HINT_DURATION_MS,
       });
-      localStorage.setItem(HINT_SEEN_KEY, "1");
+      try {
+        localStorage.setItem(HINT_SEEN_KEY, "1");
+      } catch {
+        // If the flag cannot persist the hint may show again next visit, which
+        // beats an unhandled error from a throwing setItem
+      }
     }, HINT_DELAY_MS);
     return () => clearTimeout(timer);
   }, []);
