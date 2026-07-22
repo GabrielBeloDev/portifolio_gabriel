@@ -8,6 +8,7 @@ import { BreadcrumbBar, type BreadcrumbPost } from "./breadcrumb-bar";
 import { CommandPalette, type PaletteDoc } from "./command-palette";
 import { Explorer, type ExplorerPost } from "./explorer";
 import { MobileDrawer } from "./mobile-drawer";
+import { ShellHints } from "./shell-hints";
 import { StatusBar } from "./status-bar";
 import { TabsBar } from "./tabs-bar";
 import { TerminalPanel } from "./terminal-panel";
@@ -156,6 +157,7 @@ export function IdeShell({
           {!zen && <StatusBar ciStatus={ciStatus} />}
         </div>
       </div>
+      <ShellHints />
     </div>
   );
 }
