@@ -6,21 +6,23 @@ import { Toaster, toast } from "sonner";
 
 const HINT_SEEN_KEY = "hint:shell-seen";
 const DESKTOP_QUERY = "(min-width: 768px)";
-const HINT_DELAY_MS = 1200;
+const HINT_DELAY_MS = 500;
 const HINT_DURATION_MS = 9000;
 
-// Mount once in the shell: renders the toast portal and, on a visitor's first
-// desktop visit, points out the keyboard shortcuts that are otherwise invisible.
+// Mount once in the shell: renders the toast portal and, once per browser
+// session on desktop, points out the keyboard shortcuts that stay invisible.
 export function ShellHints() {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    // Storage throws when blocked (private mode, cookies off, sandboxed iframe).
-    // This hint is optional, so it degrades to nothing instead of taking the
-    // whole shell down with it
+    // sessionStorage, not localStorage: the hint shows once per session so a
+    // returning visitor sees it again on a fresh visit without being spammed on
+    // every reload. Storage throws when blocked (private mode, cookies off,
+    // sandboxed iframe), and this hint is optional, so it degrades to nothing
+    // instead of taking the whole shell down with it.
     let alreadySeen: string | null;
     try {
-      alreadySeen = localStorage.getItem(HINT_SEEN_KEY);
+      alreadySeen = sessionStorage.getItem(HINT_SEEN_KEY);
     } catch {
       return;
     }
@@ -32,14 +34,14 @@ export function ShellHints() {
 
     const timer = setTimeout(() => {
       toast("atalhos deste site", {
-        description: "⌘K abre a busca e os comandos. Ctrl+` abre o terminal.",
+        description: "⌘K busca e comandos. ⌘J abre o terminal, ⌘B a barra lateral.",
         duration: HINT_DURATION_MS,
       });
       try {
-        localStorage.setItem(HINT_SEEN_KEY, "1");
+        sessionStorage.setItem(HINT_SEEN_KEY, "1");
       } catch {
-        // If the flag cannot persist the hint may show again next visit, which
-        // beats an unhandled error from a throwing setItem
+        // If the flag cannot persist the hint may show again, which beats an
+        // unhandled error from a throwing setItem
       }
     }, HINT_DELAY_MS);
     return () => clearTimeout(timer);

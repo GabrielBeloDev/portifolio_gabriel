@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const HINT_TEXT = "⌘K abre a busca e os comandos";
+const HINT_TEXT = "⌘K busca e comandos";
 
 // No DB needed: the hint is client-side and keyed on localStorage
 test.describe("dica de onboarding", () => {

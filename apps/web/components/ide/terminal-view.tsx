@@ -66,6 +66,10 @@ export function TerminalView({ fs }: { fs: FsNode }) {
       if (meta && event.key.toLowerCase() === "k") return false;
       if (event.ctrlKey && event.key === "`") return false;
       if (meta && event.shiftKey && event.key.toLowerCase() === "z") return false;
+      // Cmd/Ctrl+J toggles the terminal and Cmd/Ctrl+B the explorer, so the
+      // shell must handle them even while the terminal has focus
+      if (meta && event.key.toLowerCase() === "j") return false;
+      if (meta && event.key.toLowerCase() === "b") return false;
       return true;
     });
 
