@@ -88,18 +88,25 @@ export function IdeShell({
     return () => document.removeEventListener("keydown", handleZenKeys);
   }, []);
 
-  // Ctrl+` toggles the terminal, the same binding VS Code uses. Backtick with a
-  // modifier is not an editing shortcut, so it fires regardless of focus.
+  // VS Code style shortcuts. Ctrl+` and Cmd/Ctrl+J toggle the terminal, Cmd/Ctrl+B
+  // the explorer. J and B override Chrome (downloads / nothing) only while the
+  // site has focus, which is what an in-browser IDE is expected to do. Shift is
+  // excluded so Cmd+Shift+J (Chrome devtools) and zen's Cmd+Shift+Z stay intact.
   useEffect(() => {
-    const toggleTerminal = (event: KeyboardEvent) => {
-      const isTerminalShortcut =
-        (event.metaKey || event.ctrlKey) && event.key === "`";
-      if (!isTerminalShortcut) return;
-      event.preventDefault();
-      setTerminalOpen((open) => !open);
+    const handleIdeShortcut = (event: KeyboardEvent) => {
+      const withModifier = event.metaKey || event.ctrlKey;
+      if (!withModifier || event.shiftKey) return;
+      const key = event.key.toLowerCase();
+      if (event.key === "`" || key === "j") {
+        event.preventDefault();
+        setTerminalOpen((open) => !open);
+      } else if (key === "b") {
+        event.preventDefault();
+        setExplorerOpen((open) => !open);
+      }
     };
-    document.addEventListener("keydown", toggleTerminal);
-    return () => document.removeEventListener("keydown", toggleTerminal);
+    document.addEventListener("keydown", handleIdeShortcut);
+    return () => document.removeEventListener("keydown", handleIdeShortcut);
   }, []);
 
   return (
