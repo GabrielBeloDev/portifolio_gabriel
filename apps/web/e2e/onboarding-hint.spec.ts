@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const HINT_TEXT = "⌘K busca e comandos";
 
-// No DB needed: the hint is client-side and keyed on localStorage
+// No DB needed: the hint is client-side and keyed on sessionStorage
 test.describe("dica de onboarding", () => {
   test("aparece na primeira visita e não volta depois", async ({ page }) => {
     await page.goto("/");
