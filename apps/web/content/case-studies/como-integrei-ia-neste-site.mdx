@@ -1,0 +1,24 @@
+---
+title: "Como integrei IA neste site"
+date: 2026-07-22
+summary: "O caminho de plugar o Groq no editor, no tl;dr dos posts e na transcrição por voz, e as decisões que vieram junto."
+projectSlug: "este-site"
+---
+
+Quando decidi colocar IA neste site, meu medo era o de sempre, que virasse enfeite. Um chatzinho no canto que ninguém usa. Então parti de uma pergunta simples, onde a IA me pouparia trabalho de verdade sem atrapalhar quem lê.
+
+## O tl;dr dos posts
+
+A primeira peça foi o resumo automático dos posts. Quando alguém abre um texto, o site gera três bullets com o essencial, usando o `llama-3.3-70b-versatile` no Groq. O detalhe que mais me importou foi custo. Gerar o resumo a cada visita seria caro e lento, então ele é criado uma vez, guardado no banco e reusado pra sempre. A IA roda no primeiro leitor e sai do caminho depois.
+
+## O editor que me ajuda a escrever
+
+A parte que mais uso é o assistente do editor. Ele sugere pauta quando eu travo, gera um outline pra eu não começar da página em branco, melhora um trecho que ficou truncado e escreve a divulgação pra redes quando o post fica pronto. Nada disso publica sozinho. A IA propõe, eu decido. Foi uma regra que botei desde o começo, o texto continua meu.
+
+## Ditar em vez de digitar
+
+Também dá pra ditar o rascunho por voz. Gravo falando e o `whisper-large-v3` transcreve pra português. Escrever bom texto continua sendo trabalho meu, mas destravar a primeira versão falando é mais rápido do que encarar o cursor piscando.
+
+## O que aprendi
+
+O que ficou pra mim é que a parte difícil da IA quase nunca é o modelo. É tudo em volta. Quando gerar, o que cachear, quanto custa, o que o sistema pode fazer sozinho e o que precisa da minha confirmação. O modelo é uma peça só. A engenharia em volta dele é o trabalho de verdade.
