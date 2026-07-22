@@ -5,7 +5,8 @@ const NOW_ENTRIES = [
   },
   {
     label: "aprendendo",
-    value: "Kubernetes e Terraform, quero migrar este site pra um cluster meu",
+    value:
+      "IA aplicada de verdade em produto, mais Kubernetes e Terraform pra migrar este site pra um cluster meu",
   },
   {
     label: "escrevendo",

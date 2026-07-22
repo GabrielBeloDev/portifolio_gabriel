@@ -7,7 +7,7 @@ test("sobre mostra o frontmatter, o hero e a foto", async ({ page }) => {
   );
   await expect(page.getByText("nome: Gabriel Belo")).toBeVisible();
   await expect(
-    page.getByText('foco: "infra moderna: Kubernetes · Terraform"'),
+    page.getByText('foco: "IA aplicada, arquitetura e infra moderna"'),
   ).toBeVisible();
   await expect(
     page.getByRole("main").getByRole("img", { name: "Gabriel Belo" }),

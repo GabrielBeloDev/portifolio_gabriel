@@ -14,6 +14,7 @@ import {
   SKILLS_LEAD,
   WORK_NOW,
 } from "@/components/about/owner-content";
+import { RecentActivity } from "@/components/about/recent-activity";
 import { SiteStats } from "@/components/about/site-stats";
 import { SkillsPanel } from "@/components/about/skills-panel";
 import gabrielPhoto from "@/components/home/gabriel.jpg";
@@ -82,6 +83,7 @@ export default function AboutPage() {
 
       <SectionHeading>no que trabalho hoje</SectionHeading>
       <Prose paragraphs={WORK_NOW} />
+      <RecentActivity />
 
       <SectionHeading>projetos que me formaram</SectionHeading>
       <ul className="space-y-5">
@@ -121,8 +123,10 @@ export default function AboutPage() {
       <p className="max-w-prose leading-relaxed text-muted">
         Este site também é um trabalho, talvez o mais honesto deles, porque dá
         pra auditar. É um monorepo com design system próprio, conteúdo tipado que
-        quebra o build se eu errar e um CI que publica sozinho a cada merge. O
-        código é aberto e está no{" "}
+        quebra o build se eu errar e um CI que publica sozinho a cada merge.
+        Também é onde testo IA na prática, o editor sugere pauta e melhora texto,
+        os posts ganham um tl;dr gerado sob demanda e dá pra ditar por voz, tudo
+        com modelos rodando no Groq. O código é aberto e está no{" "}
         <a
           href={REPO_URL}
           target="_blank"
@@ -137,10 +141,11 @@ export default function AboutPage() {
 
       <SectionHeading>agora</SectionHeading>
       <p className="max-w-prose leading-relaxed text-muted">
-        Estou aprofundando em infraestrutura moderna, Kubernetes, Terraform e
-        observabilidade. Não é estudo de véspera de prova, a meta é que cada
-        aprendizado vire um estudo publicado aqui, com as decisões e os erros do
-        caminho, não só o resultado.
+        Meu foco maior hoje é IA aplicada, entender como ela entra de verdade num
+        produto e quais decisões existem por trás disso, junto com infraestrutura
+        moderna, Kubernetes, Terraform e observabilidade. Não é estudo de véspera
+        de prova, a meta é que cada aprendizado vire um estudo publicado aqui, com
+        as decisões e os erros do caminho, não só o resultado.
       </p>
       <div className="mt-5">
         <NowPanel />

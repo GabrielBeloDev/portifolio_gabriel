@@ -138,6 +138,37 @@ type CommitResponse = {
   commit: { author: { date: string } };
 };
 
+type RecentCommitResponse = {
+  sha: string;
+  html_url: string;
+  commit: { message: string; author: { date: string } };
+};
+
+export interface RecentCommit {
+  readonly sha: string;
+  readonly htmlUrl: string;
+  readonly subject: string;
+  readonly date: string;
+}
+
+const MAX_RECENT_COMMITS = 6;
+
+export async function fetchRecentSiteCommits(): Promise<
+  readonly RecentCommit[] | null
+> {
+  const commits = await fetchGithubJson<RecentCommitResponse[]>(
+    `/repos/${GITHUB_USER}/${SITE_REPO}/commits?per_page=${MAX_RECENT_COMMITS}`,
+  );
+  if (commits === null) return null;
+  return commits.map((commit) => ({
+    sha: commit.sha.slice(0, 7),
+    htmlUrl: commit.html_url,
+    // First line only, so any commit trailer stays out of the summary
+    subject: commit.commit.message.split("\n")[0] ?? commit.commit.message,
+    date: commit.commit.author.date.slice(0, 10),
+  }));
+}
+
 export interface FirstSiteCommit {
   readonly date: string;
   readonly htmlUrl: string;
