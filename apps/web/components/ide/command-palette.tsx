@@ -4,6 +4,7 @@ import { Command, useCommandState } from "cmdk";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { OPEN_PALETTE_EVENT } from "@/lib/command-palette-event";
 import { ROUTE_FILES, type IdeFile, type IdeIcon } from "@/lib/ide-route";
 
 export interface PaletteDoc {
@@ -146,6 +147,13 @@ export function CommandPalette({
     return () => document.removeEventListener("keydown", togglePalette);
   }, [open]);
 
+  // A page-level search box (e.g. on /blog) opens the palette through an event
+  useEffect(() => {
+    const openFromEvent = () => setOpen(true);
+    window.addEventListener(OPEN_PALETTE_EVENT, openFromEvent);
+    return () => window.removeEventListener(OPEN_PALETTE_EVENT, openFromEvent);
+  }, []);
+
   const isCommandMode = search.trimStart().startsWith(">");
 
   const setPaletteOpen = (nextOpen: boolean) => {
@@ -204,10 +212,17 @@ export function CommandPalette({
         type="button"
         aria-label="buscar"
         onClick={() => setPaletteOpen(true)}
-        className="hidden items-center rounded-sm border border-line bg-surface px-2 py-1 font-mono text-[11px] text-faint transition-colors hover:text-foreground sm:inline-flex"
+        className="inline-flex items-center rounded-sm border border-line bg-surface px-2 py-1 font-mono text-[11px] text-faint transition-colors hover:text-foreground"
       >
         <span aria-live="polite">
-          {copied ? "link copiado ✓" : "⌘K para buscar"}
+          {copied ? (
+            "link copiado ✓"
+          ) : (
+            <>
+              <span className="sm:hidden">⌕ buscar</span>
+              <span className="hidden sm:inline">⌘K para buscar</span>
+            </>
+          )}
         </span>
       </button>
       <Command.Dialog
