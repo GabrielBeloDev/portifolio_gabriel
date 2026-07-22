@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ideCrumb } from "@/lib/ide-route";
@@ -95,12 +96,16 @@ export function StatusBar({ ciStatus }: { ciStatus: React.ReactNode }) {
       <span className="ml-auto hidden truncate sm:inline">
         {ideCrumb(pathname)}
       </span>
-      <span className="ml-auto sm:ml-0">
+      <Link
+        href="/sobre"
+        className="ml-auto flex items-center gap-1 transition-colors hover:text-foreground sm:ml-0"
+      >
         <span aria-hidden className="text-accent">
           ♥
-        </span>{" "}
-        feito por Gabriel
-      </span>
+        </span>
+        escrito e mantido por Gabriel
+        <span aria-hidden>→</span>
+      </Link>
     </footer>
   );
 }
