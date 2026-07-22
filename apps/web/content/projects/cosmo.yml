@@ -1,0 +1,10 @@
+title: Cosmo
+summary: Plataforma pra alunos aprenderem programação, tipo um LeetCode da disciplina de Algoritmos I, com gamificação e mais de 200 estudantes.
+stack:
+  - React
+  - Node
+  - MySQL
+  - Docker
+  - Nginx
+order: 2
+category: faculdade

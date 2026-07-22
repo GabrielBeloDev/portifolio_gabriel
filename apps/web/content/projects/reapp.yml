@@ -1,0 +1,9 @@
+title: Reapp
+summary: App pra aproximar ONGs do Maranhão de quem quer doar, feito numa parceria da UFMA com a Lancaster University e publicado no WebMedia. Foi meu trabalho de conclusão de curso.
+stack:
+  - React Native
+  - NestJS
+  - PostgreSQL
+  - Mercado Pago
+order: 3
+category: faculdade
