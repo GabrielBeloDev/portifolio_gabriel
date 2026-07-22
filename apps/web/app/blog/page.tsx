@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BlogSearch } from "@/components/blog-search";
 import { PostRow } from "@/components/post-row";
 import { VirtualPostList } from "@/components/virtual-post-list";
 import { publishedPosts } from "@/lib/content";
@@ -27,10 +28,11 @@ export default function BlogPage() {
       <h1 className="font-display text-4xl leading-tight font-bold tracking-[-0.02em] sm:text-[46px]">
         Blog
       </h1>
-      <p className="mt-1.5 mb-9 text-[17px] text-muted-2">
+      <p className="mt-1.5 mb-6 text-[17px] text-muted-2">
         Tudo que aprendi e achei que valia escrever.{" "}
         <span className="text-accent">{postCountLabel}</span>.
       </p>
+      {postCount > 0 && <BlogSearch />}
       {postCount === 0 ? (
         <p className="font-mono text-sm text-muted">{"// nenhum post ainda"}</p>
       ) : shouldVirtualize ? (
